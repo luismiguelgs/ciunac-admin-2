@@ -1,11 +1,12 @@
 "use client"
 
 import {
-    Folder,
     MoreHorizontal,
-    Share,
-    Trash2,
+    UsersRound,
+    Medal,
+    BookOpenText,
     type LucideIcon,
+    School,
 } from "lucide-react"
 
 import {
@@ -25,20 +26,19 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar"
 
-export function NavProjects({
-    projects,
+export function NavProjects({ projects
 }: {
     projects: {
         name: string
         url: string
         icon: LucideIcon
-    }[]
+    }[],
 }) {
     const { isMobile } = useSidebar()
 
     return (
         <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-            <SidebarGroupLabel>Projects</SidebarGroupLabel>
+            <SidebarGroupLabel>Plataforma</SidebarGroupLabel>
             <SidebarMenu>
                 {projects.map((item) => (
                     <SidebarMenuItem key={item.name}>
@@ -61,18 +61,24 @@ export function NavProjects({
                                 align={isMobile ? "end" : "start"}
                             >
                                 <DropdownMenuItem>
-                                    <Folder className="text-muted-foreground" />
-                                    <span>View Project</span>
+                                    <Medal className="text-muted-foreground" />
+                                    <span>Ranking Docentes</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
-                                    <Share className="text-muted-foreground" />
-                                    <span>Share Project</span>
+                                    <BookOpenText className="text-muted-foreground" />
+                                    <span>Documentos</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <School className="text-muted-foreground" />
+                                    <span>Académico administrativo</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem>
-                                    <Trash2 className="text-muted-foreground" />
-                                    <span>Delete Project</span>
+                                    <UsersRound className="text-muted-foreground" />
+                                    <span>Docentes</span>
                                 </DropdownMenuItem>
+
+
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </SidebarMenuItem>
