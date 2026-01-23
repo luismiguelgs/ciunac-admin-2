@@ -2,6 +2,12 @@ import React from "react";
 import NavigationBread from "@/components/navigation-bread";
 import MyTabs from "@/components/my-tabs";
 import OpPeriodos from "@/modules/estructura/components/op-periodos";
+import OpAulas from "@/modules/estructura/components/op-aulas";
+import OpCiclos from "@/modules/estructura/components/op-ciclos";
+import OpIdiomas from "@/modules/estructura/components/op-idiomas";
+import OpNiveles from "@/modules/estructura/components/op-niveles";
+import OpTextos from "@/modules/estructura/components/op-textos";
+
 export default function Estructura() {
     return <React.Fragment>
         <NavigationBread section="Plataforma" href="/dashboard" page="Estructuración" />
@@ -15,27 +21,27 @@ export default function Estructura() {
                 {
                     value: "aulas",
                     label: "Aulas",
-                    content: <div>Aulas</div>
+                    content: <OpAulas />
                 },
                 {
                     value: "ciclos",
                     label: "Ciclos",
-                    content: <div>Ciclos</div>
+                    content: <OpCiclos />
                 },
                 {
                     value: "idiomas",
                     label: "Idiomas",
-                    content: <div>Idiomas</div>
+                    content: <OpIdiomas />
                 },
                 {
                     value: "niveles",
                     label: "Niveles",
-                    content: <div>Niveles</div>
+                    content: <OpNiveles />
                 },
                 {
                     value: "textos",
                     label: "Textos",
-                    content: <div>Textos</div>
+                    content: <OpTextos />
                 }
             ]} />
         </div>

@@ -90,7 +90,7 @@ const columns: ColumnDef<IModulo>[] = [
                     <Button variant="ghost" size="icon" onClick={handleEdit}>
                         <PencilIcon className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={handleDelete}>
+                    <Button variant="ghost" size="icon" onClick={handleDelete} disabled>
                         <TrashIcon className="h-4 w-4 text-red-600" />
                     </Button>
                 </div>

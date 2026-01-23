@@ -60,7 +60,7 @@ export function DataTableEditable<TData, TValue>({
     const table = useReactTable({
         data,
         columns,
-        getRowId: (row: any) => row.id.toString(),
+        getRowId: (row: any) => (row.id ?? row._id ?? '').toString(),
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         onSortingChange: setSorting,
@@ -75,6 +75,7 @@ export function DataTableEditable<TData, TValue>({
             columnVisibility,
             rowSelection,
         },
+        autoResetPageIndex: false,
         meta: {
             editingRowId,
             setEditingRowId,
@@ -117,12 +118,12 @@ export function DataTableEditable<TData, TValue>({
             </div>
             <div className="overflow-hidden rounded-md border">
                 <Table>
-                    <TableHeader className="bg-muted/50">
+                    <TableHeader className="bg-black hover:bg-black">
                         {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
+                            <TableRow key={headerGroup.id} className="hover:bg-black border-b-gray-800">
                                 {headerGroup.headers.map((header) => {
                                     return (
-                                        <TableHead key={header.id}>
+                                        <TableHead key={header.id} className="text-white font-semibold">
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
@@ -159,7 +160,9 @@ export function DataTableEditable<TData, TValue>({
                     </TableBody>
                 </Table>
             </div>
-            <DataTablePagination table={table} selectable={selectable} />
+            <div className="mt-4">
+                <DataTablePagination table={table} selectable={selectable} />
+            </div>
         </>
     )
 }

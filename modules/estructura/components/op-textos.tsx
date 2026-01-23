@@ -1,41 +1,28 @@
 'use client'
-import useOpciones from "../hooks/use-opciones";
-import { ISalon } from "../interfaces/types.interface";
-import { Collection } from "../services/opciones.service";
+import { ITexto } from "../interfaces/types.interface";
+import TextosService from "../services/textos.service";
 import { ColumnDef } from "@tanstack/react-table";
 import { CheckIcon, XIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTableColumnHeader } from "@/components/datatable/data-table-column-header";
 import { DataTableSkeleton } from "@/components/datatable/data-table-skeleton";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { DataTableEditable } from "@/components/datatable/data-table-editable";
 import { EditableCell } from "@/components/datatable/editable-cell";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-import OpcionesService from "../services/opciones.service";
+import { Textarea } from "@/components/ui/textarea"
 import React from "react";
 
-const columns: ColumnDef<ISalon>[] = [
+const columns: ColumnDef<ITexto>[] = [
     {
-        accessorKey: "nombre",
+        accessorKey: "codigo",
         header: ({ column }) => {
-            return <DataTableColumnHeader column={column} title="Nombre" />
+            return <DataTableColumnHeader column={column} title="Código" />
         },
         cell: EditableCell,
     },
     {
-        accessorKey: "capacidad",
-        header: "Capacidad",
-        cell: EditableCell,
-    },
-    {
-        accessorKey: "tipo",
-        header: "Tipo",
+        accessorKey: "contenido",
+        header: "Contenido",
         cell: (props) => {
             const { getValue, row, column, table } = props
             const initialValue = getValue() as string
@@ -44,30 +31,18 @@ const columns: ColumnDef<ISalon>[] = [
 
             if (isEditing) {
                 return (
-                    <Select
-                        defaultValue={initialValue}
-                        onValueChange={(value) => {
-                            meta?.updateData(row.index, column.id, value)
+                    <Textarea
+                        value={initialValue}
+                        onChange={(e) => {
+                            meta?.updateData(row.index, column.id, e.target.value)
                         }}
-                    >
-                        <SelectTrigger className="h-8 w-[120px]">
-                            <SelectValue placeholder="Tipo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="FISICA">FISICA</SelectItem>
-                            <SelectItem value="VIRTUAL">VIRTUAL</SelectItem>
-                        </SelectContent>
-                    </Select>
+                        className="min-h-20"
+                    />
                 )
             }
 
-            return <span>{initialValue}</span>
+            return <div className="max-w-md truncate whitespace-pre-wrap">{initialValue}</div>
         },
-    },
-    {
-        accessorKey: "ubicacion",
-        header: "Ubicación",
-        cell: EditableCell,
     },
     {
         id: "actions",
@@ -90,9 +65,10 @@ const columns: ColumnDef<ISalon>[] = [
 
             const handleCancel = () => {
                 meta?.setEditingRowId(null)
-                if (row.original.isNew) {
+                const rowOriginal = row.original as any
+                if (rowOriginal.isNew) {
                     const setData = (meta as any).setData
-                    setData((old: any[]) => old.filter((r) => r.id !== row.original.id))
+                    setData((old: any[]) => old.filter((r) => r.id !== rowOriginal.id))
                 }
             }
 
@@ -130,38 +106,60 @@ const columns: ColumnDef<ISalon>[] = [
     },
 ]
 
-export default function OpAulas() {
-    const { data, loading, setData } = useOpciones<ISalon>(Collection.Salones);
+export default function OpTextos() {
+    const [data, setData] = useState<ITexto[]>([])
+    const [loading, setLoading] = useState(true)
     const [editingRowId, setEditingRowId] = React.useState<string | null>(null)
 
-    const handleRowAdd = () => {
-        const id = Math.floor(Math.random() * 90) + 10;
-        const newRow: ISalon = {
-            id,
-            nombre: '',
-            capacidad: 0,
-            tipo: '',
-            ubicacion: '',
-            isNew: true
-        };
-        setData((old) => [...old, newRow]);
-        setEditingRowId(id.toString());
-    }
-
-    const handleRowDelete = async (id: number) => {
-        if (confirm("¿Confirma borrar el registro?")) {
-            await OpcionesService.deleteItem(Collection.Salones, id);
-            setData((old) => old.filter((row) => row.id !== id));
+    const fetchTextos = async () => {
+        setLoading(true)
+        try {
+            const res = await TextosService.fetchItems()
+            // Normalize ID for DataTableEditable
+            const normalized = res.map((item: any) => ({
+                ...item,
+                id: item.id ?? item._id
+            }))
+            setData(normalized)
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setLoading(false)
         }
     }
 
-    const handleRowUpdate = async (newRow: ISalon) => {
-        if (newRow.isNew) {
-            const res = await OpcionesService.newItem(Collection.Salones, newRow)
-            const created = { ...newRow, id: (res as any).id, isNew: false }
+    useEffect(() => {
+        fetchTextos()
+    }, [])
+
+    const handleRowAdd = () => {
+        const id = (Math.floor(Math.random() * 90) + 10).toString();
+        const newRow: any = {
+            id,
+            codigo: '',
+            contenido: '',
+            isNew: true
+        };
+        setData((old) => [...old, newRow]);
+        setEditingRowId(id);
+    }
+
+    const handleRowDelete = async (id: any) => {
+        if (confirm("¿Confirma borrar el registro?")) {
+            await TextosService.deleteItem(id);
+            setData((old) => old.filter((row: any) => row.id !== id));
+        }
+    }
+
+    const handleRowUpdate = async (newRow: ITexto) => {
+        const rowAsAny = newRow as any;
+
+        if (rowAsAny.isNew) {
+            const res = await TextosService.newItem(newRow)
+            const created = { ...newRow, id: (res as any).id, isNew: false } as any
             setData((old) => old.map((row) => (row.id === newRow.id ? created : row)))
         } else {
-            await OpcionesService.updateItem(Collection.Salones, newRow)
+            await TextosService.updateItem(newRow)
             setData((old) => old.map((row) => (row.id === newRow.id ? newRow : row)))
         }
     }
@@ -175,8 +173,8 @@ export default function OpAulas() {
                     <DataTableEditable
                         columns={columns}
                         data={data}
-                        setData={setData}
-                        filterColumn="nombre"
+                        setData={setData as any}
+                        filterColumn="codigo"
                         onRowAdd={handleRowAdd}
                         onRowUpdate={handleRowUpdate}
                         onRowDelete={handleRowDelete}
