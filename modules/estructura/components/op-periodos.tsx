@@ -135,6 +135,7 @@ export default function OpPeriodos() {
             fechaInicio: new Date(),
             fechaFin: new Date(),
             orden: 0,
+            activo: true,
             isNew: true
         };
         setData((old) => [...old, newRow]);
