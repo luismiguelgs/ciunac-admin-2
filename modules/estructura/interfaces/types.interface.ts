@@ -35,7 +35,8 @@ export interface IModulo extends IBaseData {
     fechaInicio: Date,
     fechaFin: Date,
     orden: number,
-    activo: boolean
+    activo: boolean,
+    visible: boolean
 }
 
 export interface INivel extends IBaseData {

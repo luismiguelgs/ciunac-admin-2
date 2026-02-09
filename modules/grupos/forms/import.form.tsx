@@ -8,16 +8,16 @@ import { Button } from '@/components/ui/button'
 import useOpciones from '@/modules/estructura/hooks/use-opciones'
 import { Collection } from '@/modules/estructura/services/opciones.service'
 import { IModulo } from '@/modules/estructura/interfaces/types.interface'
-import { SelectField } from '@/components/forms/select.field'
 import GrupoService from '../grupo.service'
 import React from "react"
 import { Download, Loader2, Search } from 'lucide-react'
 import { ICursoQ10 } from "../interfaces/cursoq10.interface";
 import { useRouter } from 'next/navigation'
+import { SelectPeriodo } from "@/components/select-periodo"
 
 const ImportForm = ({ onImport }: { onImport: (cursos: ICursoQ10[]) => void }) => {
     const router = useRouter();
-    const { data, loading } = useOpciones<IModulo>(Collection.Modulos);
+    const { data } = useOpciones<IModulo>(Collection.Modulos);
     const [isFetching, setIsFetching] = React.useState(false);
     const [isImporting, setIsImporting] = React.useState(false);
 
@@ -61,11 +61,6 @@ const ImportForm = ({ onImport }: { onImport: (cursos: ICursoQ10[]) => void }) =
         },
     })
 
-    const options = data?.filter((item) => item.activo).map((item) => ({
-        label: item.nombre,
-        value: String(item.id)
-    })) || []
-
     return (
         <Card className="w-full">
             <CardHeader>
@@ -76,14 +71,9 @@ const ImportForm = ({ onImport }: { onImport: (cursos: ICursoQ10[]) => void }) =
             </CardHeader>
             <CardContent>
                 <form id="form-import" onSubmit={form.handleSubmit(onSubmit)}>
-                    <SelectField
+                    <SelectPeriodo
                         control={form.control}
                         name="periodo"
-                        label="Periodo"
-                        placeholder="Seleccionar periodo"
-                        description="Seleccionar periodo"
-                        options={options}
-                        loading={loading}
                         orientation="horizontal"
                     />
                 </form>

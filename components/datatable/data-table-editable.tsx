@@ -38,6 +38,7 @@ interface DataTableProps<TData, TValue> {
     editingRowId: string | null
     setEditingRowId: React.Dispatch<React.SetStateAction<string | null>>
     selectable?: boolean
+    pageSize?: number
 }
 
 export function DataTableEditable<TData, TValue>({
@@ -50,7 +51,8 @@ export function DataTableEditable<TData, TValue>({
     onRowAdd,
     editingRowId,
     setEditingRowId,
-    selectable = false
+    selectable = false,
+    pageSize = 10
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -74,6 +76,11 @@ export function DataTableEditable<TData, TValue>({
             columnFilters,
             columnVisibility,
             rowSelection,
+        },
+        initialState: {
+            pagination: {
+                pageSize: pageSize,
+            },
         },
         autoResetPageIndex: false,
         meta: {

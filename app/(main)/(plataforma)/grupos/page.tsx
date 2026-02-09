@@ -6,9 +6,11 @@ import { GruposDataTable } from "@/modules/grupos/components/grupos-data-table";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Plus, Download } from "lucide-react";
+import { DataTableSkeleton } from "@/components/datatable/data-table-skeleton";
+import { IGrupo } from "@/modules/grupos/interfaces/grupo.interface";
 
 async function fetchGrupos() {
-    const grupos = await GrupoService.fetchItems();
+    const grupos = await GrupoService.fetchItems<IGrupo>();
     return grupos.map(grupo => ({
         ...grupo,
         docenteFullName: grupo.docente ? `${grupo.docente.nombres} ${grupo.docente.apellidos}` : "No asignado"
@@ -39,7 +41,7 @@ export default async function Grupos() {
                 </div>
             </div>
 
-            <Suspense fallback={<div>Cargando...</div>}>
+            <Suspense fallback={<DataTableSkeleton />}>
                 <GruposDataTable data={grupos} />
             </Suspense>
 

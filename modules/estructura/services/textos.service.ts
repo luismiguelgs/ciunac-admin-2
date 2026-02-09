@@ -1,6 +1,6 @@
-import { apiFetch } from "@/lib/api.service";
+import { apiFetch } from "@/services/api.service";
 import { ITexto } from "../interfaces/types.interface";
-import { omit } from "@/lib/api.service";
+import { omit } from "@/services/api.service";
 
 const collection = 'textos'
 

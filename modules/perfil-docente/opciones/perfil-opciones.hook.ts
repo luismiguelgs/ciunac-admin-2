@@ -1,11 +1,11 @@
 'use client'
-import OpcionesService, { Collection } from "@/modules/estructura/services/opciones.service";
+import { Collection, PerfilOpcionesService } from "@/modules/perfil-docente/opciones/perfil-opciones.service";
 import React from "react";
-import { useOpcionesStore } from "../store/opciones.store";
+import { usePerfilOpcionesStore } from "./perfil-opciones.store";
 
-const useOpciones = <T,>(collection: Collection) => {
+const usePerfilOpciones = <T,>(collection: Collection) => {
     // 1. Estados locales y del store
-    const { data: cachedData, setData: setStoreData } = useOpcionesStore();
+    const { data: cachedData, setData: setStoreData } = usePerfilOpcionesStore();
     const [data, setData] = React.useState<T[]>((cachedData[collection] as T[]) || []);
     // Inicializamos loading en true si no hay datos en caché para evitar el parpadeo de "sin datos" antes del skeleton
     const [loading, setLoading] = React.useState<boolean>(!cachedData[collection] || (cachedData[collection] as T[]).length === 0);
@@ -22,7 +22,7 @@ const useOpciones = <T,>(collection: Collection) => {
             }
 
             try {
-                const res = await OpcionesService.fetchItems<T>(collection);
+                const res = await PerfilOpcionesService.fetchItems<T>(collection);
                 setData(res);
                 setStoreData(collection, res);
             } catch (error) {
@@ -38,4 +38,4 @@ const useOpciones = <T,>(collection: Collection) => {
     return { data, loading, setData };
 };
 
-export default useOpciones;
+export default usePerfilOpciones;

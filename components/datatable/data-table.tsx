@@ -31,13 +31,15 @@ interface DataTableProps<TData, TValue> {
     data: TData[],
     filterColumn: string
     selectable?: boolean
+    pageSize?: number
 }
 
 export function DataTable<TData, TValue>({
     columns,
     data,
     filterColumn,
-    selectable = false
+    selectable = false,
+    pageSize = 10
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -60,6 +62,11 @@ export function DataTable<TData, TValue>({
             columnVisibility,
             rowSelection,
         },
+        initialState: {
+            pagination: {
+                pageSize: pageSize,
+            },
+        },
     })
 
     return (
@@ -77,12 +84,12 @@ export function DataTable<TData, TValue>({
             </div>
             <div className="overflow-hidden rounded-md border">
                 <Table>
-                    <TableHeader className="bg-muted/50">
+                    <TableHeader className="bg-black hover:bg-black">
                         {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
+                            <TableRow key={headerGroup.id} className="hover:bg-black border-b-gray-800">
                                 {headerGroup.headers.map((header) => {
                                     return (
-                                        <TableHead key={header.id}>
+                                        <TableHead key={header.id} className="text-white font-semibold">
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(

@@ -1,4 +1,4 @@
-import { apiFetch, omit } from '@/lib/api.service'
+import { apiFetch, omit } from '@/services/api.service'
 
 export enum Collection {
     Tiposolicitud = 'tipossolicitud',
@@ -11,44 +11,47 @@ export enum Collection {
     Niveles = 'niveles'
 }
 
-export default class OpcionesService 
-{
-    static async fetchItems<T>(collection:Collection):Promise<T[]>{
+export default class OpcionesService {
+    static async fetchItems<T>(collection: string): Promise<T[]> {
         const data = await apiFetch<T[]>(collection, 'GET')
         return data
     }
 
-    static async getItem<T>(collection:Collection, id:number):Promise<T>{
-        const data = await apiFetch<T>(`${collection}/${id}`,'GET')
+    static async getItem<T>(collection: string, id: number): Promise<T> {
+        const data = await apiFetch<T>(`${collection}/${id}`, 'GET')
         return data
     }
 
-    static async updateItem<T extends {id?:number, isNew?:boolean}>(
-        collection:Collection,
-        item:T
-    ):Promise<Omit<T,'isNew' | 'id'>>{
+    static async updateItem<T extends { id?: number, isNew?: boolean }>(
+        collection: string,
+        item: T
+    ): Promise<Omit<T, 'isNew' | 'id'>> {
         console.log(item)
-        const {id} = item
-        const rest = omit(item, ['isNew','id']);
-        
-        const data = await apiFetch<Omit<T, 'isNew' | 'id'>>(`${collection}/${id}`,'PATCH', rest);
+        const { id } = item
+        const rest = omit(item, ['isNew', 'id']);
+
+        const data = await apiFetch<Omit<T, 'isNew' | 'id'>>(`${collection}/${id}`, 'PATCH', rest);
         return data;
     }
 
-    static async newItem<T extends {id?:number, isNew?:boolean}>(
-        collection:Collection, 
-        item:T
-    ):Promise<Omit<T,'isNew' | 'id'>>{
-        const rest = omit(item, ['isNew','id']);
+    static async newItem<T extends { id?: number, isNew?: boolean }>(
+        collection: string,
+        item: T
+    ): Promise<Omit<T, 'isNew' | 'id'>> {
+        const rest = omit(item, ['isNew', 'id']);
         const data = await apiFetch<Omit<T, 'isNew' | 'id'>>(collection, 'POST', rest)
         return data
     }
 
-    static async deleteItem(collection:Collection, id:number):Promise<void>{
-        const data = await apiFetch<void>(`${collection}/${id}`,'DELETE')
+    static async deleteItem(collection: string, id: number): Promise<void> {
+        const data = await apiFetch<void>(`${collection}/${id}`, 'DELETE')
+        return data
+    }
+
+    static async getVisibleItems<T>(collection: string): Promise<T[]> {
+        const data = await apiFetch<T[]>(`${collection}/visibles`, 'GET')
         return data
     }
 }
 
 
-  

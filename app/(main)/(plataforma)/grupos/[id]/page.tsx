@@ -3,9 +3,10 @@ import BackButton from "@/components/back.button";
 import React from "react";
 import GrupoForm from "@/modules/grupos/forms/grupo.form";
 import GruposService from "@/modules/grupos/grupo.service";
+import { IGrupo } from "@/modules/grupos/interfaces/grupo.interface";
 
 async function getData(id: number) {
-    const data = await GruposService.getItem(id)
+    const data = await GruposService.getItem<IGrupo>(id)
     return data
 }
 

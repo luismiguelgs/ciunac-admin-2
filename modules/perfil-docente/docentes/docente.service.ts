@@ -1,4 +1,4 @@
-import { apiFetch } from '@/lib/api.service';
+import { apiFetch } from '@/services/api.service';
 import { IDocente } from './docente.interface';
 
 export default class DocentesService {

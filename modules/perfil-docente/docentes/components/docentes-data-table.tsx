@@ -1,11 +1,13 @@
 'use client'
 
+import React from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { IDocente } from "../docente.interface"
 import { DataTable } from "@/components/datatable/data-table"
 import { Eye } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { DataTableSkeleton } from "@/components/datatable/data-table-skeleton"
 
 interface DocentesDataTableProps {
     data: IDocente[]
@@ -56,10 +58,12 @@ const columns: ColumnDef<IDocente>[] = [
 
 export function DocentesDataTable({ data }: DocentesDataTableProps) {
     return (
-        <DataTable
-            columns={columns}
-            data={data}
-            filterColumn="apellidos"
-        />
+        <React.Suspense fallback={<DataTableSkeleton />}>
+            <DataTable
+                columns={columns}
+                data={data}
+                filterColumn="apellidos"
+            />
+        </React.Suspense>
     )
 }

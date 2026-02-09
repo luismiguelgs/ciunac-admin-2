@@ -15,13 +15,13 @@ import { IGrupo } from "../interfaces/grupo.interface";
 import GruposService from "../grupo.service";
 import useOpciones from "@/modules/estructura/hooks/use-opciones";
 import { Collection } from "@/modules/estructura/services/opciones.service";
-import { IModulo } from "@/modules/estructura/interfaces/types.interface";
 import ICiclo from "@/modules/estructura/interfaces/ciclo.interface";
 import DocentesService from "@/modules/perfil-docente/docentes/docente.service";
 import { IDocente } from "@/modules/perfil-docente/docentes/docente.interface";
 import SaveButton from "@/components/save.button";
 import { ComboField } from "@/components/forms/combo.field";
 import { AuditSection } from "@/components/audit.section";
+import { SelectPeriodo } from "@/components/select-periodo";
 
 interface IItem {
     id: number;
@@ -48,7 +48,6 @@ export default function GrupoForm({ grupo }: { grupo?: IGrupo }) {
     const [docentes, setDocentes] = React.useState<IDocente[]>([]);
     const [loadingDocentes, setLoadingDocentes] = React.useState(false);
 
-    const { data: modulos, loading: loadingModulos } = useOpciones<IModulo>(Collection.Modulos);
     const { data: ciclos, loading: loadingCiclos } = useOpciones<ICiclo>(Collection.Ciclos);
     const { data: aulas, loading: loadingAulas } = useOpciones<IItem>(Collection.Salones);
 
@@ -77,10 +76,10 @@ export default function GrupoForm({ grupo }: { grupo?: IGrupo }) {
             };
 
             if (grupo) {
-                await GruposService.updateItem({ ...payload, id: grupo.id } as IGrupo);
+                await GruposService.updateItem<IGrupo>({ ...payload, id: grupo.id } as IGrupo);
                 toast.success("Grupo actualizado", { description: "El grupo se ha actualizado correctamente." });
             } else {
-                const newGrupo = await GruposService.newItem(payload as IGrupo);
+                const newGrupo = await GruposService.newItem<IGrupo>(payload as IGrupo);
                 toast.success("Grupo creado", { description: "El grupo se ha creado correctamente." });
                 router.push(`/grupos/${newGrupo.id}`);
             }
@@ -91,7 +90,6 @@ export default function GrupoForm({ grupo }: { grupo?: IGrupo }) {
         }
     }
 
-    const optionsModulos = modulos?.filter(m => m.activo).map(m => ({ label: m.nombre, value: String(m.id) })) || [];
     const optionsCiclos = ciclos?.map(c => ({ label: c.nombre, value: String(c.id) })) || [];
     const optionsAulas = aulas?.map(a => ({ label: a.nombre, value: String(a.id) })) || [];
     const optionsDocentes = docentes?.filter(d => d.activo).map(d => ({ label: `${d.nombres} ${d.apellidos}`, value: String(d.id) })) || [];
@@ -108,13 +106,9 @@ export default function GrupoForm({ grupo }: { grupo?: IGrupo }) {
                 <CardContent>
                     <form id="grupo-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <SelectField
+                            <SelectPeriodo
                                 control={form.control}
                                 name="moduloId"
-                                label="Módulo"
-                                placeholder="Seleccionar módulo"
-                                options={optionsModulos}
-                                loading={loadingModulos}
                                 disabled={!isEditing}
                             />
                             <SelectField
@@ -201,7 +195,6 @@ export default function GrupoForm({ grupo }: { grupo?: IGrupo }) {
                         </>
                     )}
                 </CardFooter>
-                {/*<pre>{JSON.stringify(form.watch(), null, 2)}</pre>*/}
             </Card>
         </>)
 }

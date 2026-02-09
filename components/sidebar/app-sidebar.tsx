@@ -18,6 +18,8 @@ import {
     CirclePile,
     Users,
     Boxes,
+    Download,
+    Upload,
 } from "lucide-react"
 
 import { NavMain } from "@/components/sidebar/nav-main"
@@ -87,6 +89,11 @@ const data = {
                     title: "Preguntas",
                     url: "/perfil-docente/encuestas/preguntas",
                     icon: MessageCircleQuestionMark
+                },
+                {
+                    title: "Importar",
+                    url: "/perfil-docente/encuestas/importar",
+                    icon: Upload
                 }
             ],
         },

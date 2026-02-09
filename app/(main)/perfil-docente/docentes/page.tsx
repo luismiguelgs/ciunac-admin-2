@@ -27,9 +27,7 @@ export default async function Docentes() {
                     </Button>
                 </div>
             </div>
-            <React.Suspense fallback={<div>Cargando...</div>}>
-                <DocentesDataTable data={docentes} />
-            </React.Suspense>
+            <DocentesDataTable data={docentes} />
         </div>
     </React.Fragment>
 }
