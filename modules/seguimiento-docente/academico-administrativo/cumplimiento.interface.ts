@@ -1,9 +1,10 @@
 export interface ICumplimientoDocente {
-    id?: string
+    id?: number
     moduloId: number
     docenteId: string
     academicoAdministrativoId: number
     puntaje: number
+    isNew?: boolean
     modulo?: {
         id: number
         nombre: string

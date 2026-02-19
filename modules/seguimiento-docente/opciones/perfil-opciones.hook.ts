@@ -1,5 +1,5 @@
 'use client'
-import { Collection, PerfilOpcionesService } from "@/modules/perfil-docente/opciones/perfil-opciones.service";
+import { Collection, PerfilOpcionesService } from "@/modules/seguimiento-docente/opciones/perfil-opciones.service";
 import React from "react";
 import { usePerfilOpcionesStore } from "./perfil-opciones.store";
 

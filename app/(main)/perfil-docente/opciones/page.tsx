@@ -1,9 +1,9 @@
 import React from "react"
 import NavigationBread from "@/components/navigation-bread"
 import MyTabs from "@/components/my-tabs"
-import OpTipoDocumentos from "@/modules/perfil-docente/opciones/components/op-tipodocumentos"
-import OpAreasSeguimiento from "@/modules/perfil-docente/opciones/components/op-areasseguimiento"
-import OpPuntajeAcadAdmin from "@/modules/perfil-docente/opciones/components/op-puntajeacadadmin"
+import OpTipoDocumentos from "@/modules/seguimiento-docente/opciones/components/op-tipodocumentos"
+import OpAreasSeguimiento from "@/modules/seguimiento-docente/opciones/components/op-areasseguimiento"
+import OpPuntajeAcadAdmin from "@/modules/seguimiento-docente/opciones/components/op-puntajeacadadmin"
 
 export default function Opciones() {
     return <React.Fragment>

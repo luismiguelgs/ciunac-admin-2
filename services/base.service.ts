@@ -1,8 +1,8 @@
-import { apiFetch } from "@/services/api.service";
+import { apiFetch, omit } from "@/services/api.service";
 
 // Interfaz mínima para que el update funcione (necesita saber que hay un ID)
 interface IEntity {
-    id?: number | undefined;
+    id?: number | string | undefined;
 }
 
 export abstract class BaseService {
@@ -13,7 +13,7 @@ export abstract class BaseService {
         return await apiFetch<T[]>(this.collection, 'GET');
     }
 
-    static async getItem<T>(id: number): Promise<T> {
+    static async getItem<T>(id: number | string): Promise<T> {
         return await apiFetch<T>(`${this.collection}/${id}`, 'GET');
     }
 
@@ -22,11 +22,30 @@ export abstract class BaseService {
         return await apiFetch<T>(`${this.collection}/${id}`, 'PATCH', rest);
     }
 
-    static async deleteItem(id: number): Promise<void> {
+    static async deleteItem(id: number | string): Promise<void> {
         return await apiFetch<void>(`${this.collection}/${id}`, 'DELETE');
     }
 
     static async newItem<T>(item: Partial<T>): Promise<T> {
         return await apiFetch<T>(this.collection, 'POST', item);
+    }
+
+    static async newItemOmit<T extends { id?: number, isNew?: boolean }>(
+        item: T
+    ): Promise<Omit<T, 'isNew' | 'id'>> {
+        const rest = omit(item, ['isNew', 'id']);
+        const data = await apiFetch<Omit<T, 'isNew' | 'id'>>(this.collection, 'POST', rest)
+        return data
+    }
+
+    static async updateItemOmit<T extends { id?: number, isNew?: boolean }>(
+        item: T
+    ): Promise<Omit<T, 'isNew' | 'id'>> {
+        console.log(item)
+        const { id } = item
+        const rest = omit(item, ['isNew', 'id']);
+
+        const data = await apiFetch<Omit<T, 'isNew' | 'id'>>(`${this.collection}/${id}`, 'PATCH', rest);
+        return data;
     }
 }

@@ -8,6 +8,7 @@ export interface IDocente {
     numeroDocumento: string;
     tipoDocumento: string;
     activo: boolean;
+    visible?: boolean;
     creadoEn: Date;
     modificadoEn: Date;
 }

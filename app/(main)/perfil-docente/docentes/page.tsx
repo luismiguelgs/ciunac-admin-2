@@ -3,8 +3,8 @@ import NavigationBread from "@/components/navigation-bread";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { DocentesDataTable } from "@/modules/perfil-docente/docentes/components/docentes-data-table";
-import DocentesService from "@/modules/perfil-docente/docentes/docente.service";
+import { DocentesDataTable } from "@/modules/seguimiento-docente/docentes/components/docentes-data-table";
+import DocentesService from "@/modules/seguimiento-docente/docentes/docente.service";
 
 async function getData() {
     const data = await DocentesService.fetchItems()

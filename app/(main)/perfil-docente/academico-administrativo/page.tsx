@@ -1,10 +1,10 @@
 import React from "react";
 import NavigationBread from "@/components/navigation-bread";
 import MyTabs from "@/components/my-tabs";
-import DocumentacionPagos from "@/modules/perfil-docente/academico-administrativo/components/documentacion-pagos";
-import PresentacionActas from "@/modules/perfil-docente/academico-administrativo/components/presentacion-actas";
-import ExamenSustitutorio from "@/modules/perfil-docente/academico-administrativo/components/examen-sustitutorio";
-import GestionAula from "@/modules/perfil-docente/academico-administrativo/components/gestion-aula";
+import DocumentacionPagos from "@/modules/seguimiento-docente/academico-administrativo/components/documentacion-pagos";
+import PresentacionActas from "@/modules/seguimiento-docente/academico-administrativo/components/presentacion-actas";
+import ExamenSustitutorio from "@/modules/seguimiento-docente/academico-administrativo/components/examen-sustitutorio";
+import GestionAula from "@/modules/seguimiento-docente/academico-administrativo/components/gestion-aula";
 
 export default function AcademicoAdministrativo() {
     return <React.Fragment>

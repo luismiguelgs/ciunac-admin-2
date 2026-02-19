@@ -1,9 +1,9 @@
 import React from "react"
 import NavigationBread from "@/components/navigation-bread"
-import { RespuestasDataTable } from "@/modules/perfil-docente/encuestas/components/respuestas-datatable"
-import EncuestaService from "@/modules/perfil-docente/encuestas/services/encuesta.service";
-import { IEncuestaMetricas } from "@/modules/perfil-docente/encuestas/interfaces/encuesta-metricas.interface";
-import { IEncuestaRespuesta } from "@/modules/perfil-docente/encuestas/interfaces/respuestas.interface";
+import { RespuestasDataTable } from "@/modules/seguimiento-docente/encuestas/components/respuestas-datatable"
+import EncuestaService from "@/modules/seguimiento-docente/encuestas/services/encuesta.service";
+import { IEncuestaMetricas } from "@/modules/seguimiento-docente/encuestas/interfaces/encuesta-metricas.interface";
+import { IEncuestaRespuesta } from "@/modules/seguimiento-docente/encuestas/interfaces/respuestas.interface";
 
 async function getEncuestaDetalles(id: number): Promise<IEncuestaMetricas> {
     const res = await EncuestaService.getItem<IEncuestaMetricas>(id)

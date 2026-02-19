@@ -1,7 +1,7 @@
 import React from "react";
 import NavigationBread from "@/components/navigation-bread";
 import BackButton from "@/components/back.button";
-import DocenteForm from "@/modules/perfil-docente/docentes/forms/docente.form";
+import DocenteForm from "@/modules/seguimiento-docente/docentes/forms/docente.form";
 
 export default function DocenteNuevo() {
     return <React.Fragment>

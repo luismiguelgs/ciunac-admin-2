@@ -1,6 +1,6 @@
 import React from "react"
 import NavigationBread from "@/components/navigation-bread"
-import { PreguntasDataTable } from "@/modules/perfil-docente/encuestas/components/preguntas-datatable"
+import { PreguntasDataTable } from "@/modules/seguimiento-docente/encuestas/components/preguntas-datatable"
 
 export default function Preguntas() {
     return <React.Fragment>

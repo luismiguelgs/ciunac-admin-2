@@ -4,7 +4,7 @@ import NavigationBread from "@/components/navigation-bread"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { FileSpreadsheet, AlertCircle, Download } from "lucide-react"
-import ImportarEncuesta from "@/modules/perfil-docente/encuestas/components/importar-encuesta"
+import ImportarEncuesta from "@/modules/seguimiento-docente/encuestas/components/importar-encuesta"
 
 export default function EncuestasImportarPage() {
     return (

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { Collection } from '@/modules/perfil-docente/opciones/perfil-opciones.service'
+import { Collection } from '@/modules/seguimiento-docente/opciones/perfil-opciones.service'
 
 interface PerfilOpcionesState {
     data: Record<string, any[]>

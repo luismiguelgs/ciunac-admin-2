@@ -1,8 +1,8 @@
 import React from "react";
 import NavigationBread from "@/components/navigation-bread";
 import BackButton from "@/components/back.button";
-import DocentesService from "@/modules/perfil-docente/docentes/docente.service";
-import DocenteForm from "@/modules/perfil-docente/docentes/forms/docente.form";
+import DocentesService from "@/modules/seguimiento-docente/docentes/docente.service";
+import DocenteForm from "@/modules/seguimiento-docente/docentes/forms/docente.form";
 
 async function getData(id: string) {
     const data = await DocentesService.getItem(id)

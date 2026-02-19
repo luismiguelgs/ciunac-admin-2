@@ -1,16 +1,24 @@
 import React from "react";
 import NavigationBread from "@/components/navigation-bread";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { PlusIcon } from "lucide-react";
+import { PerfilesDataTable } from "@/modules/seguimiento-docente/perfil-docente/components/perfiles-datatable";
 
 export default function Documentos() {
     return <React.Fragment>
-        <NavigationBread section="Perfil Docentes" href="/perfil-docente" page="Documentos" />
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-            <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                <div className="bg-muted/50 aspect-video rounded-xl" />
-                <div className="bg-muted/50 aspect-video rounded-xl" />
-                <div className="bg-muted/50 aspect-video rounded-xl" />
+        <NavigationBread section="Perfil Docentes" href="/perfil-docente" page="Perfiles/Documentos" />
+        <div className="container mx-auto p-4">
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-bold">Perfiles y Documentos</h1>
+                <Button asChild>
+                    <Link href="/perfil-docente/nuevo">
+                        <PlusIcon className="mr-2 h-4 w-4" />
+                        Nuevo Perfil Docente
+                    </Link>
+                </Button>
             </div>
-            <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+            <PerfilesDataTable />
         </div>
     </React.Fragment>
 }

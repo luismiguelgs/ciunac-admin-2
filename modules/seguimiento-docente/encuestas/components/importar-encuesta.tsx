@@ -1,7 +1,7 @@
 'use client'
 
 import React from "react"
-import EncuestaService from "@/modules/perfil-docente/encuestas/services/encuesta.service"
+import EncuestaService from "@/modules/seguimiento-docente/encuestas/services/encuesta.service"
 import { toast } from "sonner"
 import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription } from "@/components/ui/alert"

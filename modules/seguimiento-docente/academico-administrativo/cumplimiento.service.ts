@@ -5,11 +5,13 @@ import { ICumplimientoDocente } from "./cumplimiento.interface";
 export default class CumplimientoService extends BaseService {
     protected static collection = 'cumplimiento-docente'
 
-    static async getItemsAcadAdminPeriodo(moduloId: string, academicoAdministrativoId: string) {
+    static async getItemsAcadAdminPeriodo(moduloId: string, academicoAdministrativoId: number) {
         const data = await apiFetch<ICumplimientoDocente[]>(
             `${this.collection}?academicoAdministrativoId=${academicoAdministrativoId}&moduloId=${moduloId}`,
             "GET"
         )
         return data
     }
+
+
 }
