@@ -1,6 +1,6 @@
 import React from "react";
 import NavigationBread from "@/components/navigation-bread";
-import { RankingDataTable } from "@/modules/seguimiento-docente/ranking-docentes/ranking-datatable";
+import { RankingDataTable } from "@/modules/seguimiento-docente/ranking-docentes/components/ranking-datatable";
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";

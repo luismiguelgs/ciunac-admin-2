@@ -26,18 +26,18 @@ export default function PerfilDocenteForm({ perfil }: { perfil?: PerfilDocente }
     const form = useForm<PerfilDocenteSchema>({
         resolver: zodResolver(perfilDocenteSchema),
         defaultValues: perfil ? {
-            docenteId: perfil.docenteId,
-            experienciaTotal: String(perfil.experienciaTotal),
-            idiomaId: String(perfil.idiomaId),
-            nivelIdioma: perfil.nivelIdioma,
-            puntajeFinal: String(perfil.puntajeFinal),
+            docenteId: String(perfil.docenteId ?? ""),
+            experienciaTotal: String(perfil.experienciaTotal ?? 0),
+            idiomaId: String(perfil.idiomaId ?? ""),
+            nivelIdioma: perfil.nivelIdioma ?? null,
+            puntajeFinal: String(perfil.puntajeFinal ?? 0),
         } : perfilDocenteDefaultValues,
     })
 
     const [isEditing, setIsEditing] = React.useState(!perfil);
     const router = useRouter();
     const [docentes, setDocentes] = React.useState<IDocente[]>([]);
-    const [loadingDocentes, setLoadingDocentes] = React.useState(false);
+    const [loadingDocentes, setLoadingDocentes] = React.useState(true);
 
     const { data: idiomas, loading: loadingIdiomas } = useOpciones<IIdioma>(Collection.Idiomas);
 
@@ -64,6 +64,7 @@ export default function PerfilDocenteForm({ perfil }: { perfil?: PerfilDocente }
                 experienciaTotal: Number(data.experienciaTotal),
                 idiomaId: Number(data.idiomaId),
                 puntajeFinal: Number(data.puntajeFinal),
+                visible: perfil?.visible ?? true,
             };
 
             if (perfil) {
@@ -81,8 +82,10 @@ export default function PerfilDocenteForm({ perfil }: { perfil?: PerfilDocente }
         }
     }
 
+    const currentDocenteId = React.useMemo(() => String(perfil?.docenteId ?? ""), [perfil?.docenteId]);
+
     const optionsIdiomas = idiomas?.map(i => ({ label: i.nombre, value: String(i.id) })) || [];
-    const optionsDocentes = docentes?.filter(d => d.activo).map(d => ({ label: `${d.nombres} ${d.apellidos}`, value: String(d.id) })) || [];
+    const optionsDocentes = docentes?.filter(d => d.activo || String(d.id) === currentDocenteId).map(d => ({ label: `${d.nombres} ${d.apellidos}`, value: String(d.id) })) || [];
 
     return (
         <>

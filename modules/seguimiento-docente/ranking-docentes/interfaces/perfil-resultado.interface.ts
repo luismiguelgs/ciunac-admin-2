@@ -13,6 +13,7 @@ export interface IPerfilResultado {
         idiomaId: number,
         nivelIdioma: string,
         puntajeFinal: number,
+        visible: boolean,
         creadoEn: string,
         modificadoEn: string
     },

@@ -74,7 +74,7 @@ export function ComboField<T extends FieldValues>({
                                 disabled={disabled}
                                 items={options}
                                 value={selectedOption}
-                                onValueChange={(val) => field.onChange(val?.value)}
+                                onValueChange={(val) => field.onChange(val?.value ?? "")}
                             >
                                 <ComboboxTrigger id={`combo-${name}`} render={<Button variant="outline" className="w-full justify-between font-normal"><ComboboxValue /> <ChevronDown className="h-4 w-4 opacity-50" /></Button>} />
                                 <ComboboxContent>

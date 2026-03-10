@@ -4,17 +4,17 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "@/components/datatable/data-table-column-header";
 import { DataTableSkeleton } from "@/components/datatable/data-table-skeleton";
 import { DataTable } from "@/components/datatable/data-table";
-import { IPerfilResultado } from "./perfil-resultado.interface";
-import PerfilResultadoService from "./prefil-resultado.service";
+import { IPerfilResultado } from "../interfaces/perfil-resultado.interface";
+import PerfilResultadoService from "../prefil-resultado.service";
 import { EyeIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 import { toast } from "sonner";
 import { SelectPeriodo } from "@/components/select-periodo";
-import useOpciones from "../../estructura/hooks/use-opciones";
-import { IIdioma } from "../../estructura/interfaces/types.interface";
-import { Collection } from "../../estructura/services/opciones.service";
+import useOpciones from "../../../estructura/hooks/use-opciones";
+import { IIdioma } from "../../../estructura/interfaces/types.interface";
+import { Collection } from "../../../estructura/services/opciones.service";
 
 export function RankingDataTable() {
     const [data, setData] = React.useState<IPerfilResultado[]>([]);
@@ -27,7 +27,8 @@ export function RankingDataTable() {
         try {
             setLoading(true);
             const res = await PerfilResultadoService.getItemsByModulo(moduloId);
-            setData(res);
+            const filteredData = res.filter(d => d.perfilDocente?.visible);
+            setData(filteredData);
         } catch (error) {
             console.error("Error fetching ranking:", error);
             toast.error("Error al cargar el ranking");
@@ -74,7 +75,7 @@ export function RankingDataTable() {
             id: "experiencia",
             header: ({ column }) => <DataTableColumnHeader column={column} title="Exp. (años)" />,
             accessorFn: (row) => row.perfilDocente?.experienciaTotal,
-            cell: ({ getValue }) => <div className="text-center">{getValue() as number}</div>
+            cell: ({ getValue }) => <div className="text-center">{(Number(getValue()) / 12).toFixed(2)}</div>
         },
         {
             id: "idioma",
@@ -99,7 +100,7 @@ export function RankingDataTable() {
                 return (
                     <div className="flex justify-center">
                         <Button variant="ghost" size="icon" asChild title="Ver detalles">
-                            <Link href={`/perfil-docente/${row.original.perfilDocenteId}`}>
+                            <Link href={`/perfil-docente/ranking-docentes/${row.original.perfilDocenteId}`}>
                                 <EyeIcon className="h-4 w-4" />
                             </Link>
                         </Button>
@@ -107,7 +108,7 @@ export function RankingDataTable() {
                 )
             }
         }
-    ], []);
+    ], [idiomas]);
 
     return (
         <div className="container mx-auto py-2">

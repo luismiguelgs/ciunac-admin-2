@@ -30,11 +30,11 @@ import DocumentosVacio from "./documentos-vacio"
 
 type SeccionTipo = "grados" | "diplomas" | "capacitaciones" | "experiencia"
 
-const seccionConfig: Record<SeccionTipo, { titulo: string; icon: LucideIcon }> = {
-    grados: { titulo: "Grados Académicos", icon: GraduationCapIcon },
-    diplomas: { titulo: "Diplomas y Certificaciones", icon: AwardIcon },
-    capacitaciones: { titulo: "Capacitaciones y Cursos", icon: BookOpenIcon },
-    experiencia: { titulo: "Experiencia Profesional", icon: BriefcaseIcon },
+const seccionConfig: Record<SeccionTipo, { titulo: string; icon: LucideIcon; maxPoints: number }> = {
+    grados: { titulo: "Grados Académicos", icon: GraduationCapIcon, maxPoints: 30 },
+    diplomas: { titulo: "Diplomas y Certificaciones", icon: AwardIcon, maxPoints: 30 },
+    capacitaciones: { titulo: "Capacitaciones y Cursos", icon: BookOpenIcon, maxPoints: 20 },
+    experiencia: { titulo: "Experiencia Profesional", icon: BriefcaseIcon, maxPoints: 20 },
 }
 
 function getEstadoVariant(nombre?: string): "default" | "secondary" | "destructive" | "outline" {
@@ -82,7 +82,7 @@ export default function SeccionDocumentos({ tipo, documentos, onEditar, onNuevo 
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-lg w-full">
                         <Icon className="h-5 w-5" />
-                        {config.titulo}
+                        <span className="flex-1">{config.titulo} <span className="text-xs font-normal text-muted-foreground">(Máx. {config.maxPoints} pts)</span></span>
                         <Button variant="outline" size="icon" className="ml-auto" onClick={onNuevo}>
                             <PlusIcon className="h-4 w-4" />
                         </Button>
@@ -100,7 +100,7 @@ export default function SeccionDocumentos({ tipo, documentos, onEditar, onNuevo 
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg w-full">
                     <Icon className="h-5 w-5" />
-                    {config.titulo}
+                    <span className="flex-1">{config.titulo} <span className="text-xs font-normal text-muted-foreground">(Máx. {config.maxPoints} pts)</span></span>
                     <div className="ml-auto flex items-center gap-2">
                         <Badge variant="outline">{documentos.length}</Badge>
                         <Button variant="outline" size="icon" onClick={onNuevo}>
