@@ -1,16 +1,19 @@
-import React from "react";
+import UsuariosDataTable from "@/modules/usuarios/usuarios-datatable";
 import NavigationBread from "@/components/navigation-bread";
 
-export default function Usuarios() {
-    return <React.Fragment>
-        <NavigationBread section="Plataforma" href="/dashboard" page="Usuarios" />
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-            <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                <div className="bg-muted/50 aspect-video rounded-xl" />
-                <div className="bg-muted/50 aspect-video rounded-xl" />
-                <div className="bg-muted/50 aspect-video rounded-xl" />
+export default function UsuariosPage() {
+    return (
+        <div className="container mx-auto py-6 px-2">
+            <NavigationBread section="Dashboard" href="/dashboard" page="Usuarios" />
+            <div className="flex flex-col gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight">Usuarios</h1>
+                    <p className="text-muted-foreground">
+                        Administra los usuarios del sistema y sus roles.
+                    </p>
+                </div>
+                <UsuariosDataTable />
             </div>
-            <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
         </div>
-    </React.Fragment>
+    )
 }

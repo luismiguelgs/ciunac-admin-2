@@ -73,7 +73,7 @@ export default function PerfilDocenteForm({ perfil }: { perfil?: PerfilDocente }
             } else {
                 await PerfilDocenteService.newItem(payload);
                 toast.success("Perfil docente creado", { description: "El perfil se ha creado correctamente." });
-                router.push(`/perfil-docente/ranking-docentes`);
+                router.push(`/perfil-docente/documentos`);
             }
             setIsEditing(false);
         } catch (error) {

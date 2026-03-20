@@ -26,12 +26,14 @@ export const EditableCell = ({
     }, [initialValue])
 
     const isEditing = table.options.meta?.editingRowId === row.id
+    const columnType = column.columnDef.meta?.type || "text"
 
     const displayValue = value instanceof Date ? value.toLocaleDateString() : value
 
     if (isEditing) {
         return (
             <Input
+                type={columnType}
                 value={value instanceof Date ? value.toISOString().split('T')[0] : (value as string)}
                 onChange={(e) => setValue(e.target.value)}
                 onBlur={onBlur}

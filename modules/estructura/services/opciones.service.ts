@@ -26,7 +26,6 @@ export default class OpcionesService {
         collection: string,
         item: T
     ): Promise<Omit<T, 'isNew' | 'id'>> {
-        console.log(item)
         const { id } = item
         const rest = omit(item, ['isNew', 'id']);
 
