@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import React from "react";
 import NavigationBread from "@/components/navigation-bread";
 import { Button } from "@/components/ui/button";
