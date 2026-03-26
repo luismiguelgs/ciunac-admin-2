@@ -16,9 +16,10 @@ import { Button } from "@/components/ui/button";
 interface RespuestasDataTableProps {
     data: IEncuestaRespuesta[];
     metricas: IEncuestaMetricas;
+    showBack?: boolean;
 }
 
-export function RespuestasDataTable({ data, metricas }: RespuestasDataTableProps) {
+export function RespuestasDataTable({ data, metricas, showBack = true }: RespuestasDataTableProps) {
     const columns: ColumnDef<IEncuestaRespuesta>[] = React.useMemo(() => [
         {
             accessorKey: "grupo",
@@ -143,7 +144,7 @@ export function RespuestasDataTable({ data, metricas }: RespuestasDataTableProps
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <h2 className="text-xl font-bold tracking-tight">Detalle de Respuestas</h2>
-                    <BackButton href="/perfil-docente/encuestas" />
+                    {showBack && <BackButton href="/perfil-docente/encuestas" />}
                 </div>
                 <DataTable
                     columns={columns}

@@ -48,7 +48,15 @@ export async function apiFetch<T>(url: string, method: string, body?: unknown): 
 	}
 
 	const text = await response.text();
-	return (text ? JSON.parse(text) : {}) as T;
+	if (!text) return {} as T;
+
+	try {
+		return JSON.parse(text) as T;
+	} catch (e) {
+		// If it's not JSON, return the text directly
+		// This handles cases where the API returns a raw string (like a token)
+		return text as unknown as T;
+	}
 }
 
 export function omit<T extends object, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {

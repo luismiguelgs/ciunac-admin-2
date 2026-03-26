@@ -22,7 +22,7 @@ import SaveButton from "@/components/save.button";
 import { ComboField } from "@/components/forms/combo.field";
 import { AuditSection } from "@/components/audit.section";
 
-export default function PerfilDocenteForm({ perfil }: { perfil?: PerfilDocente }) {
+export default function PerfilDocenteForm({ perfil, editable = true }: { perfil?: PerfilDocente, editable?: boolean }) {
     const form = useForm<PerfilDocenteSchema>({
         resolver: zodResolver(perfilDocenteSchema),
         defaultValues: perfil ? {
@@ -45,7 +45,7 @@ export default function PerfilDocenteForm({ perfil }: { perfil?: PerfilDocente }
         const fetchDocentes = async () => {
             setLoadingDocentes(true);
             try {
-                const data = await DocentesService.fetchItems();
+                const data = await DocentesService.fetchItems<IDocente>();
                 setDocentes(data);
             } catch (error) {
                 console.error("Error fetching docentes", error);
@@ -157,7 +157,7 @@ export default function PerfilDocenteForm({ perfil }: { perfil?: PerfilDocente }
                     </form>
                 </CardContent>
                 <CardFooter className="flex justify-end gap-2">
-                    {perfil && !isEditing && (
+                    {perfil && !isEditing && editable && (
                         <Button onClick={() => setIsEditing(true)}>
                             <Pencil className="w-4 h-4 mr-2" />
                             Editar

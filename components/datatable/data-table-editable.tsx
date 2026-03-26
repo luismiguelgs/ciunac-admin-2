@@ -26,6 +26,7 @@ import { Button } from "../ui/button"
 import React from "react"
 import { DataTablePagination } from "./data-table-pagination"
 import { DataTableViewOptions } from "./data-table-column-toggle"
+import { cn } from "@/lib/utils"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -39,6 +40,7 @@ interface DataTableProps<TData, TValue> {
     setEditingRowId: React.Dispatch<React.SetStateAction<string | null>>
     selectable?: boolean
     pageSize?: number
+    highlightUnsavedRows?: boolean
 }
 
 export function DataTableEditable<TData, TValue>({
@@ -52,7 +54,8 @@ export function DataTableEditable<TData, TValue>({
     editingRowId,
     setEditingRowId,
     selectable = false,
-    pageSize = 10
+    pageSize = 10,
+    highlightUnsavedRows = false,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -145,18 +148,24 @@ export function DataTableEditable<TData, TValue>({
                     </TableHeader>
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                >
+                            table.getRowModel().rows.map((row) => {
+                                const isUnsavedRow = Boolean((row.original as { isNew?: boolean }).isNew)
+                                return (
+                                    <TableRow
+                                        key={row.id}
+                                        data-state={row.getIsSelected() && "selected"}
+                                        className={cn(
+                                            highlightUnsavedRows && isUnsavedRow && "bg-amber-50/80 text-amber-900 hover:bg-amber-50"
+                                        )}
+                                    >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </TableCell>
                                     ))}
-                                </TableRow>
-                            ))
+                                    </TableRow>
+                                )
+                            })
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Download } from "lucide-react";
 import { DataTableSkeleton } from "@/components/datatable/data-table-skeleton";
 import { IGrupo } from "@/modules/grupos/interfaces/grupo.interface";
+import { ensureServerPermission } from "@/lib/server-permissions";
 
 async function fetchGrupos() {
     const grupos = await GrupoService.fetchItems<IGrupo>();
@@ -18,6 +19,8 @@ async function fetchGrupos() {
 }
 
 export default async function Grupos() {
+    await ensureServerPermission("/grupos");
+
     const grupos = await fetchGrupos();
 
     return <React.Fragment>

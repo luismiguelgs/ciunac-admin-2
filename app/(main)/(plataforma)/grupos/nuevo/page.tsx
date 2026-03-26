@@ -2,8 +2,11 @@ import React from "react"
 import NavigationBread from "@/components/navigation-bread"
 import BackButton from "@/components/back.button"
 import GrupoForm from "@/modules/grupos/forms/grupo.form"
+import { ensureServerPermission } from "@/lib/server-permissions"
 
-export default function NuevoGrupo() {
+export default async function NuevoGrupo() {
+    await ensureServerPermission("/grupos/nuevo")
+
     return (
         <React.Fragment>
             <NavigationBread section="Grupos" href="/grupos" page="Nuevo Grupo" />

@@ -33,6 +33,7 @@ import DocentesService from "../../docentes/docente.service";
 import { IDocente } from "../../docentes/docente.interface";
 import { PerfilOpcionesService, Collection } from "../../opciones/perfil-opciones.service";
 import { IPuntajesAcademicoAdmin } from "../../opciones/perfil-types.interface";
+import { buildRowsFromEncuestaMetricas } from "../prefill-docentes-metricas";
 
 const ACADEMICO_ADMINISTRATIVO_ID = 2;
 
@@ -60,7 +61,7 @@ export default function ExamenSustitutorio() {
 
     const fetchDocentes = async () => {
         try {
-            const res = await DocentesService.fetchItems();
+            const res = await DocentesService.fetchItems<IDocente>();
             setDocentes(res.filter((d) => d.activo));
         } catch (error) {
             console.error("Error fetching docentes:", error);
@@ -247,22 +248,37 @@ export default function ExamenSustitutorio() {
         // Not implemented
     };
 
-    const handleRowAdd = () => {
+    const handleRowAdd = async () => {
         if (!selectedModuloId) {
             toast.warning("Seleccione un periodo primero")
             return
         }
-        const id = (Math.floor(Math.random() * 90000) + 10000).toString();
-        const newRow: any = {
-            id,
-            moduloId: parseInt(selectedModuloId),
-            academicoAdministrativoId: ACADEMICO_ADMINISTRATIVO_ID,
-            docenteId: '',
-            puntaje: 0,
-            isNew: true
-        };
-        setData((old) => [...old, newRow]);
-        setEditingRowId(id);
+
+        try {
+            const result = await buildRowsFromEncuestaMetricas({
+                moduloId: selectedModuloId,
+                academicoAdministrativoId: ACADEMICO_ADMINISTRATIVO_ID,
+                currentRows: data,
+                puntajeOptions,
+            });
+
+            if (result.status === "no-metricas") {
+                toast.warning("No hay docentes en encuestas métricas para este periodo");
+                return
+            }
+
+            if (result.status === "no-new") {
+                toast.info("Todos los docentes de métricas ya están cargados");
+                return
+            }
+
+            setData((old) => [...old, ...result.rows]);
+            setEditingRowId(result.rows[0]?.id?.toString() ?? null);
+            toast.success(`Se cargaron ${result.rows.length} docentes con puntaje máximo`)
+        } catch (error) {
+            console.error("Error al precargar docentes desde encuestas métricas:", error);
+            toast.error("No se pudieron precargar docentes desde encuestas métricas")
+        }
     }
 
     return (
@@ -293,6 +309,7 @@ export default function ExamenSustitutorio() {
                         onRowUpdate={handleRowUpdate}
                         onRowDelete={handleRowDelete}
                         onRowAdd={handleRowAdd}
+                        highlightUnsavedRows
                     />
                 )}
             </React.Suspense>

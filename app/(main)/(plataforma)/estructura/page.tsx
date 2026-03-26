@@ -7,10 +7,13 @@ import OpCiclos from "@/modules/estructura/components/op-ciclos";
 import OpIdiomas from "@/modules/estructura/components/op-idiomas";
 import OpNiveles from "@/modules/estructura/components/op-niveles";
 import OpTextos from "@/modules/estructura/components/op-textos";
+import { ensureServerPermission } from "@/lib/server-permissions";
 
-export default function Estructura() {
+export default async function Estructura() {
+    await ensureServerPermission("/estructura");
+
     return <React.Fragment>
-        <NavigationBread section="Plataforma" href="/dashboard" page="Estructuración" />
+        <NavigationBread section="Plataforma" href="/dashboard" page="Estructuracion" />
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
             <MyTabs defaultValue="periodos" items={[
                 {

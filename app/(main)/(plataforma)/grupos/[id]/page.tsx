@@ -4,6 +4,7 @@ import React from "react";
 import GrupoForm from "@/modules/grupos/forms/grupo.form";
 import GruposService from "@/modules/grupos/grupo.service";
 import { IGrupo } from "@/modules/grupos/interfaces/grupo.interface";
+import { ensureServerPermission } from "@/lib/server-permissions";
 
 async function getData(id: number) {
     const data = await GruposService.getItem<IGrupo>(id)
@@ -11,8 +12,11 @@ async function getData(id: number) {
 }
 
 export default async function Grupo({ params }: { params: Promise<{ id: string }> }) {
+    await ensureServerPermission("/grupos")
+
     const { id } = await params;
     const grupo = await getData(Number(id))
+
     return <React.Fragment>
         <NavigationBread section="Grupos" href="/grupos" page="Detalle Grupo" />
         <div className="container mx-auto p-2">

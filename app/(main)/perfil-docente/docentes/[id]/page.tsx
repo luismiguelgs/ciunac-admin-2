@@ -3,9 +3,10 @@ import NavigationBread from "@/components/navigation-bread";
 import BackButton from "@/components/back.button";
 import DocentesService from "@/modules/seguimiento-docente/docentes/docente.service";
 import DocenteForm from "@/modules/seguimiento-docente/docentes/forms/docente.form";
+import type { IDocente } from "@/modules/seguimiento-docente/docentes/docente.interface";
 
 async function getData(id: string) {
-    const data = await DocentesService.getItem(id)
+    const data = await DocentesService.getItem<IDocente>(id)
     return data
 }
 

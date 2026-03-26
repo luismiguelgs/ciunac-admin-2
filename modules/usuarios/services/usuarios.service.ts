@@ -24,9 +24,9 @@ export default class UsuariosService {
         return data;
     }
 
-    static async newItem<T extends { id?: number, isNew?: boolean }>(
+    static async newItem<T extends Record<string, any>>(
         item: T
-    ): Promise<Omit<T, 'isNew' | 'id'>> {
+    ): Promise<any> {
         const rest = omit(item, ['isNew', 'id']);
         const data = await apiFetch<Omit<T, 'isNew' | 'id'>>('auth/register', 'POST', rest)
         return data

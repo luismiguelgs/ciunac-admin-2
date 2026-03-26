@@ -2,8 +2,11 @@ import React from "react";
 import NavigationBread from "@/components/navigation-bread";
 import ImportarGrupos from "@/modules/grupos/components/importar-grupos";
 import BackButton from "@/components/back.button";
+import { ensureServerPermission } from "@/lib/server-permissions";
 
 export default async function ImportarGruposPage() {
+    await ensureServerPermission("/grupos/importar");
+
     return (
         <React.Fragment>
             <NavigationBread section="Grupos" href="/grupos" page="Importar" />

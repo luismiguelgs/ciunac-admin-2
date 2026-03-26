@@ -1,33 +1,19 @@
-import { apiFetch } from '@/services/api.service';
+import { BaseService } from '@/services/base.service';
 import { IDocente } from './docente.interface';
+import { apiFetch } from '@/services/api.service';
 
-export default class DocentesService {
+export default class DocentesService extends BaseService {
 
-    private static collection = 'docentes'
+    protected static collection = 'docentes'
 
-    static async fetchItems(): Promise<IDocente[]> {
-        const data = await apiFetch<IDocente[]>(this.collection, 'GET')
-        return data
-    }
-
-    public static async getItem(id: string): Promise<IDocente> {
-        const data = await apiFetch<IDocente>(`${this.collection}/${id}`, 'GET')
-        return data
-    }
-
-    public static async newItem(item: IDocente): Promise<IDocente> {
-        const data = await apiFetch<IDocente>(this.collection, 'POST', item)
-        return data
-    }
-
-    public static async updateItem(item: IDocente): Promise<IDocente> {
-        const { id, ...rest } = item
-        const data = await apiFetch<IDocente>(`${this.collection}/${id}`, 'PATCH', rest)
-        return data
-    }
-
-    public static async deleteItem(id: string | undefined): Promise<void> {
-        const data = await apiFetch<void>(`${this.collection}/${id}`, 'DELETE')
-        return data
+    static async getDocenteByUserId(userId: string): Promise<IDocente> {
+        const response = await apiFetch<any>(`${this.collection}/usuario/${userId}`, 'GET')
+        const data = response?.data ?? response
+        
+        if (!data?.id) {
+            console.error('Docente not found or invalid response structure', response)
+        }
+        
+        return data as IDocente
     }
 }

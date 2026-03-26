@@ -1,6 +1,6 @@
 'use client'
 import React from "react";
-import UsuariosService from "../../usuarios/usuarios.service";
+import UsuariosService from "../../usuarios/services/usuarios.service";
 
 const useUsuarios = <T,>() => {
     const [data, setData] = React.useState<T[]>([]);

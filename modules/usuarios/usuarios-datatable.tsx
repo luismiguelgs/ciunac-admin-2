@@ -14,8 +14,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import Usuario from "@/modules/usuarios/usuario.interface";
-import UsuariosService from "@/modules/usuarios/usuarios.service";
+import Usuario from "@/modules/usuarios/intefaces/usuario.interface";
+import UsuariosService from "@/modules/usuarios/services/usuarios.service";
 import useUsuarios from "@/modules/estructura/hooks/use-usuarios";
 import { ConfirmDeleteDialog } from "@/components/dialogs/confirm-delete-dialog";
 

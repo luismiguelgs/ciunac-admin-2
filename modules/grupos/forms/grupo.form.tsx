@@ -55,7 +55,7 @@ export default function GrupoForm({ grupo }: { grupo?: IGrupo }) {
         const fetchDocentes = async () => {
             setLoadingDocentes(true);
             try {
-                const data = await DocentesService.fetchItems();
+                const data = await DocentesService.fetchItems<IDocente>();
                 setDocentes(data);
             } catch (error) {
                 console.error("Error fetching docentes", error);

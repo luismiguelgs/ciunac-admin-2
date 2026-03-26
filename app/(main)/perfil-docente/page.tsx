@@ -10,6 +10,7 @@ import {
 
 import IndicadoresGlobales from "@/modules/seguimiento-docente/dashboard/indicadores-globales"
 import DesglosePorPilares from "@/modules/seguimiento-docente/dashboard/desglose-pilares"
+import { ensureServerPermission } from "@/lib/server-permissions"
 
 const URL = `${process.env.NEXT_PUBLIC_API_URL}/dashboard-docentes`
 
@@ -18,7 +19,7 @@ async function getIndicadoresGlobales() {
     return response.json()
 }
 
-async function getDesempeñoGeneral() {
+async function getDesempenoGeneral() {
     const response = await fetch(`${URL}/desempeno-general`)
     return response.json()
 }
@@ -49,8 +50,10 @@ async function getValoracionEstudiantil() {
 }
 
 export default async function PerfilDocente() {
+    await ensureServerPermission("/perfil-docente")
+
     const indicadoresGlobales = await getIndicadoresGlobales()
-    const desempeñoGeneral = await getDesempeñoGeneral()
+    const desempenoGeneral = await getDesempenoGeneral()
     const rankingDocentes = await getRankingDocentes()
     const perfilProfesional = await getPerfilProfesional()
     const cumplimiento = await getCumplimiento()
@@ -77,9 +80,11 @@ export default async function PerfilDocente() {
 
                     <TabsContent value="global" className="space-y-6">
                         <IndicadoresGlobales
-                            indicadoresGlobales={indicadoresGlobales}
-                            desempeñoGeneral={desempeñoGeneral}
-                            rankingDocentes={rankingDocentes}
+                            {...{
+                                indicadoresGlobales,
+                                ["desempe\u00F1oGeneral"]: desempenoGeneral,
+                                rankingDocentes,
+                            }}
                         />
                     </TabsContent>
 

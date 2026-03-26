@@ -40,7 +40,7 @@ function agruparDocumentos(documentos: IDocumentosPerfil[]): Record<SeccionTipo,
 
 const SECCIONES_ORDEN: SeccionTipo[] = ["grados", "diplomas", "capacitaciones", "experiencia"]
 
-export default function DocumentosPerfil({ documentos, perfilId }: { documentos: IDocumentosPerfil[], perfilId: string }) {
+export default function DocumentosPerfil({ documentos, perfilId, editable = true }: { documentos: IDocumentosPerfil[], perfilId: string, editable?: boolean }) {
     const grupos = agruparDocumentos(documentos)
     const [selectedDoc, setSelectedDoc] = React.useState<IDocumentosPerfil | undefined>()
     const [isSheetOpen, setIsSheetOpen] = React.useState(false)
@@ -71,6 +71,7 @@ export default function DocumentosPerfil({ documentos, perfilId }: { documentos:
                     documentos={grupos[seccion]}
                     onEditar={handleEditar}
                     onNuevo={handleNuevo}
+                    editable={editable}
                 />
             ))}
 

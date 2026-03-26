@@ -24,9 +24,10 @@ export default function DetalleRankingGraficos({ resultados, detalleResultado }:
     const tendenciaData = (resultados ?? [])
         .map(res => ({
             periodo: res.modulo?.nombre ?? '-',
-            puntaje: Number(res.resultadoFinal)
+            puntaje: Number(res.resultadoFinal),
+            orden: res.modulo?.orden ?? 0
         }))
-        .reverse(); // assuming they come newest first, we want them chronological for the area chart
+        .sort((a, b) => a.orden - b.orden);
 
     const valoracionData = (detalleResultado?.promediosGrupos ?? []).map(g => ({
         aula: g.grupo,
@@ -48,7 +49,7 @@ export default function DetalleRankingGraficos({ resultados, detalleResultado }:
                     <div className="h-[250px] w-full">
                         {tendenciaData.length > 0 ? (
                             <ChartContainer config={tendenciaConfig} className="h-full w-full">
-                                <AreaChart data={tendenciaData} margin={{ top: 20, right: 20, left: -20, bottom: 0 }}>
+                                <AreaChart data={tendenciaData} margin={{ top: 20, right: 20, left: -20, bottom: 20 }}>
                                     <defs>
                                         <linearGradient id="fillPuntaje" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="var(--color-puntaje)" stopOpacity={0.4} />
@@ -56,7 +57,14 @@ export default function DetalleRankingGraficos({ resultados, detalleResultado }:
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} stroke="hsl(var(--muted-foreground))" />
-                                    <XAxis dataKey="periodo" tickLine={false} axisLine={false} tickMargin={12} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
+                                    <XAxis 
+                                        dataKey="periodo" 
+                                        tickLine={false} 
+                                        axisLine={false} 
+                                        tickMargin={12} 
+                                        interval={0}
+                                        tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} 
+                                    />
                                     <YAxis domain={[0, 100]} tickLine={false} axisLine={false} tickMargin={12} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
                                     <ChartTooltip content={<ChartTooltipContent />} />
                                     <Area

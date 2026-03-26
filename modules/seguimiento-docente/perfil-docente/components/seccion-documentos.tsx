@@ -68,9 +68,10 @@ interface SeccionDocumentosProps {
     documentos: IDocumentosPerfil[]
     onEditar?: (documento: IDocumentosPerfil) => void
     onNuevo?: () => void
+    editable?: boolean
 }
 
-export default function SeccionDocumentos({ tipo, documentos, onEditar, onNuevo }: SeccionDocumentosProps) {
+export default function SeccionDocumentos({ tipo, documentos, onEditar, onNuevo, editable = true }: SeccionDocumentosProps) {
     const config = seccionConfig[tipo]
     const Icon = config.icon
     const esCapacitacion = tipo === "capacitaciones"
@@ -83,9 +84,11 @@ export default function SeccionDocumentos({ tipo, documentos, onEditar, onNuevo 
                     <CardTitle className="flex items-center gap-2 text-lg w-full">
                         <Icon className="h-5 w-5" />
                         <span className="flex-1">{config.titulo} <span className="text-xs font-normal text-muted-foreground">(Máx. {config.maxPoints} pts)</span></span>
-                        <Button variant="outline" size="icon" className="ml-auto" onClick={onNuevo}>
-                            <PlusIcon className="h-4 w-4" />
-                        </Button>
+                        {editable && (
+                            <Button variant="outline" size="icon" className="ml-auto" onClick={onNuevo}>
+                                <PlusIcon className="h-4 w-4" />
+                            </Button>
+                        )}
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -103,9 +106,11 @@ export default function SeccionDocumentos({ tipo, documentos, onEditar, onNuevo 
                     <span className="flex-1">{config.titulo} <span className="text-xs font-normal text-muted-foreground">(Máx. {config.maxPoints} pts)</span></span>
                     <div className="ml-auto flex items-center gap-2">
                         <Badge variant="outline">{documentos.length}</Badge>
-                        <Button variant="outline" size="icon" onClick={onNuevo}>
-                            <PlusIcon className="h-4 w-4" />
-                        </Button>
+                        {editable && (
+                            <Button variant="outline" size="icon" onClick={onNuevo}>
+                                <PlusIcon className="h-4 w-4" />
+                            </Button>
+                        )}
                     </div>
                 </CardTitle>
             </CardHeader>
@@ -121,16 +126,18 @@ export default function SeccionDocumentos({ tipo, documentos, onEditar, onNuevo 
                                     <ItemTitle>{doc.tipoDocumentoPerfil?.nombre}</ItemTitle>
                                     <ItemDescription>{doc.descripcion}</ItemDescription>
                                 </ItemContent>
-                                <ItemActions>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => onEditar?.(doc)}
-                                        title="Editar documento"
-                                    >
-                                        <PencilIcon className="h-4 w-4" />
-                                    </Button>
-                                </ItemActions>
+                                {editable && (
+                                    <ItemActions>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => onEditar?.(doc)}
+                                            title="Editar documento"
+                                        >
+                                            <PencilIcon className="h-4 w-4" />
+                                        </Button>
+                                    </ItemActions>
+                                )}
                                 <ItemFooter>
                                     <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                                         {/* Estado */}
