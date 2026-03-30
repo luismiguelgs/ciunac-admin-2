@@ -194,8 +194,7 @@ export function LoginForm({
             </Card>
             <FieldDescription className="px-6 text-center text-xs">
                 Al hacer clic en continuar, aceptas nuestros{" "}
-                <a href="#" className="underline">Terminos de Servicio</a> y{" "}
-                <a href="#" className="underline">Politica de Privacidad</a>.
+                <a href="https://drive.google.com/file/d/1Eg9hX5Num6yYiJuPSl43FCmwiSXfe-uY/view?usp=drive_link" className="underline">Tutorial de Acceso</a> y{" "}
             </FieldDescription>
         </div>
     )
