@@ -19,6 +19,7 @@ import {
     Users,
     Boxes,
     Upload,
+    GraduationCap,
 } from "lucide-react"
 
 import { NavMain } from "@/components/sidebar/nav-main"
@@ -62,6 +63,7 @@ type SidebarSecondaryItem = {
 
 const data: {
     navMain: SidebarMainItem[]
+    navSolicitudes: SidebarMainItem[]
     navSecondary: SidebarSecondaryItem[]
 } = {
     navMain: [
@@ -152,6 +154,14 @@ const data: {
             requiredPermission: getPermissionByExactPath("/perfil-docente/opciones"),
         },
     ],
+    navSolicitudes: [
+        {
+            title: "Becas CIUNAC",
+            url: "/solicitudes/becas",
+            icon: GraduationCap,
+            requiredPermission: getPermissionByExactPath("/solicitudes/becas")
+        },
+    ],
     navSecondary: [
         {
             title: "Estructuracion",
@@ -213,6 +223,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             .filter((item): item is SidebarMainItem => Boolean(item))
     }, [hasAccess])
 
+    const navSolicitudes = React.useMemo(() => {
+        return data.navSolicitudes
+            .map((item) => {
+                if (!item.items?.length) {
+                    return hasAccess(item.requiredPermission) ? item : null
+                }
+
+                const filteredItems = item.items.filter((subItem) => hasAccess(subItem.requiredPermission))
+                if (!filteredItems.length) return null
+
+                return { ...item, items: filteredItems }
+            })
+            .filter((item): item is SidebarMainItem => Boolean(item))
+    }, [hasAccess])
+
     const navSecondary = React.useMemo(() => {
         return data.navSecondary.filter((item) => hasAccess(item.requiredPermission))
     }, [hasAccess])
@@ -237,7 +262,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
-                <NavMain items={navMain} />
+                <NavMain items={navSolicitudes} label="Solicitudes" />
+                <NavMain items={navMain} label="Seguimiento Docente" />
                 <NavSecondary items={navSecondary} className="mt-auto" />
             </SidebarContent>
             <SidebarFooter>
