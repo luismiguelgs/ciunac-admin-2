@@ -157,8 +157,9 @@ const data: {
     navSolicitudes: [
         {
             title: "Becas CIUNAC",
-            url: "/perfil-docente/becas",
+            url: "/solicitudes/becas",
             icon: GraduationCap,
+            requiredPermission: getPermissionByExactPath("/solicitudes/becas")
         },
     ],
     navSecondary: [
