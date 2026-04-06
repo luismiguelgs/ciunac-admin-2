@@ -21,6 +21,7 @@ import {
 
 export function NavMain({
     items,
+    label,
 }: {
     items: {
         title: string
@@ -33,10 +34,11 @@ export function NavMain({
             icon?: LucideIcon
         }[]
     }[]
+    label: string
 }) {
     return (
         <SidebarGroup>
-            <SidebarGroupLabel>Seguimiento Docente</SidebarGroupLabel>
+            <SidebarGroupLabel>{label}</SidebarGroupLabel>
             <SidebarMenu>
                 {items.map((item) => (
                     <Collapsible key={item.title} asChild defaultOpen={item.isActive} className="group/collapsible">
