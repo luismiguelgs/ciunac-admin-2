@@ -185,17 +185,13 @@ export function LoginForm({
                                     {isLoading ? "Iniciando sesion..." : "Iniciar sesion"}
                                 </Button>
                                 <FieldDescription className="text-center mt-4">
-                                    ¿No tienes una cuenta? <a href="/resgistro" className="underline">Regístrate</a>
+                                    ¿No tienes una cuenta? <a href="/registro" className="underline">Regístrate</a>
                                 </FieldDescription>
                             </Field>
                         </FieldGroup>
                     </form>
                 </CardContent>
             </Card>
-            <FieldDescription className="px-6 text-center text-xs">
-                Al hacer clic en continuar, aceptas nuestros{" "}
-                <a href="https://drive.google.com/file/d/1Eg9hX5Num6yYiJuPSl43FCmwiSXfe-uY/view?usp=drive_link" className="underline">Tutorial de Acceso</a> y{" "}
-            </FieldDescription>
         </div>
     )
 }
