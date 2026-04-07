@@ -92,7 +92,7 @@ export default function SeccionDocumentos({ tipo, documentos, onEditar, onNuevo,
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <DocumentosVacio onNuevo={onNuevo} />
+                    <DocumentosVacio onNuevo={onNuevo} editable={editable} />
                 </CardContent>
             </Card>
         )

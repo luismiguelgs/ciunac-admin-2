@@ -137,14 +137,14 @@ export function LoginForm({
                 <CardHeader className="text-center">
                     <CardTitle className="text-xl">Bienvenido de nuevo</CardTitle>
                     <CardDescription>
-                        Ingresa con tu correo y contrasena
+                        Ingresa con tu correo y contraseña
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={form.handleSubmit(onSubmit)}>
                         <FieldGroup>
                             <Field>
-                                <FieldLabel htmlFor="email">Correo electronico</FieldLabel>
+                                <FieldLabel htmlFor="email">Correo electrónico</FieldLabel>
                                 <Input
                                     id="email"
                                     type="email"
@@ -165,7 +165,7 @@ export function LoginForm({
                                         href="#"
                                         className="ml-auto text-sm underline-offset-4 hover:underline"
                                     >
-                                        Olvidaste tu contrasena?
+                                        Olvidaste tu contraseña?
                                     </a>
                                 </div>
                                 <Input

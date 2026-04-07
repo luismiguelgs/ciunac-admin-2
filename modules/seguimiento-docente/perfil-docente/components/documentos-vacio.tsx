@@ -15,9 +15,10 @@ import { FolderInputIcon } from "lucide-react"
 
 interface DocumentosVacioProps {
     onNuevo?: () => void
+    editable?: boolean
 }
 
-export default function DocumentosVacio({ onNuevo }: DocumentosVacioProps) {
+export default function DocumentosVacio({ onNuevo, editable = true }: DocumentosVacioProps) {
     return (
         <Empty>
             <EmptyHeader>
@@ -29,9 +30,11 @@ export default function DocumentosVacio({ onNuevo }: DocumentosVacioProps) {
                     No hay documentos disponibles. Precede a crear la documentación.
                 </EmptyDescription>
             </EmptyHeader>
-            <EmptyContent className="flex-row justify-center gap-2">
-                <Button onClick={onNuevo}>Crear Documento</Button>
-            </EmptyContent>
+            {editable && (
+                <EmptyContent className="flex-row justify-center gap-2">
+                    <Button onClick={onNuevo}>Crear Documento</Button>
+                </EmptyContent>
+            )}
         </Empty>
     )
 }
