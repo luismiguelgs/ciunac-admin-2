@@ -6,6 +6,7 @@ export type RoutePermissionRule = {
 };
 
 export const ROUTE_PERMISSION_RULES: RoutePermissionRule[] = [
+    { path: "/solicitudes/becas", permission: "gestionar_becas" },
     { path: "/usuarios", permission: "gestionar_usuarios" },
     { path: "/estructura", permission: "gestionar_estructura" },
     { path: "/grupos", permission: "gestionar_estructura" },

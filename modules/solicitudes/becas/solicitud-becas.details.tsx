@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { User, ClipboardList, MessageSquare, Save, CheckCircle, XCircle, Clock, FileText, ExternalLink, ArrowLeft } from "lucide-react"
+import { User, ClipboardList, MessageSquare, Save, CheckCircle, XCircle, Clock, FileText, ExternalLink, ArrowLeft, Eye } from "lucide-react"
 import SolicitudbecasService from "./solicitud-becas.service"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -30,6 +30,39 @@ const getStatusConfig = (status?: string) => {
             return { variant: 'secondary' as const, label: 'PENDIENTE', icon: <Clock className="w-4 h-4" /> }
     }
 }
+
+const transformGoogleDriveUrl = (url: string): string => {
+    if (!url) return url;
+
+    try {
+        // Verificamos si es un dominio de Google (Drive, Docs, etc.)
+        if (!url.includes('google.com')) return url;
+
+        // Intentamos obtener el ID del archivo
+        let fileId = "";
+
+        // Caso 1: El ID está en un parámetro 'id' (común en uc?id= o open?id=)
+        if (url.includes('id=')) {
+            const urlObj = new URL(url);
+            fileId = urlObj.searchParams.get('id') || "";
+        }
+
+        // Caso 2: El ID está en la ruta /d/EL_ID/...
+        if (!fileId && url.includes('/d/')) {
+            const pathMatch = url.match(/\/d\/([^/&#?]+)/);
+            if (pathMatch) fileId = pathMatch[1];
+        }
+
+        // Si encontramos un ID, reconstruimos la URL hacia la vista de previsualización
+        if (fileId) {
+            return `https://drive.google.com/file/d/${fileId}/view`;
+        }
+    } catch (e) {
+        console.error("Error al transformar URL de Google Drive:", e);
+    }
+
+    return url;
+};
 
 export function SolicitudBecaDetails({ solicitud }: SolicitudBecaDetailsProps) {
     const router = useRouter()
@@ -84,11 +117,17 @@ export function SolicitudBecaDetails({ solicitud }: SolicitudBecaDetailsProps) {
                 <span className="text-sm font-medium">{label}</span>
             </div>
             {url ? (
-                <Button variant="ghost" size="sm" asChild className="opacity-0 group-hover:opacity-100 transition-opacity">
-                    <a href={url} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        Ver
-                    </a>
+                <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => {
+                        const viewUrl = transformGoogleDriveUrl(url);
+                        window.open(viewUrl, "_blank", "noopener,noreferrer");
+                    }}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                    <Eye className="w-4 h-4 mr-2" />
+                    Ver documento
                 </Button>
             ) : (
                 <Badge variant="outline" className="text-[10px]">No adjunto</Badge>
