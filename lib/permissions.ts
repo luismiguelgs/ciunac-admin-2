@@ -17,8 +17,8 @@ export function normalizePermissions(permissions: unknown): PermissionCode[] {
 
 export function hasPermission(permissions: unknown, requiredPermission?: PermissionCode): boolean {
     if (!requiredPermission) return true;
-    const normalizedPermissions = normalizePermissions(permissions);
-    return normalizedPermissions.includes(requiredPermission);
+    const normalizedPermissions = normalizePermissions(permissions).map((p) => p.trim().toLowerCase());
+    return normalizedPermissions.includes(requiredPermission.trim().toLowerCase());
 }
 
 export function canAccessRoute({

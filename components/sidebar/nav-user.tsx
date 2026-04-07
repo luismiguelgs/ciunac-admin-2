@@ -27,24 +27,21 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from "@/components/ui/sidebar"
-import { signOut, useSession } from "next-auth/react"
+import { useSession } from "next-auth/react"
 import { useAuthStore } from "@/modules/usuarios/store/auth.store"
 import { useDocenteStore } from "@/modules/seguimiento-docente/docentes/docente.store"
+import { logoutAction } from "@/modules/usuarios/actions/logout.action"
 
 export function NavUser() {
     const { data: session } = useSession()
     const { isMobile } = useSidebar()
-    const clearAuthData = useAuthStore((state) => state.clearAuthData)
-    const clearDocenteContext = useDocenteStore((state) => state.clearDocenteContext)
 
     if (!session?.user) return null
 
     const user = session.user
 
     const handleLogout = async () => {
-        clearAuthData()
-        clearDocenteContext()
-        await signOut({ callbackUrl: "/" })
+        await logoutAction()
     }
 
     return (

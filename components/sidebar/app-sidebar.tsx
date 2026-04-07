@@ -188,6 +188,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { data: session } = useSession()
     const storeUser = useAuthStore((state) => state.user)
     const storePermissions = useAuthStore((state) => state.permisos)
+    const hydrated = useAuthStore((state) => state.hydrated)
 
     const sessionUser = (session?.user ?? null) as Record<string, unknown> | null
     const sessionPermissions = Array.isArray(sessionUser?.permisos)
@@ -241,6 +242,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const navSecondary = React.useMemo(() => {
         return data.navSecondary.filter((item) => hasAccess(item.requiredPermission))
     }, [hasAccess])
+
+    if (!hydrated) {
+        return null
+    }
 
     return (
         <Sidebar variant="inset" {...props}>
