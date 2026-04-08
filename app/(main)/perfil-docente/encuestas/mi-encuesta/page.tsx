@@ -9,6 +9,7 @@ import { IEncuestaRespuesta } from "@/modules/seguimiento-docente/encuestas/inte
 import { RespuestasDataTable } from "@/modules/seguimiento-docente/encuestas/components/respuestas-datatable"
 import ProtectedRoute from "@/components/protected-route"
 import { FileQuestion } from "lucide-react"
+import NavigationBread from "@/components/navigation-bread"
 
 export default function MiEncuestaPage() {
     const { docenteId, isLoaded } = useDocenteStore()
@@ -47,7 +48,8 @@ export default function MiEncuestaPage() {
 
     return (
         <ProtectedRoute>
-            <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 pt-6 max-w-7xl mx-auto w-full">
+            <NavigationBread section="Seguimiento Docente" page="Mis Encuestas" href="/perfil-docente/encuestas/mi-encuesta" />
+            <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 pt-0 max-w-7xl mx-auto w-full">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Mis Encuestas</h2>

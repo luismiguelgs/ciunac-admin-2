@@ -5,6 +5,7 @@ import { SelectPeriodo } from "@/components/select-periodo"
 import { Badge } from "@/components/ui/badge"
 import { User, AlertCircle } from "lucide-react"
 import ProtectedRoute from "@/components/protected-route"
+import NavigationBread from "@/components/navigation-bread"
 
 import DetalleRankingGraficos from "@/modules/seguimiento-docente/ranking-docentes/components/detalle-ranking-graficos"
 import DetalleRankingCumplimiento from "@/modules/seguimiento-docente/ranking-docentes/components/detalle-ranking-cumplimiento"
@@ -95,7 +96,8 @@ export default function MisResultadosPage() {
 
     return (
         <ProtectedRoute>
-            <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 pt-6 max-w-7xl mx-auto w-full">
+            <NavigationBread section="Seguimiento Docente" page="Mis Resultados" href="/perfil-docente/mis-resultados" />
+            <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 pt-0 max-w-7xl mx-auto w-full">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
                         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">

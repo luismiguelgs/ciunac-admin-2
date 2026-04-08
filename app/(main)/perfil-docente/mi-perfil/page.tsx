@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 
 import { ROLES } from "@/lib/roles";
+import NavigationBread from "@/components/navigation-bread";
 
 export default async function MiPerfilPage() {
     const session = await auth();
@@ -60,8 +61,10 @@ export default async function MiPerfilPage() {
     const isEditable = userRole !== ROLES.DOCENTE;
 
     return (
-        <div className="container mx-auto p-4 md:p-6">
-            <div className="mb-6">
+        <React.Fragment>
+            <NavigationBread section="Seguimiento Docente" page="Mi Perfil" href="/perfil-docente/mi-perfil" />
+            <div className="container mx-auto p-4 md:p-6 pt-0">
+                <div className="mb-6">
                 <h1 className="text-3xl font-bold tracking-tight">Mi Perfil Profesional</h1>
                 <p className="text-muted-foreground mt-1 text-lg">
                     Gestiona tu información docente y documentos obligatorios.
@@ -78,6 +81,7 @@ export default async function MiPerfilPage() {
                 )}
             </div>
         </div>
+        </React.Fragment>
     );
 }
 

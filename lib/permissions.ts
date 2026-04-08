@@ -35,12 +35,20 @@ export function canAccessRoute({
     return hasPermission(permissions, requiredPermission);
 }
 
-export function extractPermissionCodes(items: Array<{ permiso?: { codigo?: string }; descripcion?: string }>): PermissionCode[] {
+export function extractPermissionCodes(items: any[]): PermissionCode[] {
+    if (!Array.isArray(items)) return [];
+    
     return Array.from(
         new Set(
             items
-                .map((item) => item.permiso?.codigo || item.descripcion || "")
-                .filter((permission): permission is PermissionCode => Boolean(permission))
+                .map((item) => {
+                    if (typeof item === "string") return item;
+                    if (item?.permiso?.codigo) return item.permiso.codigo;
+                    if (item?.descripcion) return item.descripcion;
+                    if (item?.codigo) return item.codigo;
+                    return "";
+                })
+                .filter((permission): permission is PermissionCode => typeof permission === "string" && Boolean(permission))
         )
     );
 }

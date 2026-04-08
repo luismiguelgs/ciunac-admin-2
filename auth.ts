@@ -82,16 +82,43 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 if (!res.ok) return null;
 
                 const response = (await res.json()) as LoginResponse;
+
+                try {
+                    const fs = require('fs');
+                    fs.appendFileSync('C:/tmp/login_full.log', JSON.stringify(response) + '\n');
+                } catch (e) {
+                    // Ignore
+                }
+
                 if (!response?.user || !response.access_token) return null;
 
-                const role = normalizeRole(response.user.rol ?? response.user.role);
+                const originalRole = String(response.user.rol ?? response.user.role ?? "");
+                const role = normalizeRole(originalRole);
                 if (!role) return null;
 
-                const permitsPromise = isSuperAdminRole(role)
-                    ? Promise.resolve([])
-                    : fetchRolePermissions(role, response.access_token);
-
                 const userId = String(response.user.id ?? response.user.userId ?? response.user.usuarioId ?? response.user.usuario_id ?? "");
+
+                const backendPermisos = Array.isArray(response.user.permisos) 
+                    ? response.user.permisos 
+                    : [];
+
+                // Handle permissions whether they are strings, or objects {codigo: ...}
+                let parsedBackendPermisos: string[] = [];
+                if (backendPermisos.length > 0) {
+                    parsedBackendPermisos = backendPermisos.map((p: any) => {
+                        if (typeof p === "string") return p;
+                        if (p?.permiso?.codigo) return p.permiso.codigo;
+                        if (p?.descripcion) return p.descripcion;
+                        if (p?.codigo) return p.codigo;
+                        return "";
+                    }).filter(Boolean);
+                }
+
+                const permitsPromise = parsedBackendPermisos.length > 0 
+                    ? Promise.resolve(parsedBackendPermisos)
+                    : (isSuperAdminRole(role)
+                        ? Promise.resolve([])
+                        : fetchRolePermissions(role, response.access_token));
 
                 const contextPromise = normalizeRole(role) === ROLES.DOCENTE && userId
                     ? fetchDocenteContext(userId, response.access_token)

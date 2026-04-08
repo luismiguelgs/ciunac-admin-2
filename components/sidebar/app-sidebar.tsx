@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/sidebar"
 import { useAuthStore } from "@/modules/usuarios/store/auth.store"
 import { useSession } from "next-auth/react"
+import { usePathname } from "next/navigation"
 import { canAccessRoute } from "@/lib/permissions"
 import { getPermissionByExactPath, type PermissionCode } from "@/lib/access-control"
 
@@ -50,6 +51,7 @@ type SidebarMainItem = {
     title: string
     url: string
     icon: LucideIcon
+    isActive?: boolean
     requiredPermission?: PermissionCode
     items?: SidebarSubItem[]
 }
@@ -209,35 +211,41 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         [effectiveUser, effectivePermissions]
     )
 
+    const pathname = usePathname()
+
     const navMain = React.useMemo(() => {
         return data.navMain
             .map((item) => {
                 if (!item.items?.length) {
-                    return hasAccess(item.requiredPermission) ? item : null
+                    return hasAccess(item.requiredPermission) ? { ...item, isActive: pathname.startsWith(item.url) && item.url !== "#" } : null
                 }
 
                 const filteredItems = item.items.filter((subItem) => hasAccess(subItem.requiredPermission))
                 if (!filteredItems.length) return null
 
-                return { ...item, items: filteredItems }
+                const isActive = filteredItems.some((subItem) => pathname === subItem.url || pathname.startsWith(subItem.url + "/"))
+
+                return { ...item, items: filteredItems, isActive }
             })
-            .filter((item): item is SidebarMainItem => Boolean(item))
-    }, [hasAccess])
+            .filter((item): item is NonNullable<typeof item> => Boolean(item))
+    }, [hasAccess, pathname])
 
     const navSolicitudes = React.useMemo(() => {
         return data.navSolicitudes
             .map((item) => {
                 if (!item.items?.length) {
-                    return hasAccess(item.requiredPermission) ? item : null
+                    return hasAccess(item.requiredPermission) ? { ...item, isActive: pathname.startsWith(item.url) && item.url !== "#" } : null
                 }
 
                 const filteredItems = item.items.filter((subItem) => hasAccess(subItem.requiredPermission))
                 if (!filteredItems.length) return null
 
-                return { ...item, items: filteredItems }
+                const isActive = filteredItems.some((subItem) => pathname === subItem.url || pathname.startsWith(subItem.url + "/"))
+
+                return { ...item, items: filteredItems, isActive }
             })
-            .filter((item): item is SidebarMainItem => Boolean(item))
-    }, [hasAccess])
+            .filter((item): item is NonNullable<typeof item> => Boolean(item))
+    }, [hasAccess, pathname])
 
     const navSecondary = React.useMemo(() => {
         return data.navSecondary.filter((item) => hasAccess(item.requiredPermission))
