@@ -34,7 +34,7 @@ export const useDocenteStore = create<DocenteState>()(
         }),
         {
             name: "docente-storage",
-            storage: createJSONStorage(() => sessionStorage),
+            storage: createJSONStorage(() => localStorage),
             onRehydrateStorage: () => (state) => {
                 state?.setHydrated(true);
             },

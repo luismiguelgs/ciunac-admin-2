@@ -29,6 +29,8 @@ export default function ProtectedRoute({
     const hydrated = useAuthStore((state) => state.hydrated);
     const docenteId = useDocenteStore((state) => state.docenteId);
     const perfilId = useDocenteStore((state) => state.perfilId);
+    const setAuthData = useAuthStore((state) => state.setAuthData);
+    const setDocenteContext = useDocenteStore((state) => state.setDocenteContext);
 
     const sessionUser = (session?.user ?? null) as Record<string, unknown> | null;
 
@@ -63,6 +65,20 @@ export default function ProtectedRoute({
     const docenteStoreHydrated = useDocenteStore((state) => state.hydrated);
 
     useEffect(() => {
+        if (!hydrated || !docenteStoreHydrated || status === "loading" || !sessionUser) return;
+
+        // Sincronizar Auth Store si está vacío
+        if (!storeUser) {
+            setAuthData(sessionUser, sessionPermissions);
+        }
+
+        // Sincronizar Docente Store si está vacío
+        if (!docenteId && sessionUser.docenteId && sessionUser.perfilId) {
+            setDocenteContext(String(sessionUser.docenteId), String(sessionUser.perfilId));
+        }
+    }, [hydrated, docenteStoreHydrated, status, sessionUser, storeUser, docenteId, sessionPermissions, setAuthData, setDocenteContext]);
+
+    useEffect(() => {
         if (!hydrated || !docenteStoreHydrated || status === "loading") return;
 
         if (!effectiveUser) {
@@ -78,7 +94,7 @@ export default function ProtectedRoute({
         if (!hasDocenteContext) {
             router.replace("/dashboard?error=missing-docente-context");
         }
-    }, [hydrated, status, effectiveUser, canAccess, hasDocenteContext, router]);
+    }, [hydrated, docenteStoreHydrated, status, effectiveUser, canAccess, hasDocenteContext, router]);
 
     if (!hydrated || status === "loading") {
         return <div className="p-8 text-center text-gray-500">Verificando accesos...</div>;
