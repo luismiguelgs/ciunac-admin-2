@@ -21,6 +21,15 @@ export function SolicitudBecasDataTable({ data }: SolicitudBecasDataTableProps) 
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
     const [itemToDelete, setItemToDelete] = React.useState<ISolicitudBeca | null>(null)
 
+    // Ordenar de los periodos mas recientes a los mas antiguos
+    const sortedData = React.useMemo(() => {
+        return [...data].sort((a, b) => {
+            const periodoA = a.periodo || ""
+            const periodoB = b.periodo || ""
+            return periodoB.localeCompare(periodoA)
+        })
+    }, [data])
+
     const columns: ColumnDef<ISolicitudBeca>[] = [
         {
             accessorKey: "nombres",
@@ -37,6 +46,10 @@ export function SolicitudBecasDataTable({ data }: SolicitudBecasDataTableProps) 
         {
             accessorKey: "escuela",
             header: "Escuela",
+        },
+        {
+            accessorKey: "periodo",
+            header: "Periodo",
         },
         {
             id: "acciones",
@@ -84,7 +97,7 @@ export function SolicitudBecasDataTable({ data }: SolicitudBecasDataTableProps) 
             <React.Suspense fallback={<DataTableSkeleton />}>
                 <DataTable
                     columns={columns}
-                    data={data}
+                    data={sortedData}
                     filterColumn="apellidos"
                 />
             </React.Suspense>
