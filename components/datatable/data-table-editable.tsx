@@ -65,7 +65,7 @@ export function DataTableEditable<TData, TValue>({
     const table = useReactTable({
         data,
         columns,
-        getRowId: (row: any) => (row.id ?? row._id ?? '').toString(),
+        getRowId: (row: any, index) => (row.id ?? row._id ?? index).toString(),
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         onSortingChange: setSorting,
@@ -91,13 +91,13 @@ export function DataTableEditable<TData, TValue>({
             setEditingRowId,
             onRowUpdate,
             onRowDelete,
-            setData, // setData is already in meta
+            setData,
             updateData: (rowIndex: number, columnId: string, value: any) => {
                 setData((old) =>
                     old.map((row, index) => {
                         if (index === rowIndex) {
                             return {
-                                ...old[rowIndex]!,
+                                ...row,
                                 [columnId]: value,
                             }
                         }

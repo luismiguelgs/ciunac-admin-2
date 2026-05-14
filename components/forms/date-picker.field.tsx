@@ -56,105 +56,109 @@ export function DatePicker<T extends FieldValues>({
         <Controller
             control={control}
             name={name}
-            render={({ field, fieldState }) => (
-                <Field
-                    orientation={orientation}
-                    data-invalid={fieldState.invalid}
-                    className={className}
-                >
-                    <FieldLabel htmlFor={`date-${name}`}>{label}</FieldLabel>
-                    <FieldContent>
-                        <Popover
-                            open={open}
-                            onOpenChange={(v: boolean | ((prevState: boolean) => boolean)) => {
-                                setOpen(v)
-                                if (v) {
-                                    setCurrentMonth(field.value || new Date())
-                                }
-                            }}
-                        >
-                            <PopoverTrigger asChild>
-                                <Button
-                                    id={`date-${name}`}
-                                    disabled={disabled}
-                                    variant={"outline"}
-                                    className={cn(
-                                        "w-full justify-start text-left font-normal",
-                                        !field.value && "text-muted-foreground",
-                                        fieldState.invalid && "border-destructive focus-visible:ring-destructive"
-                                    )}
-                                >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {field.value ? format(field.value, "dd/MM/yyyy") : <span>Seleccionar fecha</span>}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0">
-                                <div className="flex justify-between p-2">
-                                    <Select
-                                        onValueChange={(month) => {
-                                            const base = field.value || currentMonth || new Date()
-                                            const newDate = setMonth(base, months.indexOf(month))
-                                            setCurrentMonth(newDate)
-                                            field.onChange(newDate)
-                                        }}
-                                        value={months[getMonth(currentMonth)]}
-                                    >
-                                        <SelectTrigger className="w-[110px]">
-                                            <SelectValue placeholder="Mes" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {months.map(month => (
-                                                <SelectItem key={month} value={month}>{month}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <Select
-                                        onValueChange={(year) => {
-                                            const base = field.value || currentMonth || new Date()
-                                            const newDate = setYear(base, parseInt(year))
-                                            setCurrentMonth(newDate)
-                                            field.onChange(newDate)
-                                        }}
-                                        value={getYear(currentMonth).toString()}
-                                    >
-                                        <SelectTrigger className="w-[110px]">
-                                            <SelectValue placeholder="Año" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {years.map(year => (
-                                                <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+            render={({ field, fieldState }) => {
+                const dateValue = field.value ? new Date(field.value) : null
+                const isValid = dateValue instanceof Date && !isNaN(dateValue.getTime())
 
-                                <Calendar
-                                    mode="single"
-                                    selected={field.value}
-                                    onSelect={(date) => {
-                                        if (date) setCurrentMonth(date)
-                                        field.onChange(date)
-                                    }}
-                                    onMonthChange={setCurrentMonth}
-                                    month={currentMonth}
-                                    initialFocus
-                                    //weekStartsOn={0}
-                                    locale={es}
-                                />
+                return (
+                    <Field
+                        orientation={orientation}
+                        data-invalid={fieldState.invalid}
+                        className={className}
+                    >
+                        <FieldLabel htmlFor={`date-${name}`}>{label}</FieldLabel>
+                        <FieldContent>
+                            <Popover
+                                open={open}
+                                onOpenChange={(v: boolean) => {
+                                    setOpen(v)
+                                    if (v && isValid) {
+                                        setCurrentMonth(dateValue as Date)
+                                    }
+                                }}
+                            >
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        id={`date-${name}`}
+                                        disabled={disabled}
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-full justify-start text-left font-normal",
+                                            !field.value && "text-muted-foreground",
+                                            fieldState.invalid && "border-destructive focus-visible:ring-destructive"
+                                        )}
+                                    >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {isValid ? format(dateValue as Date, "dd/MM/yyyy") : <span>Seleccionar fecha</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <div className="flex justify-between p-2">
+                                        <Select
+                                            onValueChange={(month) => {
+                                                const base = (isValid ? dateValue : null) || currentMonth || new Date()
+                                                const newDate = setMonth(base, months.indexOf(month))
+                                                setCurrentMonth(newDate)
+                                                field.onChange(newDate)
+                                            }}
+                                            value={months[getMonth(currentMonth)]}
+                                        >
+                                            <SelectTrigger className="w-[110px]">
+                                                <SelectValue placeholder="Mes" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {months.map(month => (
+                                                    <SelectItem key={month} value={month}>{month}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <Select
+                                            onValueChange={(year) => {
+                                                const base = (isValid ? dateValue : null) || currentMonth || new Date()
+                                                const newDate = setYear(base, parseInt(year))
+                                                setCurrentMonth(newDate)
+                                                field.onChange(newDate)
+                                            }}
+                                            value={getYear(currentMonth).toString()}
+                                        >
+                                            <SelectTrigger className="w-[110px]">
+                                                <SelectValue placeholder="Año" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {years.map(year => (
+                                                    <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
 
-                            </PopoverContent>
-                        </Popover>
-                        {description && (
-                            <FieldDescription>
-                                {description}
-                            </FieldDescription>
-                        )}
-                        {fieldState.invalid && (
-                            <FieldError errors={[fieldState.error]} />
-                        )}
-                    </FieldContent>
-                </Field>
-            )}
+                                    <Calendar
+                                        mode="single"
+                                        selected={isValid ? (dateValue as Date) : undefined}
+                                        onSelect={(date) => {
+                                            if (date) setCurrentMonth(date)
+                                            field.onChange(date)
+                                            setOpen(false)
+                                        }}
+                                        onMonthChange={setCurrentMonth}
+                                        month={currentMonth}
+                                        initialFocus
+                                        locale={es}
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                            {description && (
+                                <FieldDescription>
+                                    {description}
+                                </FieldDescription>
+                            )}
+                            {fieldState.invalid && (
+                                <FieldError errors={[fieldState.error]} />
+                            )}
+                        </FieldContent>
+                    </Field>
+                )
+            }}
         />
     )
 }

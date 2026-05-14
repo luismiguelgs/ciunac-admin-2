@@ -1,10 +1,8 @@
 import { BaseService } from "@/services/base.service";
 import { apiFetch } from "@/services/api.service";
+import { uploadCSVFile } from "@/services/upload.service";
 import { IEncuestaMetricas } from "../interfaces/encuesta-metricas.interface";
 import { IEncuestaRespuesta } from "../interfaces/respuestas.interface";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const apiKey: string = process.env.NEXT_PUBLIC_API_KEY!;
 
 export default class EncuestaService extends BaseService {
     protected static collection = 'encuesta-metricas-docente';
@@ -20,23 +18,9 @@ export default class EncuestaService extends BaseService {
     }
 
     static async uploadCSV(file: File): Promise<{ message: string; recordsProcessed: number }> {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const response = await fetch(`${API_URL}/encuesta-respuestas/upload`, {
-            method: 'POST',
-            headers: {
-                'x-api-key': apiKey,
-            },
-            credentials: 'include',
-            body: formData,
-        });
-
-        if (!response.ok) {
-            const msg = await response.text();
-            throw new Error(`HTTP error! status: ${response.status}: ${msg}`);
-        }
-
-        return await response.json();
+        const result = await uploadCSVFile<{ message: string; recordsProcessed: number }>(file, 'encuesta-respuestas/upload');
+        return {
+            ...result
+        };
     }
 }

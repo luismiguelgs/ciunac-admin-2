@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from "react"
 import { Input } from "@/components/ui/input"
-
-interface EditableCellProps {
-    value: any
-    row: any
-    column: any
-    table: any
-}
+import { cn } from "@/lib/utils"
 
 export const EditableCell = ({
     getValue,
     row,
     column,
     table,
+    className,
 }: any) => {
     const initialValue = getValue()
     const [value, setValue] = useState(initialValue)
@@ -37,7 +32,7 @@ export const EditableCell = ({
                 value={value instanceof Date ? value.toISOString().split('T')[0] : (value as string)}
                 onChange={(e) => setValue(e.target.value)}
                 onBlur={onBlur}
-                className="h-8"
+                className={cn("h-8", className)}
             />
         )
     }

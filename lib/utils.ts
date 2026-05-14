@@ -25,3 +25,25 @@ export function formatDate(date: string | Date | undefined) {
   })
 }
 
+export function getGoogleDriveDirectLink(url: string | null | undefined) {
+  if (!url) return "";
+  
+  // Pattern for: https://drive.google.com/file/d/FILE_ID/view...
+  const driveFileRegex = /\/file\/d\/([a-zA-Z0-9_-]+)/;
+  const match = url.match(driveFileRegex);
+  
+  if (match && match[1]) {
+    return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+  }
+  
+  // Pattern for: https://drive.google.com/open?id=FILE_ID
+  const driveOpenRegex = /id=([a-zA-Z0-9_-]+)/;
+  if (url.includes("drive.google.com/open")) {
+    const openMatch = url.match(driveOpenRegex);
+    if (openMatch && openMatch[1]) {
+        return `https://drive.google.com/uc?export=view&id=${openMatch[1]}`;
+    }
+  }
+
+  return url;
+}

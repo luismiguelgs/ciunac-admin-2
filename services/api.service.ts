@@ -35,12 +35,18 @@ export async function apiFetch<T>(url: string, method: string, body?: unknown): 
 		headers['Authorization'] = `Bearer ${token}`;
 	}
 
-	const response = await fetch(`${API_URL}/${url}`, {
-		method,
-		headers,
-		credentials: 'include',
-		body: body ? JSON.stringify(body) : undefined,
-	});
+	let response: Response;
+	try {
+		response = await fetch(`${API_URL}/${url}`, {
+			method,
+			headers,
+			credentials: 'include',
+			body: body ? JSON.stringify(body) : undefined,
+		});
+	} catch (error: any) {
+		console.error(`Fetch failed for URL: ${API_URL}/${url}`, error);
+		throw new Error(`Fetch failed: ${error.message || 'Unknown error'} for ${url}`);
+	}
 
 	if (!response.ok) {
 		const msg = await response.text();

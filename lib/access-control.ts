@@ -25,6 +25,14 @@ export const ROUTE_PERMISSION_RULES: RoutePermissionRule[] = [
     { path: "/perfil-docente/mis-resultados", permission: "mi_perfil_docente_resultados" },
     { path: "/perfil-docente/encuestas/mi-encuesta", permission: "mi_encuesta_respuestas" },
     { path: "/perfil-docente/mi-perfil", permission: "mi_perfil_docente" },
+    { path: "/solicitudes/constancias", permission: "gestion_solicitudes" },
+    { path: "/solicitudes/constancias/[id]", permission: "gestion_solicitudes" },
+    { path: "/solicitudes/importar-pagos", permission: "importar_pagos" },
+    { path: "/constancias/", permission: "gestion_constancias" },
+    { path: "/constancias/[id]", permission: "gestion_constancias" },
+    { path: "/constancias/nueva", permission: "gestion_constancias" },
+    { path: "/constancias/firmadas", permission: "gestion_constancias" },
+    { path: "/constancias/entregadas", permission: "gestion_constancias" },
 ];
 
 const SORTED_RULES = [...ROUTE_PERMISSION_RULES].sort((a, b) => b.path.length - a.path.length);

@@ -20,6 +20,12 @@ import {
     Boxes,
     Upload,
     GraduationCap,
+    FileText,
+    FilePlus,
+    Clock,
+    PenTool,
+    Check,
+    Archive,
 } from "lucide-react"
 
 import { NavMain } from "@/components/sidebar/nav-main"
@@ -158,11 +164,61 @@ const data: {
     ],
     navSolicitudes: [
         {
-            title: "Becas CIUNAC",
-            url: "/solicitudes/becas",
-            icon: GraduationCap,
-            requiredPermission: getPermissionByExactPath("/solicitudes/becas")
+            title: "Solicitudes",
+            url: "#",
+            icon: Archive,
+            items: [
+                {
+                    title: "Becas CIUNAC",
+                    url: "/solicitudes/becas",
+                    icon: GraduationCap,
+                    requiredPermission: getPermissionByExactPath("/solicitudes/becas")
+                },
+                {
+                    title: "Constancias",
+                    url: "/solicitudes/constancias",
+                    icon: FileText,
+                    requiredPermission: getPermissionByExactPath("/solicitudes/constancias")
+                },
+                {
+                    title: "Importar Pagos",
+                    url: "/solicitudes/importar-pagos",
+                    icon: Upload,
+                    requiredPermission: getPermissionByExactPath("/solicitudes/importar-pagos")
+                }
+            ]
         },
+        {
+            title: "Emisión de Constancias",
+            url: "#",
+            icon: FileText,
+            items: [
+                {
+                    title: "Pendientes",
+                    url: "/constancias",
+                    icon: Clock,
+                    requiredPermission: getPermissionByExactPath("/constancias")
+                },
+                {
+                    title: "Firmadas",
+                    url: "/constancias/firmadas",
+                    icon: PenTool,
+                    requiredPermission: getPermissionByExactPath("/constancias/firmadas")
+                },
+                {
+                    title: "Entregadas",
+                    url: "/constancias/entregadas",
+                    icon: Check,
+                    requiredPermission: getPermissionByExactPath("/constancias/entregadas")
+                },
+                {
+                    title: "Nueva Constancia",
+                    url: "/constancias/nueva",
+                    icon: FilePlus,
+                    requiredPermission: getPermissionByExactPath("/constancias/nueva")
+                }
+            ]
+        }
     ],
     navSecondary: [
         {
@@ -275,7 +331,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
-                <NavMain items={navSolicitudes} label="Solicitudes" />
+                <NavMain items={navSolicitudes} label="Mesa de Partes" />
                 <NavMain items={navMain} label="Seguimiento Docente" />
                 <NavSecondary items={navSecondary} className="mt-auto" />
             </SidebarContent>

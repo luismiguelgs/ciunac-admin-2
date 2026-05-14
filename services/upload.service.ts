@@ -6,20 +6,47 @@ export interface UploadResponse {
     downloadLink: string;
 }
 
-type UploadFolder = 'dnis' | 'vouchers' | 'becas' | 'cvs';
+type UploadFolder = 'dnis' | 'vouchers' | 'becas' | 'cvs' | 'constancias';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const apiKey: string = process.env.NEXT_PUBLIC_API_KEY!;
 
+export async function uploadCSVFile<T = any>(file: File, url: string):
+    Promise<T> {
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+        const response = await fetch(`${API_URL}/${url}`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'x-api-key': apiKey,
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('❌ Error al subir el archivo CSV');
+        }
+
+        const data = await response.json();
+        return data as T;
+    } catch (error: any) {
+        console.error('❌ Error al subir el archivo CSV:', error);
+        throw new Error(error.message || 'Error al subir el archivo CSV');
+    }
+}
+
 export async function uploadFile(
     file: File,
     folder: UploadFolder,
-    dni: string = '', name: string = ''
+    dni: string = '', name: string = '',
+    fileId: string = ''
 ) {
     try {
         const formData = new FormData();
         formData.append('file', file);
         if (dni) formData.append('nombre', getFileName(dni, folder, name));
+        if (fileId) formData.append('fileId', fileId);
 
         const response = await fetch(`${API_URL}/upload/${folder}`, {
             method: 'POST',
@@ -55,5 +82,7 @@ function getFileName(dni: string, folder: UploadFolder, originalName: string): s
             return `BECAS_${dni}_${originalName}_${today}`;
         case 'cvs':
             return `CV_${dni}_${today}`;
+        case 'constancias':
+            return `${dni}-${originalName}`;
     }
 }
