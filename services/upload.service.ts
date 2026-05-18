@@ -57,7 +57,16 @@ export async function uploadFile(
         });
 
         if (!response.ok) {
-            throw new Error('❌ Error al subir archivo');
+            // Leer el cuerpo del error para obtener detalles del backend
+            let errorDetail = `HTTP ${response.status}`;
+            try {
+                const errorBody = await response.json();
+                errorDetail = errorBody.message || errorBody.error || JSON.stringify(errorBody);
+            } catch {
+                errorDetail = await response.text().catch(() => `HTTP ${response.status}`);
+            }
+            console.error('❌ Error del servidor al subir archivo:', errorDetail);
+            throw new Error(`Error al subir archivo: ${errorDetail}`);
         }
 
         const data = await response.json();
@@ -65,7 +74,7 @@ export async function uploadFile(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         console.error('❌ Error al subir archivo:', error);
-        throw new Error(error.message || 'Error al subir archivo');
+        throw error;
     }
 }
 
