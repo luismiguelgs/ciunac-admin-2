@@ -46,7 +46,7 @@ export async function uploadFile(
         const formData = new FormData();
         formData.append('file', file);
         if (dni) formData.append('nombre', getFileName(dni, folder, name));
-        if (fileId) formData.append('fileId', fileId);
+        if (fileId && fileId.trim()) formData.append('fileId', fileId.trim());
 
         const response = await fetch(`${API_URL}/upload/${folder}`, {
             method: 'POST',

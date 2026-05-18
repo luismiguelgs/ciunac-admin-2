@@ -181,15 +181,17 @@ export default function ConstanciaForm({ constancia }: ConstanciaFormProps) {
                 const blob = await pdf(document).toBlob()
                 const file = new File([blob], "constancia.pdf", { type: "application/pdf" })
 
-                // Subir el PDF generado
-                const uploadResult = await ConstanciasService.uploadConstancia(file, docId!, studentName, savedItem.driveId)
+                // Subir el PDF generado (solo pasar driveId si existe para actualizar, sino crear nuevo)
+                const existingDriveId = savedItem.driveId && savedItem.driveId.trim() ? savedItem.driveId : undefined
+                const uploadResult = await ConstanciasService.uploadConstancia(file, docId!, studentName, existingDriveId)
 
-                // Actualizar la constancia con el nuevo URL
-                if (uploadResult.downloadLink) {
+                // Actualizar la constancia con el nuevo URL y driveId
+                if (uploadResult.downloadLink || uploadResult.id) {
                     await ConstanciasService.updateItem<IConstancia>({ 
                         ...payload, 
                         id: docId, 
-                        url: uploadResult.downloadLink 
+                        url: uploadResult.downloadLink || '',
+                        driveId: uploadResult.id || '',
                     } as IConstancia)
                 }
 
