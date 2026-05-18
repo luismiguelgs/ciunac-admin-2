@@ -183,6 +183,7 @@ export default function ConstanciaForm({ constancia }: ConstanciaFormProps) {
 
                 // Subir el PDF generado (solo pasar driveId si existe para actualizar, sino crear nuevo)
                 const existingDriveId = savedItem.driveId && savedItem.driveId.trim() ? savedItem.driveId : undefined
+                console.log('📤 Upload debug:', { docId, studentName, driveId: savedItem.driveId, existingDriveId })
                 const uploadResult = await ConstanciasService.uploadConstancia(file, docId!, studentName, existingDriveId)
 
                 // Actualizar la constancia con el nuevo URL y driveId

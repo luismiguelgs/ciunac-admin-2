@@ -48,6 +48,10 @@ export async function uploadFile(
         if (dni) formData.append('nombre', getFileName(dni, folder, name));
         if (fileId && fileId.trim()) formData.append('fileId', fileId.trim());
 
+        // Debug: log what we're sending
+        console.log('📤 FormData entries:', Object.fromEntries(
+            Array.from(formData.entries()).map(([k, v]) => [k, v instanceof File ? `File(${v.name}, ${v.size}b)` : v])
+        ));
         const response = await fetch(`${API_URL}/upload/${folder}`, {
             method: 'POST',
             body: formData,
