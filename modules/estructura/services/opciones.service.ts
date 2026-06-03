@@ -2,6 +2,7 @@ import { apiFetch, omit } from '@/services/api.service'
 
 export enum Collection {
     Tiposolicitud = 'tipossolicitud',
+    Estados = 'estados',
     Facultades = 'facultades',
     Idiomas = 'idiomas',
     Salones = 'aulas',

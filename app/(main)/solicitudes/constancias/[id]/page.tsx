@@ -9,14 +9,6 @@ import { notFound } from "next/navigation";
 export default async function PageSolicitudConstanciaDetalle({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
 
-    // Estados estáticos según requerimiento del usuario si no hay servicio dinámico
-    const staticEstados = [
-        { id: 1, nombre: "Nuevas" },
-        { id: 2, nombre: "Procesadas" },
-        { id: 4, nombre: "Pagadas" },
-        { id: 3, nombre: "Finalizadas" },
-    ];
-
     const [solicitud, tiposSolicitud, idiomas, niveles] = await Promise.all([
         SolicitudesService.fetchItemById(id),
         OpcionesService.fetchItems<ITipoSolicitud>(Collection.Tiposolicitud),
@@ -46,7 +38,6 @@ export default async function PageSolicitudConstanciaDetalle({ params }: { param
                     tiposSolicitud={safeTipos}
                     idiomas={safeIdiomas}
                     niveles={safeNiveles}
-                    estados={staticEstados}
                 />
             </div>
         </React.Fragment>

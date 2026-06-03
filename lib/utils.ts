@@ -25,6 +25,20 @@ export function formatDate(date: string | Date | undefined) {
   })
 }
 
+export function formatDateTime(date: string | Date | undefined) {
+  if (!date) return "N/A"
+  const d = new Date(date)
+  if (isNaN(d.getTime())) return "N/A"
+  return d.toLocaleString('es-PE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
+}
+
 export function getGoogleDriveDirectLink(url: string | null | undefined) {
   if (!url) return "";
   

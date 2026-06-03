@@ -42,13 +42,13 @@ export default async function PageSolicitudesConstancias() {
                     },
                     {
                         value: "procesadas",
-                        label: `Procesadas (${procesadas?.length || 0})`,
+                        label: `Observadas (${procesadas?.length || 0})`,
                         content: <SolicitudConstanciasDataTable data={procesadas || []} />
                     },
                     {
                         value: "rechazadas",
                         label: `Rechazadas (${rechazadas?.length || 0})`,
-                        content: <SolicitudConstanciasDataTable data={rechazadas || []} />
+                        content: <SolicitudConstanciasDataTable data={rechazadas || []} actionMode="restore" />
                     }
                 ]} />
             </div>

@@ -5,7 +5,9 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { ISolicitud } from "../shared/solicitud.interface"
-import { IIdioma, INivel, ITipoSolicitud } from "@/modules/estructura/interfaces/types.interface"
+import { IEstado, IIdioma, INivel, ITipoSolicitud } from "@/modules/estructura/interfaces/types.interface"
+import useOpciones from "@/modules/estructura/hooks/use-opciones"
+import { Collection } from "@/modules/estructura/services/opciones.service"
 import SolicitudesService from "../shared/solicitudes.service"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -14,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { InputField } from "@/components/forms/input.field"
 import { SelectField } from "@/components/forms/select.field"
 import { DatePicker } from "@/components/forms/date-picker.field"
+import { TextareaField } from "@/components/forms/textarea.field"
 import {
     CreditCard,
     Image as ImageIcon,
@@ -29,7 +32,7 @@ import {
     Calendar,
     History
 } from "lucide-react"
-import { cn, getGoogleDriveDirectLink } from "@/lib/utils"
+import { cn, getGoogleDriveDirectLink, formatDateTime } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
@@ -51,6 +54,7 @@ const formSchema = z.object({
     numeroVoucher: z.string().min(1, "El número de voucher es requerido"),
     pago: z.coerce.number().min(0, "El monto debe ser mayor o igual a 0"),
     fechaPago: z.coerce.date().refine((date) => !isNaN(date.getTime()), "La fecha de pago es requerida"),
+    observaciones: z.string().optional(),
 })
 
 interface SolicitudConstanciasDetailsProps {
@@ -58,19 +62,18 @@ interface SolicitudConstanciasDetailsProps {
     tiposSolicitud: ITipoSolicitud[]
     idiomas: IIdioma[]
     niveles: INivel[]
-    estados: { id: number, nombre: string }[]
 }
 
 export function SolicitudConstanciasDetails({
     solicitud,
     tiposSolicitud,
     idiomas,
-    niveles,
-    estados
+    niveles
 }: SolicitudConstanciasDetailsProps) {
     const router = useRouter()
     const [isSaving, setIsSaving] = React.useState(false)
     const [isEditing, setIsEditing] = React.useState(false)
+    const { data: estados, loading: loadingEstados } = useOpciones<IEstado>(Collection.Estados)
 
     const form = useForm({
         resolver: zodResolver(formSchema),
@@ -81,6 +84,7 @@ export function SolicitudConstanciasDetails({
             nivelId: solicitud.nivelId ? String(solicitud.nivelId) : "",
             numeroVoucher: solicitud.numeroVoucher || "",
             pago: solicitud.pago || 0,
+            observaciones: solicitud.observaciones || "",
             fechaPago: (solicitud.fechaPago && !isNaN(new Date(solicitud.fechaPago).getTime()))
                 ? new Date(solicitud.fechaPago)
                 : undefined,
@@ -116,16 +120,42 @@ export function SolicitudConstanciasDetails({
     const tipoOptions = tiposSolicitud.map(t => ({ label: t.solicitud, value: String(t.id) }))
     const idiomaOptions = idiomas.map(i => ({ label: i.nombre, value: String(i.id) }))
     const nivelOptions = niveles.map(n => ({ label: n.nombre, value: String(n.id) }))
-    const estadoOptions = estados.map(e => ({ label: e.nombre, value: String(e.id) }))
+    const estadosSolicitud = React.useMemo(() => {
+        return estados.filter(estado => estado.referencia === "SOLICITUD")
+    }, [estados])
+    const estadoOptions = React.useMemo(() => {
+        const options = estadosSolicitud.map(e => ({ label: e.nombre, value: String(e.id) }))
+        const currentEstadoId = solicitud.estadoId ? String(solicitud.estadoId) : ""
+        const currentEstadoNombre = solicitud.estado?.nombre
+
+        if (
+            currentEstadoId &&
+            currentEstadoNombre &&
+            solicitud.estado?.referencia === "SOLICITUD" &&
+            !options.some(option => option.value === currentEstadoId)
+        ) {
+            return [...options, { label: currentEstadoNombre, value: currentEstadoId }]
+        }
+
+        return options
+    }, [estadosSolicitud, solicitud.estado?.nombre, solicitud.estado?.referencia, solicitud.estadoId])
 
     const getStatusConfig = (id: number) => {
-        const config: Record<number, { label: string, color: string, icon: React.ReactNode }> = {
-            1: { label: "Nuevas", color: "bg-blue-500/10 text-blue-600 border-blue-200/50", icon: <Clock className="w-3.5 h-3.5" /> },
-            2: { label: "Procesadas", color: "bg-orange-500/10 text-orange-600 border-orange-200/50", icon: <Loader2 className="w-3.5 h-3.5 animate-spin" /> },
-            4: { label: "Pagadas", color: "bg-indigo-500/10 text-indigo-600 border-indigo-200/50", icon: <CreditCard className="w-3.5 h-3.5" /> },
-            3: { label: "Finalizadas", color: "bg-green-500/10 text-green-600 border-green-200/50", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
+        const estado = estadosSolicitud.find(e => e.id === id) || solicitud.estado
+        const label = estado?.nombre || "Desconocido"
+        const normalizedLabel = label.toLowerCase()
+        const colorByName = [
+            { match: ["nueva", "nuevo", "pendiente"], color: "bg-blue-500/10 text-blue-600 border-blue-200/50", icon: <Clock className="w-3.5 h-3.5" /> },
+            { match: ["proceso", "procesada", "asignada", "asignado"], color: "bg-orange-500/10 text-orange-600 border-orange-200/50", icon: <Loader2 className="w-3.5 h-3.5 animate-spin" /> },
+            { match: ["pagada", "pagado"], color: "bg-indigo-500/10 text-indigo-600 border-indigo-200/50", icon: <CreditCard className="w-3.5 h-3.5" /> },
+            { match: ["finalizada", "finalizado", "completada", "completado"], color: "bg-green-500/10 text-green-600 border-green-200/50", icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
+        ].find(config => config.match.some(value => normalizedLabel.includes(value)))
+
+        return {
+            label,
+            color: colorByName?.color || "bg-muted text-muted-foreground",
+            icon: colorByName?.icon || <Info className="w-3.5 h-3.5" />
         }
-        return config[id] || { label: "Desconocido", color: "bg-muted text-muted-foreground", icon: <Info className="w-3.5 h-3.5" /> }
     }
 
     const currentStatus = getStatusConfig(solicitud.estadoId)
@@ -218,7 +248,8 @@ export function SolicitudConstanciasDetails({
                                         name="estadoId"
                                         label="Estado de Proceso"
                                         options={estadoOptions}
-                                        disabled={!isEditing}
+                                        loading={loadingEstados && estadoOptions.length === 0}
+                                        disabled={!isEditing || loadingEstados}
                                     />
                                     <SelectField
                                         control={form.control}
@@ -266,6 +297,13 @@ export function SolicitudConstanciasDetails({
                                             disabled={!isEditing}
                                         />
                                     </div>
+                                    <TextareaField
+                                        control={form.control}
+                                        name="observaciones"
+                                        label="Observaciones"
+                                        placeholder="Sin observaciones registradas"
+                                        disabled={!isEditing}
+                                    />
                                 </div>
                             </CardContent>
                             <CardFooter className="bg-muted/30 border-t flex justify-between p-6">
@@ -302,56 +340,6 @@ export function SolicitudConstanciasDetails({
                                     <SaveButton form={form} disabled={!isEditing} />
                                 </div>
                             </CardFooter>
-                        </Card>
-
-                        {/* Audit & Stats Card - Integrated at the bottom of the form */}
-                        <Card className="shadow-sm border-primary/5 bg-primary/5 border-none">
-                            <CardHeader className="pb-3 pt-4">
-                                <CardTitle className="text-xs font-bold uppercase tracking-widest flex items-center gap-2 text-primary/70">
-                                    <History className="w-3.5 h-3.5" />
-                                    Trazabilidad de la Solicitud
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
-                                    <div className="space-y-1">
-                                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-tight">Fecha de Creación</p>
-                                        <div className="flex items-center gap-1.5">
-                                            <Calendar className="w-3.5 h-3.5 text-blue-500" />
-                                            <p className="text-xs font-semibold">
-                                                {solicitud.creadoEn ? new Date(solicitud.creadoEn).toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' }) : "N/A"}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-1">
-                                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-tight">Última Modificación</p>
-                                        <div className="flex items-center gap-1.5">
-                                            <History className="w-3.5 h-3.5 text-purple-500" />
-                                            <p className="text-xs font-semibold">
-                                                {solicitud.modificadoEn ? new Date(solicitud.modificadoEn).toLocaleString('es-PE') : "Sin cambios"}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-1">
-                                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-tight">Monto Registrado</p>
-                                        <div className="flex items-center gap-1.5">
-                                            <CreditCard className="w-3.5 h-3.5 text-green-600" />
-                                            <p className="text-xs font-black text-foreground">S/ {Number(solicitud.pago).toFixed(2)}</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-1">
-                                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-tight">Tipo de Alumno</p>
-                                        <div className="flex items-center gap-1.5 pt-0.5">
-                                            <Badge variant="outline" className="text-[10px] uppercase font-black py-0 h-5 bg-background border-primary/20">
-                                                {solicitud.alumnoCiunac ? "Interno" : "Externo"}
-                                            </Badge>
-                                        </div>
-                                    </div>
-                                </div>
-                            </CardContent>
                         </Card>
                     </div>
 
@@ -453,6 +441,56 @@ export function SolicitudConstanciasDetails({
                             </Card>
                         )}
                     </div>
+
+                    {/* Audit & Stats Card - Full Width at the bottom of form grid */}
+                    <Card className="lg:col-span-12 shadow-sm border-primary/5 bg-primary/5 border-none">
+                        <CardHeader className="pb-3 pt-4">
+                            <CardTitle className="text-xs font-bold uppercase tracking-widest flex items-center gap-2 text-primary/70">
+                                <History className="w-3.5 h-3.5" />
+                                Trazabilidad de la Solicitud
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                                <div className="space-y-1">
+                                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-tight">Fecha de Creación</p>
+                                    <div className="flex items-center gap-1.5">
+                                        <Calendar className="w-3.5 h-3.5 text-blue-500" />
+                                        <p className="text-xs font-semibold" suppressHydrationWarning>
+                                            {solicitud.creadoEn ? formatDateTime(solicitud.creadoEn) : "N/A"}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-tight">Última Modificación</p>
+                                    <div className="flex items-center gap-1.5">
+                                        <History className="w-3.5 h-3.5 text-purple-500" />
+                                        <p className="text-xs font-semibold" suppressHydrationWarning>
+                                            {solicitud.modificadoEn ? formatDateTime(solicitud.modificadoEn) : "Sin cambios"}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-tight">Monto Registrado</p>
+                                    <div className="flex items-center gap-1.5">
+                                        <CreditCard className="w-3.5 h-3.5 text-green-600" />
+                                        <p className="text-xs font-black text-foreground">S/ {Number(solicitud.pago).toFixed(2)}</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-tight">Tipo de Alumno</p>
+                                    <div className="flex items-center gap-1.5 pt-0.5">
+                                        <Badge variant="outline" className="text-[10px] uppercase font-black py-0 h-5 bg-background border-primary/20">
+                                            {solicitud.alumnoCiunac ? "Interno" : "Externo"}
+                                        </Badge>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </form>
             </div>
         </TooltipProvider>

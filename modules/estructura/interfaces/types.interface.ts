@@ -20,6 +20,10 @@ export interface ITipoSolicitud extends IBaseData {
     solicitud: string,
     precio: number
 }
+export interface IEstado extends IBaseData {
+    nombre: string,
+    referencia?: string
+}
 export interface ISalon extends IBaseData {
     capacidad: number,
     tipo: string,

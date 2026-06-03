@@ -12,6 +12,7 @@ export interface ISolicitud {
     numeroVoucher: string,
     imgVoucher: string,
     imgCertEstudio: string,
+    observaciones?: string,
     digital: boolean,
     manual: boolean,
     creadoEn: string,

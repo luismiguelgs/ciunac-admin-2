@@ -2,26 +2,44 @@
 
 import React from "react"
 import { ColumnDef } from "@tanstack/react-table"
-import { ISolicitud } from "../shared/solicitud.interface"
-import { DataTable } from "@/components/datatable/data-table"
-import { Eye, TrashIcon } from "lucide-react"
+import { Ban, Eye, RotateCcw } from "lucide-react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { DataTableSkeleton } from "@/components/datatable/data-table-skeleton"
-import { ConfirmDeleteDialog } from "@/components/dialogs/confirm-delete-dialog"
-import SolicitudesService from "../shared/solicitudes.service"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { DataTable } from "@/components/datatable/data-table"
+import { DataTableSkeleton } from "@/components/datatable/data-table-skeleton"
+import { Button } from "@/components/ui/button"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { ISolicitud } from "../shared/solicitud.interface"
+import SolicitudesService from "../shared/solicitudes.service"
+import { SolicitudConstanciasRejectDialog } from "./solicitud-constancias-reject.dialog"
 
 interface SolicitudConstanciasDataTableProps {
     data: ISolicitud[]
+    actionMode?: "reject" | "restore"
 }
 
-export function SolicitudConstanciasDataTable({ data }: SolicitudConstanciasDataTableProps) {
-    const router = useRouter()
-    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
-    const [itemToDelete, setItemToDelete] = React.useState<ISolicitud | null>(null)
+const NUEVAS_ESTADO_ID = 1
 
-    // Ordenar de los periodos mas recientes a los mas antiguos
+export function SolicitudConstanciasDataTable({
+    data,
+    actionMode = "reject"
+}: SolicitudConstanciasDataTableProps) {
+    const router = useRouter()
+    const [isRejectDialogOpen, setIsRejectDialogOpen] = React.useState(false)
+    const [isRestoreDialogOpen, setIsRestoreDialogOpen] = React.useState(false)
+    const [selectedSolicitud, setSelectedSolicitud] = React.useState<ISolicitud | null>(null)
+    const [isRestoring, setIsRestoring] = React.useState(false)
+
     const sortedData = React.useMemo(() => {
         return [...data].sort((a, b) => {
             const periodoA = a.periodo || ""
@@ -29,6 +47,35 @@ export function SolicitudConstanciasDataTable({ data }: SolicitudConstanciasData
             return periodoB.localeCompare(periodoA)
         })
     }, [data])
+
+    const handleRestoreDialogOpenChange = (open: boolean) => {
+        setIsRestoreDialogOpen(open)
+        if (!open) {
+            setSelectedSolicitud(null)
+            setIsRestoring(false)
+        }
+    }
+
+    const handleRestoreSolicitud = async () => {
+        if (!selectedSolicitud) {
+            return
+        }
+
+        setIsRestoring(true)
+
+        const success = await SolicitudesService.update(selectedSolicitud.id, {
+            estadoId: NUEVAS_ESTADO_ID,
+        })
+
+        if (success) {
+            toast.success("Solicitud devuelta a Nuevas")
+            handleRestoreDialogOpenChange(false)
+            router.refresh()
+        } else {
+            toast.error("Error al devolver la solicitud")
+            setIsRestoring(false)
+        }
+    }
 
     const columns: ColumnDef<ISolicitud>[] = [
         {
@@ -69,6 +116,8 @@ export function SolicitudConstanciasDataTable({ data }: SolicitudConstanciasData
             header: "Acciones",
             cell: ({ row }) => {
                 const solicitud = row.original
+                const isRestoreMode = actionMode === "restore"
+
                 return (
                     <div className="flex items-center gap-2">
                         <Button variant="ghost" size="icon" asChild title="Ver detalles">
@@ -76,34 +125,30 @@ export function SolicitudConstanciasDataTable({ data }: SolicitudConstanciasData
                                 <Eye className="h-4 w-4" />
                             </Link>
                         </Button>
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            title="Eliminar"
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            title={isRestoreMode ? "Devolver a Nuevas" : "Rechazar solicitud"}
                             onClick={() => {
-                                setItemToDelete(solicitud)
-                                setIsDeleteDialogOpen(true)
+                                setSelectedSolicitud(solicitud)
+                                if (isRestoreMode) {
+                                    setIsRestoreDialogOpen(true)
+                                } else {
+                                    setIsRejectDialogOpen(true)
+                                }
                             }}
                         >
-                            <TrashIcon className="h-4 w-4 text-red-600" />
+                            {isRestoreMode ? (
+                                <RotateCcw className="h-4 w-4 text-blue-600" />
+                            ) : (
+                                <Ban className="h-4 w-4 text-red-600" />
+                            )}
                         </Button>
                     </div>
                 )
             }
         },
     ]
-
-    const handleConfirmDelete = async () => {
-        if (itemToDelete) {
-            const id = itemToDelete.id
-            if (id) {
-                await SolicitudesService.delete(id)
-                setIsDeleteDialogOpen(false)
-                setItemToDelete(null)
-                router.refresh()
-            }
-        }
-    }
 
     return (
         <React.Fragment>
@@ -114,12 +159,41 @@ export function SolicitudConstanciasDataTable({ data }: SolicitudConstanciasData
                     filterColumn="nombres"
                 />
             </React.Suspense>
-            <ConfirmDeleteDialog
-                isOpen={isDeleteDialogOpen}
-                onOpenChange={setIsDeleteDialogOpen}
-                onConfirm={handleConfirmDelete}
-                description={`¿Está seguro que desea eliminar la solicitud de ${itemToDelete?.estudiante?.nombres} ${itemToDelete?.estudiante?.apellidos}? Esta acción no se puede deshacer.`}
+
+            <SolicitudConstanciasRejectDialog
+                isOpen={isRejectDialogOpen}
+                onOpenChange={(open) => {
+                    setIsRejectDialogOpen(open)
+                    if (!open) {
+                        setSelectedSolicitud(null)
+                    }
+                }}
+                solicitud={selectedSolicitud}
+                onRejected={() => router.refresh()}
             />
+
+            <AlertDialog open={isRestoreDialogOpen} onOpenChange={handleRestoreDialogOpenChange}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Devolver solicitud a Nuevas</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Esta accion cambiara la solicitud de {selectedSolicitud?.estudiante?.nombres} {selectedSolicitud?.estudiante?.apellidos} al estado Nuevas. Desea continuar?
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isRestoring}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                            disabled={isRestoring}
+                            onClick={(event) => {
+                                event.preventDefault()
+                                handleRestoreSolicitud()
+                            }}
+                        >
+                            Confirmar
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </React.Fragment>
     )
 }

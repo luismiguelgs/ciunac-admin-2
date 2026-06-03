@@ -28,7 +28,7 @@ export const ROUTE_PERMISSION_RULES: RoutePermissionRule[] = [
     { path: "/solicitudes/constancias", permission: "gestion_solicitudes" },
     { path: "/solicitudes/constancias/[id]", permission: "gestion_solicitudes" },
     { path: "/solicitudes/importar-pagos", permission: "importar_pagos" },
-    { path: "/constancias/", permission: "gestion_constancias" },
+    { path: "/constancias", permission: "gestion_constancias" },
     { path: "/constancias/[id]", permission: "gestion_constancias" },
     { path: "/constancias/nueva", permission: "gestion_constancias" },
     { path: "/constancias/firmadas", permission: "gestion_constancias" },

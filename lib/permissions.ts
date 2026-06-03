@@ -1,6 +1,13 @@
 import { ROLES } from "@/lib/roles";
 import type { PermissionCode } from "@/lib/access-control";
 
+// Permissions that are restricted to specific roles (DOCENTE and ADMINISTRATIVO cannot access these)
+const ROLE_RESTRICTED_PERMISSIONS: PermissionCode[] = [
+    "gestion_constancias",
+    "gestion_solicitudes",
+    "importar_pagos",
+];
+
 export function normalizeRole(role: unknown): string {
     if (typeof role !== "string") return "";
     return role.toUpperCase().replace(/[\s_-]/g, "");
@@ -32,6 +39,16 @@ export function canAccessRoute({
 }): boolean {
     if (!requiredPermission) return true;
     if (isSuperAdminRole(role)) return true;
+
+    // Block DOCENTE and ADMINISTRATIVO from role-restricted permissions
+    const normalized = normalizeRole(role);
+    if (
+        (normalized === ROLES.DOCENTE || normalized === ROLES.ADMINISTRATIVO) &&
+        ROLE_RESTRICTED_PERMISSIONS.some(p => p.toLowerCase() === requiredPermission.trim().toLowerCase())
+    ) {
+        return false;
+    }
+
     return hasPermission(permissions, requiredPermission);
 }
 

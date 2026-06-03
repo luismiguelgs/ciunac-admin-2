@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
         padding: 3,
     },
     tableCellHeader: {
-        fontSize: 12,
+        fontSize: 11,
         fontWeight: 'bold',
         textAlign: 'center',
     },
@@ -97,10 +97,10 @@ export default function NotasFormat({ estudiante, dni, curso, nivel, ciclo, fech
     const sortedDetalle = detalle ? [...detalle].sort((a, b) => {
         const nivelA = String(a.nivel ?? '');
         const nivelB = String(b.nivel ?? '');
-        
+
         // First sort by nivel
         const nivelComparison = nivelA.localeCompare(nivelB);
-        
+
         // If niveles are equal, sort by ciclo
         if (nivelComparison === 0) {
             const cicloA = Number(a.ciclo) || 0;
@@ -110,14 +110,23 @@ export default function NotasFormat({ estudiante, dni, curso, nivel, ciclo, fech
         return nivelComparison;
     }) : undefined;
 
+    const getNivelName = (nivelStr: string | number | undefined | null) => {
+        if (!nivelStr) return '';
+        const n = String(nivelStr).trim();
+        if (n === '1' || n.toUpperCase() === 'BÁSICO' || n.toUpperCase() === 'BASICO') return 'BÁSICO';
+        if (n === '2' || n.toUpperCase() === 'INTERMEDIO') return 'INTERMEDIO';
+        if (n === '3' || n.toUpperCase() === 'AVANZADO') return 'AVANZADO';
+        return n;
+    }
+
     const constanciaDetalle = sortedDetalle?.map((item, index) => {
         return (
             <View style={styles.tableRow} key={index}>
                 <View style={[styles.tableCol, { width: '15%' }]}>
                     <Text style={styles.tableCell}>{item.idioma}</Text>
                 </View>
-                <View style={[styles.tableCol, { width: '12.5%' }]}>
-                    <Text style={styles.tableCell}>{item.nivel}</Text>
+                <View style={[styles.tableCol, { width: '14.5%' }]}>
+                    <Text style={styles.tableCell}>{getNivelName(item.nivel)}</Text>
                 </View>
                 <View style={[styles.tableCol, { width: '10%' }]}>
                     <Text style={styles.tableCell}>{item.ciclo}</Text>
@@ -128,13 +137,13 @@ export default function NotasFormat({ estudiante, dni, curso, nivel, ciclo, fech
                 <View style={[styles.tableCol, { width: '15%' }]}>
                     <Text style={styles.tableCell}>{item.mes}</Text>
                 </View>
-                <View style={[styles.tableCol, { width: '10%' }]}>
+                <View style={[styles.tableCol, { width: '9%' }]}>
                     <Text style={styles.tableCell}>{item.año}</Text>
                 </View>
                 <View style={[styles.tableCol, { width: '12.5%' }]}>
                     <Text style={styles.tableCell}>{item.aprobado ? 'APROBADO' : 'REPROBADO'}</Text>
                 </View>
-                <View style={[styles.tableCol, { width: '10%' }]}>
+                <View style={[styles.tableCol, { width: '9%' }]}>
                     <Text style={styles.tableCell}>{item.nota}</Text>
                 </View>
             </View>
@@ -164,7 +173,7 @@ export default function NotasFormat({ estudiante, dni, curso, nivel, ciclo, fech
                 </View>
 
                 {/* Título "CONSTANCIA DE ..." */}
-                <View style={{ textAlign: 'center', alignItems: 'center', marginTop: 20, marginBottom: 20 }}>
+                <View style={{ textAlign: 'center', alignItems: 'center', marginTop: 20, marginBottom: 15 }}>
                     <Text style={styles.constanciaTitle}>CONSTANCIA DE NOTAS</Text>
                 </View>
                 {/* Cuerpo del texto */}
@@ -172,7 +181,7 @@ export default function NotasFormat({ estudiante, dni, curso, nivel, ciclo, fech
                     El director del Centro de Idiomas de la Universidad Nacional del Callao, hace constar:
                     {"\n"}
                     Que, el (la) estudiante {(estudiante || '').toLocaleUpperCase()}, identificado con DNI {dni || ''}, ha cursado y aprobado el idioma {curso || ''},
-                    hasta {nivel || ''} {ciclo || ''}, obteniendo las siguienes calificaciones.
+                    hasta {getNivelName(nivel)} {ciclo || ''}, obteniendo las siguienes calificaciones.
                     {"\n\n"}
                 </Text>
                 <View style={styles.table}>
@@ -180,7 +189,7 @@ export default function NotasFormat({ estudiante, dni, curso, nivel, ciclo, fech
                         <View style={[styles.tableColHeader, { width: '15%' }]}>
                             <Text style={styles.tableCellHeader}>IDIOMA</Text>
                         </View>
-                        <View style={[styles.tableColHeader, { width: '12.5%' }]}>
+                        <View style={[styles.tableColHeader, { width: '14.5%' }]}>
                             <Text style={styles.tableCellHeader}>NIVEL</Text>
                         </View>
                         <View style={[styles.tableColHeader, { width: '10%' }]}>
@@ -192,13 +201,13 @@ export default function NotasFormat({ estudiante, dni, curso, nivel, ciclo, fech
                         <View style={[styles.tableColHeader, { width: '15%' }]}>
                             <Text style={styles.tableCellHeader}>MES</Text>
                         </View>
-                        <View style={[styles.tableColHeader, { width: '10%' }]}>
+                        <View style={[styles.tableColHeader, { width: '9%' }]}>
                             <Text style={styles.tableCellHeader}>AÑO</Text>
                         </View>
                         <View style={[styles.tableColHeader, { width: '12.5%' }]}>
                             <Text style={styles.tableCellHeader}>ESTADO</Text>
                         </View>
-                        <View style={[styles.tableColHeader, { width: '10%' }]}>
+                        <View style={[styles.tableColHeader, { width: '9%' }]}>
                             <Text style={styles.tableCellHeader}>NOTA</Text>
                         </View>
                     </View>
