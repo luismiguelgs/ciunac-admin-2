@@ -56,6 +56,9 @@ export default function ConstanciaForm({ constancia }: ConstanciaFormProps) {
     const { data: idiomas, loading: loadingIdiomas } = useOpciones<IIdioma>(Collection.Idiomas)
     const { data: niveles, loading: loadingNiveles } = useOpciones<INivel>(Collection.Niveles)
     const tipoValue = form.watch('tipo')
+    const idiomaValue = form.watch('idioma')
+    const nivelValue = form.watch('nivel')
+    const cicloValue = form.watch('ciclo')
 
     // Efecto para convertir IDs a nombres en caso de que vengan de la BD como números
     React.useEffect(() => {
@@ -409,6 +412,9 @@ export default function ConstanciaForm({ constancia }: ConstanciaFormProps) {
                     detalle={detalle}
                     onChange={setDetalle}
                     disabled={!isEditing}
+                    ciclo={cicloValue}
+                    idioma={idiomaValue}
+                    nivel={nivelValue}
                 />
             )}
         </div>

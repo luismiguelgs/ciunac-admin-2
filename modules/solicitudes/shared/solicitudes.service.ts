@@ -12,12 +12,12 @@ export default class SolicitudesService {
     }
 
     //Eliminar Solicitud
-    public static async delete(id: number | string): Promise<boolean> {
+    public static async delete(id: number | string): Promise<unknown> {
         try {
-            await apiFetch(`${this.collection}/${id}`, 'DELETE');
-            return true;
+            const response = await apiFetch(`${this.collection}/${id}/rechazo`, 'PATCH');
+            return response;
         } catch (error) {
-            console.error("Error al eliminar la solicitud:", error);
+            console.error("Error al rechazar la solicitud:", error);
             return false;
         }
     }

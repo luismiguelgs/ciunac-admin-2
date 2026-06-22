@@ -14,6 +14,7 @@ import useOpciones from "@/modules/estructura/hooks/use-opciones"
 import { Collection } from "@/modules/estructura/services/opciones.service"
 import { IIdioma, INivel } from "@/modules/estructura/interfaces/types.interface"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 // Component for Detalle de Notas
 
@@ -21,9 +22,19 @@ interface DetalleNotasTableProps {
     detalle: IConstanciaDetalle[]
     onChange: (detalle: IConstanciaDetalle[]) => void
     disabled?: boolean
+    ciclo?: number | string | null
+    idioma?: string | null
+    nivel?: string | null
 }
 
-export function DetalleNotasTable({ detalle, onChange, disabled = false }: DetalleNotasTableProps) {
+export function DetalleNotasTable({
+    detalle,
+    onChange,
+    disabled = false,
+    ciclo,
+    idioma,
+    nivel,
+}: DetalleNotasTableProps) {
     const [data, setData] = React.useState<IConstanciaDetalle[]>(detalle)
     const [editingRowId, setEditingRowId] = React.useState<string | null>(null)
 
@@ -41,20 +52,39 @@ export function DetalleNotasTable({ detalle, onChange, disabled = false }: Detal
     }, [detalle])
 
     const handleRowAdd = () => {
-        const newRow: IConstanciaDetalle = {
+        const parsedCycle = Math.trunc(Number(ciclo))
+        const cycleCount = Number.isFinite(parsedCycle) && parsedCycle > 1 ? parsedCycle : 1
+        const existingCycles = new Set(
+            data
+                .map(row => Math.trunc(Number(row.ciclo)))
+                .filter(value => Number.isFinite(value) && value >= 1)
+        )
+        const missingCycles = Array.from(
+            { length: cycleCount },
+            (_, index) => index + 1
+        ).filter(value => !existingCycles.has(value))
+
+        if (missingCycles.length === 0) {
+            toast.info("Todos los ciclos ya tienen una fila de detalle")
+            return
+        }
+
+        const currentYear = new Date().getFullYear().toString()
+        const newRows: IConstanciaDetalle[] = missingCycles.map(cycleNumber => ({
             id: crypto.randomUUID(),
-            idioma: '',
-            nivel: '',
-            ciclo: '',
+            idioma: idioma || '',
+            nivel: nivel || '',
+            ciclo: String(cycleNumber),
             modalidad: 'REGULAR',
             mes: '',
-            año: new Date().getFullYear().toString(),
+            año: currentYear,
             aprobado: true,
             nota: 0,
             isNew: true,
-        }
-        setData(prev => [...prev, newRow])
-        setEditingRowId(newRow.id!)
+        }))
+
+        setData(prev => [...prev, ...newRows])
+        setEditingRowId(newRows[0].id!)
     }
 
     const handleRowUpdate = async (newRow: IConstanciaDetalle) => {
