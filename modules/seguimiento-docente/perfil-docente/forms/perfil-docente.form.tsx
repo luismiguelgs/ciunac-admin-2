@@ -19,8 +19,8 @@ import { IIdioma } from "@/modules/estructura/interfaces/types.interface";
 import DocentesService from "@/modules/seguimiento-docente/docentes/docente.service";
 import { IDocente } from "@/modules/seguimiento-docente/docentes/docente.interface";
 import SaveButton from "@/components/save.button";
-import { ComboField } from "@/components/forms/combo.field";
 import { AuditSection } from "@/components/audit.section";
+import { DocenteComboField } from "@/modules/seguimiento-docente/docentes/components/docente-combo.field";
 
 export default function PerfilDocenteForm({ perfil, editable = true }: { perfil?: PerfilDocente, editable?: boolean }) {
     const form = useForm<PerfilDocenteSchema>({
@@ -85,7 +85,6 @@ export default function PerfilDocenteForm({ perfil, editable = true }: { perfil?
     const currentDocenteId = React.useMemo(() => String(perfil?.docenteId ?? ""), [perfil?.docenteId]);
 
     const optionsIdiomas = idiomas?.map(i => ({ label: i.nombre, value: String(i.id) })) || [];
-    const optionsDocentes = docentes?.filter(d => d.activo || String(d.id) === currentDocenteId).map(d => ({ label: `${d.nombres} ${d.apellidos}`, value: String(d.id) })) || [];
 
     return (
         <>
@@ -99,13 +98,12 @@ export default function PerfilDocenteForm({ perfil, editable = true }: { perfil?
                 <CardContent>
                     <form id="perfil-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <ComboField
+                            <DocenteComboField
                                 control={form.control}
                                 name="docenteId"
-                                label="Docente"
-                                placeholder="Buscar docente..."
+                                docentes={docentes}
+                                currentDocenteId={currentDocenteId}
                                 description="Seleccione un docente."
-                                options={optionsDocentes}
                                 loading={loadingDocentes}
                                 disabled={!isEditing}
                             />

@@ -2,13 +2,15 @@
 
 import React from "react"
 import { ColumnDef } from "@tanstack/react-table"
-import { Ban, Eye, RotateCcw } from "lucide-react"
+import { Ban, Eye, FilePenLine, Globe2, RotateCcw } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { DataTable } from "@/components/datatable/data-table"
 import { DataTableSkeleton } from "@/components/datatable/data-table-skeleton"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { getItemByCode } from "@/lib/common"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -26,13 +28,21 @@ import { SolicitudConstanciasRejectDialog } from "./solicitud-constancias-reject
 interface SolicitudConstanciasDataTableProps {
     data: ISolicitud[]
     actionMode?: "reject" | "restore"
+    basePath?: string
+    showTipoColumn?: boolean
+    showNivelColumn?: boolean
+    showOnlineColumn?: boolean
 }
 
 const NUEVAS_ESTADO_ID = 1
 
 export function SolicitudConstanciasDataTable({
     data,
-    actionMode = "reject"
+    actionMode = "reject",
+    basePath = "/solicitudes/constancias",
+    showTipoColumn = true,
+    showNivelColumn = false,
+    showOnlineColumn = true
 }: SolicitudConstanciasDataTableProps) {
     const router = useRouter()
     const [isRejectDialogOpen, setIsRejectDialogOpen] = React.useState(false)
@@ -88,16 +98,59 @@ export function SolicitudConstanciasDataTable({
             id: "documento",
             header: "Documento",
         },
-        {
+        ...(showTipoColumn ? [{
             accessorFn: (row) => row.tiposSolicitud?.solicitud,
             id: "tipo",
             header: "Tipo",
-        },
+        } satisfies ColumnDef<ISolicitud>] : []),
+        ...(showNivelColumn ? [{
+            accessorFn: (row) => row.nivel?.nombre,
+            id: "nivel",
+            header: "Nivel",
+        } satisfies ColumnDef<ISolicitud>] : []),
         {
             accessorFn: (row) => row.idioma?.nombre,
             id: "idioma",
             header: "Idioma",
+            cell: ({ row }) => {
+                const solicitud = row.original
+                const idiomaNombre = solicitud.idioma?.nombre || "Idioma"
+
+                return (
+                    <div className="flex items-center gap-2">
+                        {getItemByCode(solicitud.idiomaId, idiomaNombre)}
+                        <span>{idiomaNombre}</span>
+                    </div>
+                )
+            }
         },
+        ...(showOnlineColumn ? [{
+            accessorFn: (row) => !row.manual,
+            id: "online",
+            header: "Online",
+            cell: ({ row }) => {
+                const solicitud = row.original
+                const isOnline = !solicitud.manual
+
+                return (
+                    <Badge
+                        variant="outline"
+                        title={isOnline ? "Solicitud online" : "Solicitud manual"}
+                        className={isOnline
+                            ? "w-fit gap-1 border-emerald-200 bg-emerald-50 text-emerald-700"
+                            : "w-fit gap-1 border-amber-200 bg-amber-50 text-amber-700"
+                        }
+                    >
+                        {isOnline ? (
+                            <Globe2 className="h-3.5 w-3.5" />
+                        ) : (
+                            <FilePenLine className="h-3.5 w-3.5" />
+                        )}
+                        {isOnline ? "Online" : "Manual"}
+                    </Badge>
+                )
+            }
+        } satisfies ColumnDef<ISolicitud>] : []),
         {
             accessorKey: "pago",
             header: "Pago",
@@ -121,7 +174,7 @@ export function SolicitudConstanciasDataTable({
                 return (
                     <div className="flex items-center gap-2">
                         <Button variant="ghost" size="icon" asChild title="Ver detalles">
-                            <Link href={`/solicitudes/constancias/${solicitud.id}`}>
+                            <Link href={`${basePath}/${solicitud.id}`}>
                                 <Eye className="h-4 w-4" />
                             </Link>
                         </Button>

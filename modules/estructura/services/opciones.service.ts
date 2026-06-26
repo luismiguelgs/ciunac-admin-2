@@ -9,7 +9,8 @@ export enum Collection {
     Escuelas = 'escuelas',
     Modulos = 'modulos',
     Ciclos = 'ciclos',
-    Niveles = 'niveles'
+    Niveles = 'niveles',
+    Textos = 'textos'
 }
 
 export default class OpcionesService {

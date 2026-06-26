@@ -26,6 +26,7 @@ import {
     PenTool,
     Check,
     Archive,
+    List,
 } from "lucide-react"
 
 import { NavMain } from "@/components/sidebar/nav-main"
@@ -181,6 +182,12 @@ const data: {
                     requiredPermission: getPermissionByExactPath("/solicitudes/constancias")
                 },
                 {
+                    title: "Examen de Ubicacion",
+                    url: "/solicitudes/ubicacion",
+                    icon: School,
+                    requiredPermission: getPermissionByExactPath("/solicitudes/ubicacion")
+                },
+                {
                     title: "Importar Pagos",
                     url: "/solicitudes/importar-pagos",
                     icon: Upload,
@@ -216,6 +223,37 @@ const data: {
                     url: "/constancias/nueva",
                     icon: FilePlus,
                     requiredPermission: getPermissionByExactPath("/constancias/nueva")
+                }
+            ]
+        },
+        {
+            title: "Examen de Ubicación",
+            url: "#",
+            icon: School,
+            items: [
+                {
+                    title: "Lista de exámenes",
+                    url: "/examen-ubicacion",
+                    icon: List,
+                    requiredPermission: getPermissionByExactPath("/examen-ubicacion")
+                },
+                {
+                    title: "Nuevo examen",
+                    url: "/examen-ubicacion/nuevo",
+                    icon: FilePlus,
+                    requiredPermission: getPermissionByExactPath("/examen-ubicacion/nuevo")
+                },
+                {
+                    title: "Participantes",
+                    url: "/examen-ubicacion/participantes",
+                    icon: Users,
+                    requiredPermission: getPermissionByExactPath("/examen-ubicacion/participantes")
+                },
+                {
+                    title: "Configuración",
+                    url: "/examen-ubicacion/configuracion",
+                    icon: Settings,
+                    requiredPermission: getPermissionByExactPath("/examen-ubicacion/configuracion")
                 }
             ]
         }

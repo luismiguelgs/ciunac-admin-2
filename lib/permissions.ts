@@ -5,6 +5,7 @@ import type { PermissionCode } from "@/lib/access-control";
 const ROLE_RESTRICTED_PERMISSIONS: PermissionCode[] = [
     "gestion_constancias",
     "gestion_solicitudes",
+    "examenes_ubicacion",
     "importar_pagos",
 ];
 

@@ -32,6 +32,8 @@ interface DataTableProps<TData, TValue> {
     filterColumn: string
     selectable?: boolean
     pageSize?: number
+    searchPlaceholder?: string
+    initialColumnVisibility?: VisibilityState
 }
 
 export function DataTable<TData, TValue>({
@@ -39,11 +41,13 @@ export function DataTable<TData, TValue>({
     data,
     filterColumn,
     selectable = false,
-    pageSize = 10
+    pageSize = 10,
+    searchPlaceholder,
+    initialColumnVisibility
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(initialColumnVisibility ?? {})
     const [rowSelection, setRowSelection] = React.useState({})
     const table = useReactTable({
         data,
@@ -73,7 +77,7 @@ export function DataTable<TData, TValue>({
         <>
             <div className="flex items-center py-4">
                 <Input
-                    placeholder="Buscar..."
+                    placeholder={searchPlaceholder ?? "Buscar..."}
                     value={(table.getColumn(filterColumn)?.getFilterValue() as string) ?? ""}
                     onChange={(event) =>
                         table.getColumn(filterColumn)?.setFilterValue(event.target.value)
@@ -118,7 +122,7 @@ export function DataTable<TData, TValue>({
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
+                                <TableCell colSpan={table.getVisibleLeafColumns().length} className="h-24 text-center">
                                     {/*No hay resultados.*/}
                                 </TableCell>
                             </TableRow>

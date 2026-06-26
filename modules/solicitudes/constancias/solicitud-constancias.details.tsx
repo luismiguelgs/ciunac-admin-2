@@ -62,13 +62,15 @@ interface SolicitudConstanciasDetailsProps {
     tiposSolicitud: ITipoSolicitud[]
     idiomas: IIdioma[]
     niveles: INivel[]
+    backHref?: string
 }
 
 export function SolicitudConstanciasDetails({
     solicitud,
     tiposSolicitud,
     idiomas,
-    niveles
+    niveles,
+    backHref = "/solicitudes/constancias"
 }: SolicitudConstanciasDetailsProps) {
     const router = useRouter()
     const [isSaving, setIsSaving] = React.useState(false)
@@ -165,7 +167,7 @@ export function SolicitudConstanciasDetails({
             <div className="max-w-6xl mx-auto space-y-8 pb-20 animate-in fade-in duration-500">
                 {/* Header Actions */}
                 <div className="flex items-center justify-between">
-                    <BackButton href="/solicitudes/constancias" />
+                    <BackButton href={backHref} />
 
                     <div className="flex items-center gap-3">
                         <Badge variant="outline" className={cn("gap-1.5 py-1 px-3 font-semibold shadow-sm", currentStatus.color)}>
