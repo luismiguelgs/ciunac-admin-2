@@ -9,12 +9,13 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ConfirmDeleteDialog } from "@/components/dialogs/confirm-delete-dialog"
+import { IEstado } from "@/modules/estructura/interfaces/types.interface"
 import { ISolicitud } from "@/modules/solicitudes/shared/solicitud.interface"
 import SolicitudesService from "@/modules/solicitudes/shared/solicitudes.service"
 import ICalificacionUbicacion from "../interfaces/calificacion.interface"
 import { IDetalleExamenUbicacion, IExamenUbicacion } from "../interfaces/examen-ubicacion.interface"
 import ExamenesUbicacionService from "../services/examenes-ubicacion.service"
-import { formatUbicacionFromCalificacion, obtenerResultadoUbicacion, SOLICITUD_ESTADOS } from "../examen-ubicacion.utils"
+import { findEstadoExamenByKey, formatUbicacionFromCalificacion, obtenerResultadoUbicacion, SOLICITUD_ESTADOS } from "../examen-ubicacion.utils"
 import { ExamRequestSelector } from "./exam-request-selector"
 import { PdfPreviewDialog } from "./pdf-preview-dialog"
 import { ConstanciaFormat } from "./formatos/constancia-format"
@@ -22,15 +23,19 @@ import { ConstanciaFormat } from "./formatos/constancia-format"
 interface ExamParticipantsProps {
     examen: IExamenUbicacion
     initialDetalles: IDetalleExamenUbicacion[]
-    solicitudesNuevas: ISolicitud[]
+    solicitudesPagadas: ISolicitud[]
     calificaciones: ICalificacionUbicacion[]
+    estados: IEstado[]
+    readOnly?: boolean
 }
 
 export function ExamParticipants({
     examen,
     initialDetalles,
-    solicitudesNuevas,
+    solicitudesPagadas,
     calificaciones,
+    estados,
+    readOnly = false,
 }: ExamParticipantsProps) {
     const router = useRouter()
     const [detalles, setDetalles] = React.useState(initialDetalles)
@@ -41,6 +46,9 @@ export function ExamParticipants({
     const calificacionById = React.useMemo(() => {
         return new Map(calificaciones.map((calificacion) => [calificacion.id, calificacion]))
     }, [calificaciones])
+    const asignadoEstadoId = React.useMemo(() => {
+        return findEstadoExamenByKey(estados, "ASIGNADO")?.id
+    }, [estados])
 
     React.useEffect(() => {
         setDetalles(initialDetalles)
@@ -51,6 +59,7 @@ export function ExamParticipants({
     }
 
     const handleDelete = async () => {
+        if (readOnly) return
         if (!deletingDetalle?.id) return
 
         try {
@@ -67,6 +76,7 @@ export function ExamParticipants({
     }
 
     const handleNotaBlur = async (detalle: IDetalleExamenUbicacion, rawValue: string) => {
+        if (readOnly) return
         if (!detalle.id) return
         const nota = Number(rawValue)
         if (Number.isNaN(nota)) {
@@ -115,6 +125,7 @@ export function ExamParticipants({
     }
 
     const handleTerminadoChange = async (detalle: IDetalleExamenUbicacion, checked: boolean) => {
+        if (readOnly) return
         if (!detalle.id) return
         setSavingId(detalle.id)
         try {
@@ -137,7 +148,7 @@ export function ExamParticipants({
         <div className="space-y-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-xl font-bold">Participantes</h2>
-                <Button onClick={() => setIsSelectorOpen(true)} disabled={!examen.id}>
+                <Button onClick={() => setIsSelectorOpen(true)} disabled={!examen.id || readOnly}>
                     <Plus className="mr-2 h-4 w-4" />
                     Asignar Participantes
                 </Button>
@@ -170,7 +181,7 @@ export function ExamParticipants({
                                             type="number"
                                             defaultValue={detalle.nota ?? 0}
                                             className="h-8 w-24"
-                                            disabled={detalle.terminado || savingId === detalle.id}
+                                            disabled={readOnly || detalle.terminado || savingId === detalle.id}
                                             onBlur={(event) => handleNotaBlur(detalle, event.target.value)}
                                         />
                                         {savingId === detalle.id ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
@@ -180,7 +191,7 @@ export function ExamParticipants({
                                 <TableCell>
                                     <Checkbox
                                         checked={detalle.terminado}
-                                        disabled={savingId === detalle.id}
+                                        disabled={readOnly || savingId === detalle.id}
                                         onCheckedChange={(checked) => handleTerminadoChange(detalle, checked === true)}
                                     />
                                 </TableCell>
@@ -189,7 +200,7 @@ export function ExamParticipants({
                                         <Button variant="ghost" size="icon" title="Ver constancia" onClick={() => setConstanciaDetalle(detalle)}>
                                             <FileText className="h-4 w-4" />
                                         </Button>
-                                        <Button variant="ghost" size="icon" title="Retirar participante" onClick={() => setDeletingDetalle(detalle)}>
+                                        <Button variant="ghost" size="icon" title="Retirar participante" disabled={readOnly} onClick={() => setDeletingDetalle(detalle)}>
                                             <Trash2 className="h-4 w-4 text-red-600" />
                                         </Button>
                                     </div>
@@ -213,9 +224,10 @@ export function ExamParticipants({
                     onOpenChange={setIsSelectorOpen}
                     examenId={examen.id}
                     idiomaId={examen.idiomaId}
-                    solicitudes={solicitudesNuevas}
+                    solicitudes={solicitudesPagadas}
                     detalles={detalles}
                     calificaciones={calificaciones}
+                    asignadoEstadoId={asignadoEstadoId}
                     onAssigned={refreshData}
                 />
             ) : null}

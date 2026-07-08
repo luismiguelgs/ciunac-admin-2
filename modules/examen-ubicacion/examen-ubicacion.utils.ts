@@ -1,23 +1,51 @@
+import { IEstado } from "@/modules/estructura/interfaces/types.interface"
+import { IExamenUbicacion } from "./interfaces/examen-ubicacion.interface"
 import ICalificacionUbicacion from "./interfaces/calificacion.interface"
 
-export const EXAMEN_ESTADOS = {
-    PROGRAMADO: 6,
-    ASIGNADO: 7,
-    TERMINADO: 8,
-} as const
+export const EXAMEN_ESTADO_REFERENCIA = "EXAMEN_UBICACION"
+export const EXAMEN_ACTA_GENERADA_ID = 13
+
+export type ExamenEstadoKey = "PROGRAMADO" | "ASIGNADO" | "TERMINADO" | "ACTA_GENERADA"
 
 export const SOLICITUD_ESTADOS = {
     NUEVA: 1,
+    PAGADA: 4,
     ASIGNADA: 12,
     TERMINADA: 3,
 } as const
 
-export function getEstadoExamenLabel(estadoId?: number, nombre?: string) {
+export function normalizeEstadoNombre(nombre?: string | null) {
+    return String(nombre ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[\s-]+/g, "_")
+        .toUpperCase()
+}
+
+export function getEstadosExamen(estados: IEstado[]) {
+    return estados.filter((estado) => estado.referencia === EXAMEN_ESTADO_REFERENCIA)
+}
+
+export function findEstadoExamenByKey(estados: IEstado[], key: ExamenEstadoKey) {
+    return getEstadosExamen(estados).find((estado) => normalizeEstadoNombre(estado.nombre) === key)
+}
+
+export function getEstadoExamenLabel(estadoId?: number, nombre?: string, estados: IEstado[] = []) {
     if (nombre) return nombre
-    if (estadoId === EXAMEN_ESTADOS.PROGRAMADO) return "Programado"
-    if (estadoId === EXAMEN_ESTADOS.ASIGNADO) return "Asignado"
-    if (estadoId === EXAMEN_ESTADOS.TERMINADO) return "Terminado"
-    return "Desconocido"
+    const estado = getEstadosExamen(estados).find((item) => item.id === estadoId)
+    return estado?.nombre ?? "Desconocido"
+}
+
+export function isEstadoExamen(key: ExamenEstadoKey, estadoId?: number, nombre?: string, estados: IEstado[] = []) {
+    if (normalizeEstadoNombre(nombre) === key) return true
+    const estado = getEstadosExamen(estados).find((item) => item.id === estadoId)
+    if (normalizeEstadoNombre(estado?.nombre) === key) return true
+
+    return key === "ACTA_GENERADA" && estadoId === EXAMEN_ACTA_GENERADA_ID
+}
+
+export function getActaExamenId(examen?: IExamenUbicacion | null) {
+    return examen?.actaId ?? examen?.acta?.id ?? null
 }
 
 export function obtenerResultadoUbicacion(

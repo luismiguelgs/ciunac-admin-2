@@ -8,6 +8,7 @@ import DocentesService from "@/modules/seguimiento-docente/docentes/docente.serv
 import { IDocente } from "@/modules/seguimiento-docente/docentes/docente.interface"
 import SolicitudesService from "@/modules/solicitudes/shared/solicitudes.service"
 import { ExamenDetail } from "@/modules/examen-ubicacion/components/examen-detail"
+import { SOLICITUD_ESTADOS } from "@/modules/examen-ubicacion/examen-ubicacion.utils"
 import CalificacionesUbicacionService from "@/modules/examen-ubicacion/services/calificaciones.service"
 import ExamenesUbicacionService from "@/modules/examen-ubicacion/services/examenes-ubicacion.service"
 
@@ -17,10 +18,10 @@ export default async function PageDetalleExamenUbicacion({ params }: { params: P
     await ensureServerPermission("/examen-ubicacion")
     const { id } = await params
 
-    const [examen, detalles, solicitudesNuevas, calificaciones, estados, idiomas, salones, docentes] = await Promise.all([
+    const [examen, detalles, solicitudesPagadas, calificaciones, estados, idiomas, salones, docentes] = await Promise.all([
         ExamenesUbicacionService.getById(id),
         ExamenesUbicacionService.fetchItemsDetail(id),
-        SolicitudesService.fetchItemByState("examenes-ubicacion", 1),
+        SolicitudesService.fetchItemByState("examenes-ubicacion", SOLICITUD_ESTADOS.PAGADA),
         CalificacionesUbicacionService.fetchItems(),
         OpcionesService.fetchItems<IEstado>(Collection.Estados),
         OpcionesService.fetchItems<IIdioma>(Collection.Idiomas),
@@ -35,14 +36,13 @@ export default async function PageDetalleExamenUbicacion({ params }: { params: P
             <NavigationBread
                 section="Examen de Ubicacion"
                 href="/examen-ubicacion"
-                page="Detalle"
                 extraPath={[{ label: `Examen #${id}`, href: `/examen-ubicacion/${id}` }]}
             />
             <div className="container mx-auto py-4 px-4">
                 <ExamenDetail
                     examen={examen}
                     detalles={detalles || []}
-                    solicitudesNuevas={solicitudesNuevas || []}
+                    solicitudesPagadas={solicitudesPagadas || []}
                     calificaciones={calificaciones || []}
                     estados={estados || []}
                     idiomas={idiomas || []}

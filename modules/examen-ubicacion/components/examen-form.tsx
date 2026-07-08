@@ -20,7 +20,7 @@ import { IDocente } from "@/modules/seguimiento-docente/docentes/docente.interfa
 import { DocenteComboField } from "@/modules/seguimiento-docente/docentes/components/docente-combo.field"
 import { IExamenUbicacion } from "../interfaces/examen-ubicacion.interface"
 import ExamenesUbicacionService from "../services/examenes-ubicacion.service"
-import { buildCodigoExamen, EXAMEN_ESTADOS } from "../examen-ubicacion.utils"
+import { buildCodigoExamen, findEstadoExamenByKey, getEstadosExamen } from "../examen-ubicacion.utils"
 
 const formSchema = z.object({
     estadoId: z.string().min(1, "Estado requerido"),
@@ -39,7 +39,9 @@ interface ExamenFormProps {
     idiomas: IIdioma[]
     salones: ISalon[]
     docentes: IDocente[]
-    onPreviewActa?: () => void
+    immutable?: boolean
+    onPreviewListado?: () => void
+    listadoActions?: React.ReactNode
 }
 
 export function ExamenForm({
@@ -48,27 +50,37 @@ export function ExamenForm({
     idiomas,
     salones,
     docentes,
-    onPreviewActa,
+    immutable = false,
+    onPreviewListado,
+    listadoActions,
 }: ExamenFormProps) {
     const router = useRouter()
     const [isEditing, setIsEditing] = React.useState(!examen)
     const isNew = !examen?.id
 
     const estadosExamen = React.useMemo(() => {
-        const filtered = estados.filter((estado) => estado.referencia === "EXAMEN_UBICACION")
-        return filtered.length
-            ? filtered
-            : [
-                { id: EXAMEN_ESTADOS.PROGRAMADO, nombre: "Programado", referencia: "EXAMEN_UBICACION" },
-                { id: EXAMEN_ESTADOS.ASIGNADO, nombre: "Asignado", referencia: "EXAMEN_UBICACION" },
-                { id: EXAMEN_ESTADOS.TERMINADO, nombre: "Terminado", referencia: "EXAMEN_UBICACION" },
-            ]
-    }, [estados])
+        const filtered = getEstadosExamen(estados)
+        const currentEstadoId = examen?.estadoId
+        const currentEstado = examen?.estado
+
+        if (
+            currentEstadoId &&
+            currentEstado?.nombre &&
+            currentEstado?.referencia === "EXAMEN_UBICACION" &&
+            !filtered.some((estado) => estado.id === currentEstadoId)
+        ) {
+            return [...filtered, currentEstado]
+        }
+
+        return filtered
+    }, [estados, examen?.estado, examen?.estadoId])
+
+    const estadoInicialId = examen?.estadoId ?? findEstadoExamenByKey(estados, "PROGRAMADO")?.id ?? ""
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            estadoId: String(examen?.estadoId ?? EXAMEN_ESTADOS.PROGRAMADO),
+            estadoId: estadoInicialId ? String(estadoInicialId) : "",
             fecha: examen?.fecha ? new Date(examen.fecha) : new Date(),
             aulaId: examen?.aulaId ? String(examen.aulaId) : "",
             docenteId: examen?.docenteId ?? "",
@@ -81,11 +93,20 @@ export function ExamenForm({
     const aulaId = form.watch("aulaId")
 
     React.useEffect(() => {
+        if (immutable && isEditing) {
+            form.reset()
+            setIsEditing(false)
+        }
+    }, [form, immutable, isEditing])
+
+    React.useEffect(() => {
         if (!idiomaId || !aulaId) return
         form.setValue("codigo", buildCodigoExamen(obtenerPeriodo(), idiomaId, aulaId), { shouldValidate: true })
     }, [aulaId, form, idiomaId])
 
     const onSubmit = async (values: FormValues) => {
+        if (immutable) return
+
         const payload: Partial<IExamenUbicacion> = {
             codigo: values.codigo,
             fecha: values.fecha.toISOString().split("T")[0],
@@ -123,35 +144,35 @@ export function ExamenForm({
                         control={form.control}
                         name="estadoId"
                         label="Estado"
-                        disabled={!isEditing}
+                        disabled={!isEditing || immutable}
                         options={estadosExamen.map((estado) => ({ label: estado.nombre, value: String(estado.id) }))}
                     />
                     <DatePicker
                         control={form.control}
                         name="fecha"
                         label="Fecha de Examen"
-                        disabled={!isEditing}
+                        disabled={!isEditing || immutable}
                         endYear={new Date().getFullYear() + 5}
                     />
                     <SelectField
                         control={form.control}
                         name="aulaId"
                         label="Sala"
-                        disabled={!isEditing}
+                        disabled={!isEditing || immutable}
                         options={salones.map((salon) => ({ label: salon.nombre, value: String(salon.id) }))}
                     />
                     <DocenteComboField
                         control={form.control}
                         name="docenteId"
                         docentes={docentes}
-                        disabled={!isEditing}
+                        disabled={!isEditing || immutable}
                         currentDocenteId={examen?.docenteId ? String(examen.docenteId) : undefined}
                     />
                     <SelectField
                         control={form.control}
                         name="idiomaId"
                         label="Idioma"
-                        disabled={!isNew || !isEditing}
+                        disabled={!isNew || !isEditing || immutable}
                         options={idiomas.map((idioma) => ({ label: idioma.nombre, value: String(idioma.id) }))}
                     />
                     <InputField
@@ -165,13 +186,14 @@ export function ExamenForm({
             <CardFooter className="flex flex-col gap-3 border-t bg-muted/30 p-4 sm:flex-row sm:justify-between">
                 <BackButton href="/examen-ubicacion" />
                 <div className="flex flex-wrap gap-2">
-                    {!isNew && onPreviewActa ? (
-                        <Button type="button" variant="outline" onClick={onPreviewActa}>
+                    {!isNew && onPreviewListado ? (
+                        <Button type="button" variant="outline" onClick={onPreviewListado} disabled={immutable}>
                             <Eye className="mr-2 h-4 w-4" />
-                            Ver Acta
+                            Ver listado
                         </Button>
                     ) : null}
-                    {!isNew && !isEditing ? (
+                    {!isNew ? listadoActions : null}
+                    {!isNew && !isEditing && !immutable ? (
                         <Button type="button" onClick={() => setIsEditing(true)}>
                             <Pencil className="mr-2 h-4 w-4" />
                             Editar

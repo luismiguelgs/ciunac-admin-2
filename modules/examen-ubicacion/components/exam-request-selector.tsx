@@ -20,7 +20,7 @@ import SolicitudesService from "@/modules/solicitudes/shared/solicitudes.service
 import { IDetalleExamenUbicacion } from "../interfaces/examen-ubicacion.interface"
 import ICalificacionUbicacion from "../interfaces/calificacion.interface"
 import ExamenesUbicacionService from "../services/examenes-ubicacion.service"
-import { EXAMEN_ESTADOS, obtenerResultadoUbicacion, SOLICITUD_ESTADOS } from "../examen-ubicacion.utils"
+import { obtenerResultadoUbicacion, SOLICITUD_ESTADOS } from "../examen-ubicacion.utils"
 
 interface ExamRequestSelectorProps {
     isOpen: boolean
@@ -30,6 +30,7 @@ interface ExamRequestSelectorProps {
     solicitudes: ISolicitud[]
     detalles: IDetalleExamenUbicacion[]
     calificaciones: ICalificacionUbicacion[]
+    asignadoEstadoId?: number
     onAssigned: () => void
 }
 
@@ -41,6 +42,7 @@ export function ExamRequestSelector({
     solicitudes,
     detalles,
     calificaciones,
+    asignadoEstadoId,
     onAssigned,
 }: ExamRequestSelectorProps) {
     const [selection, setSelection] = React.useState<number[]>([])
@@ -61,6 +63,10 @@ export function ExamRequestSelector({
         const selectedSolicitudes = availableSolicitudes.filter((solicitud) => selection.includes(solicitud.id))
         if (!selectedSolicitudes.length) {
             toast.info("Seleccione al menos una solicitud")
+            return
+        }
+        if (!asignadoEstadoId) {
+            toast.error("No se encontro el estado Asignado para examenes de ubicacion")
             return
         }
 
@@ -87,7 +93,7 @@ export function ExamRequestSelector({
                 await SolicitudesService.update(solicitud.id, { estadoId: SOLICITUD_ESTADOS.ASIGNADA })
             }
 
-            await ExamenesUbicacionService.updateStatus(examenId, EXAMEN_ESTADOS.ASIGNADO)
+            await ExamenesUbicacionService.updateStatus(examenId, asignadoEstadoId)
             toast.success("Participantes asignados correctamente")
             setSelection([])
             onAssigned()
@@ -106,7 +112,7 @@ export function ExamRequestSelector({
                 <SheetHeader>
                     <SheetTitle>Asignar Participantes</SheetTitle>
                     <SheetDescription>
-                        Seleccione solicitudes nuevas del mismo idioma para asignarlas al examen.
+                        Seleccione solicitudes pagadas del mismo idioma para asignarlas al examen.
                     </SheetDescription>
                 </SheetHeader>
                 <div className="flex-1 overflow-auto px-4">
@@ -145,7 +151,7 @@ export function ExamRequestSelector({
                             {!availableSolicitudes.length ? (
                                 <TableRow>
                                     <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                                        No hay solicitudes nuevas para asignar.
+                                        No hay solicitudes pagadas para asignar.
                                     </TableCell>
                                 </TableRow>
                             ) : null}

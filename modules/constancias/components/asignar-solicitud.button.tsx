@@ -118,7 +118,7 @@ export function AsignarSolicitudButton({ onAsignar }: AsignarSolicitudButtonProp
           ) : filteredSolicitudes.length === 0 ? (
             <div className="text-center text-muted-foreground py-12">
               <Search className="h-10 w-10 mx-auto mb-3 opacity-20" />
-              <p>No se encontraron resultados para "{searchQuery}".</p>
+              <p>No se encontraron resultados para &quot;{searchQuery}&quot;.</p>
             </div>
           ) : (
             <div className="flex flex-col">

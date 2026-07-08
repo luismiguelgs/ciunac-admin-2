@@ -10,11 +10,13 @@ import { ExamenForm } from "./examen-form"
 import { ExamParticipants } from "./exam-participants"
 import { PdfPreviewDialog } from "./pdf-preview-dialog"
 import { ActaFormat } from "./formatos/acta-format"
+import { ActaExamenButton } from "./acta-examen.button"
+import { isEstadoExamen } from "../examen-ubicacion.utils"
 
 interface ExamenDetailProps {
     examen: IExamenUbicacion
     detalles: IDetalleExamenUbicacion[]
-    solicitudesNuevas: ISolicitud[]
+    solicitudesPagadas: ISolicitud[]
     calificaciones: ICalificacionUbicacion[]
     estados: IEstado[]
     idiomas: IIdioma[]
@@ -25,14 +27,16 @@ interface ExamenDetailProps {
 export function ExamenDetail({
     examen,
     detalles,
-    solicitudesNuevas,
+    solicitudesPagadas,
     calificaciones,
     estados,
     idiomas,
     salones,
     docentes,
 }: ExamenDetailProps) {
-    const [isActaOpen, setIsActaOpen] = React.useState(false)
+    const [isListadoOpen, setIsListadoOpen] = React.useState(false)
+    const [isActaGeneratedLocally, setIsActaGeneratedLocally] = React.useState(false)
+    const isActaGenerada = isActaGeneratedLocally || isEstadoExamen("ACTA_GENERADA", examen.estadoId, examen.estado?.nombre, estados)
 
     return (
         <div className="space-y-8">
@@ -42,18 +46,28 @@ export function ExamenDetail({
                 idiomas={idiomas}
                 salones={salones}
                 docentes={docentes}
-                onPreviewActa={() => setIsActaOpen(true)}
+                immutable={isActaGenerada}
+                onPreviewListado={() => setIsListadoOpen(true)}
+                listadoActions={
+                    <ActaExamenButton
+                        examen={examen}
+                        estados={estados}
+                        onGenerated={() => setIsActaGeneratedLocally(true)}
+                    />
+                }
             />
             <ExamParticipants
                 examen={examen}
                 initialDetalles={detalles}
-                solicitudesNuevas={solicitudesNuevas}
+                solicitudesPagadas={solicitudesPagadas}
                 calificaciones={calificaciones}
+                estados={estados}
+                readOnly={isActaGenerada}
             />
             <PdfPreviewDialog
-                isOpen={isActaOpen}
-                onOpenChange={setIsActaOpen}
-                title="Acta del Examen"
+                isOpen={isListadoOpen}
+                onOpenChange={setIsListadoOpen}
+                title="Listado del Examen"
             >
                 <ActaFormat examen={examen} detalle={detalles} />
             </PdfPreviewDialog>

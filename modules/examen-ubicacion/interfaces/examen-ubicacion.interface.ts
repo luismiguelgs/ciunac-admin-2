@@ -8,6 +8,7 @@ export interface IExamenUbicacion {
     idiomaId: number
     docenteId: string
     aulaId: number
+    actaId?: number | string
     creadoEn?: string | Date
     modificadoEn?: string | Date
     estado?: {
@@ -25,6 +26,9 @@ export interface IExamenUbicacion {
         nombre: string
         tipo?: string
         ubicacion?: string
+    }
+    acta?: {
+        id: number | string
     }
 }
 

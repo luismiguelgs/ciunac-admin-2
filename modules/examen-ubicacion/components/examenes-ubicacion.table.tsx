@@ -13,19 +13,24 @@ import { DataTableSkeleton } from "@/components/datatable/data-table-skeleton"
 import { ConfirmDeleteDialog } from "@/components/dialogs/confirm-delete-dialog"
 import { formatDate } from "@/lib/utils"
 import { getItemByCode } from "@/lib/common"
+import useOpciones from "@/modules/estructura/hooks/use-opciones"
+import { IEstado } from "@/modules/estructura/interfaces/types.interface"
+import { Collection } from "@/modules/estructura/services/opciones.service"
 import { IExamenUbicacion } from "../interfaces/examen-ubicacion.interface"
 import ExamenesUbicacionService from "../services/examenes-ubicacion.service"
-import { EXAMEN_ESTADOS, getEstadoExamenLabel } from "../examen-ubicacion.utils"
+import { getEstadoExamenLabel, isEstadoExamen } from "../examen-ubicacion.utils"
 
 interface ExamenesUbicacionTableProps {
     data: IExamenUbicacion[]
 }
 
-function EstadoBadge({ examen }: { examen: IExamenUbicacion }) {
-    const label = getEstadoExamenLabel(examen.estadoId, examen.estado?.nombre)
-    const className = examen.estadoId === EXAMEN_ESTADOS.TERMINADO
+function EstadoBadge({ examen, estados }: { examen: IExamenUbicacion; estados: IEstado[] }) {
+    const label = getEstadoExamenLabel(examen.estadoId, examen.estado?.nombre, estados)
+    const className = isEstadoExamen("ACTA_GENERADA", examen.estadoId, examen.estado?.nombre, estados)
+        ? "border-violet-200 bg-violet-50 text-violet-700"
+        : isEstadoExamen("TERMINADO", examen.estadoId, examen.estado?.nombre, estados)
         ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-        : examen.estadoId === EXAMEN_ESTADOS.ASIGNADO
+        : isEstadoExamen("ASIGNADO", examen.estadoId, examen.estado?.nombre, estados)
             ? "border-blue-200 bg-blue-50 text-blue-700"
             : "border-amber-200 bg-amber-50 text-amber-700"
 
@@ -36,6 +41,7 @@ export function ExamenesUbicacionTable({ data }: ExamenesUbicacionTableProps) {
     const router = useRouter()
     const [selected, setSelected] = React.useState<IExamenUbicacion | null>(null)
     const [isDeleting, setIsDeleting] = React.useState(false)
+    const { data: estados } = useOpciones<IEstado>(Collection.Estados)
 
     const sortedData = React.useMemo(() => {
         return [...data].sort((a, b) => String(b.codigo ?? "").localeCompare(String(a.codigo ?? "")))
@@ -69,7 +75,7 @@ export function ExamenesUbicacionTable({ data }: ExamenesUbicacionTableProps) {
         {
             accessorKey: "estadoId",
             header: "Estado",
-            cell: ({ row }) => <EstadoBadge examen={row.original} />
+            cell: ({ row }) => <EstadoBadge examen={row.original} estados={estados} />
         },
         {
             accessorKey: "fecha",
@@ -99,24 +105,28 @@ export function ExamenesUbicacionTable({ data }: ExamenesUbicacionTableProps) {
         {
             id: "acciones",
             header: "Acciones",
-            cell: ({ row }) => (
-                <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" asChild title="Ver detalle">
-                        <Link href={`/examen-ubicacion/${row.original.id}`}>
-                            <Eye className="h-4 w-4" />
-                        </Link>
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        title="Eliminar examen"
-                        disabled={isDeleting}
-                        onClick={() => setSelected(row.original)}
-                    >
-                        <Trash2 className="h-4 w-4 text-red-600" />
-                    </Button>
-                </div>
-            )
+            cell: ({ row }) => {
+                const isActaGenerada = isEstadoExamen("ACTA_GENERADA", row.original.estadoId, row.original.estado?.nombre, estados)
+
+                return (
+                    <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="icon" asChild title="Ver detalle">
+                            <Link href={`/examen-ubicacion/${row.original.id}`}>
+                                <Eye className="h-4 w-4" />
+                            </Link>
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            title="Eliminar examen"
+                            disabled={isDeleting || isActaGenerada}
+                            onClick={() => setSelected(row.original)}
+                        >
+                            <Trash2 className="h-4 w-4 text-red-600" />
+                        </Button>
+                    </div>
+                )
+            }
         }
     ]
 

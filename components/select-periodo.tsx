@@ -23,66 +23,66 @@ interface SelectPeriodoProps<T extends FieldValues> {
     label?: string
 }
 
-export function SelectPeriodo<T extends FieldValues>({
-    control,
-    name,
-    value: propValue,
-    onValueChange: propOnValueChange,
-    className,
-    placeholder = "Seleccionar periodo",
-    disabled = false,
-    triggerClassName,
-    orientation = "vertical",
-    label = "Periodo"
-}: SelectPeriodoProps<T>) {
+interface BaseSelectPeriodoProps {
+    value?: string
+    onValueChange?: (value: string) => void
+    className?: string
+    placeholder: string
+    disabled: boolean
+    triggerClassName?: string
+    label: string
+    selectId?: string
+    invalid?: boolean
+    showLoadingDescription?: boolean
+}
+
+function useVisiblePeriodos(value?: string, onValueChange?: (value: string) => void) {
     const { data: rawData, loading } = useOpciones<IModulo>(Collection.Modulos)
+    const periodos = React.useMemo(() => rawData?.filter((modulo) => modulo.visible) || [], [rawData])
 
-    // Setup form controller if control and name provided
-    const controller = control && name ? useController({ control, name }) : null
-    const field = controller?.field
-    const fieldState = controller?.fieldState
-
-    // Determine current value and change handler
-    const currentValue = field ? field.value : propValue
-    const handleChange = field ? field.onChange : propOnValueChange
-
-    // Filter visible modules
-    const periodos = React.useMemo(() => {
-        return rawData?.filter((m) => m.visible) || []
-    }, [rawData])
-
-    // Set default active period if no value is provided
     React.useEffect(() => {
-        if (!loading && periodos.length > 0 && !currentValue && handleChange) {
-            const active = periodos.find((m) => m.activo)
-            if (active && active.id) {
-                handleChange(String(active.id))
-            } else if (periodos[0]?.id) {
-                // Fallback to first visible
-                handleChange(String(periodos[0].id))
+        if (!loading && periodos.length > 0 && !value && onValueChange) {
+            const active = periodos.find((modulo) => modulo.activo)
+            const defaultPeriod = active ?? periodos[0]
+
+            if (defaultPeriod?.id) {
+                onValueChange(String(defaultPeriod.id))
             }
         }
-    }, [loading, periodos, currentValue, handleChange])
+    }, [loading, periodos, value, onValueChange])
+
+    return { loading, periodos }
+}
+
+function BaseSelectPeriodo({
+    value,
+    onValueChange,
+    className,
+    placeholder,
+    disabled,
+    triggerClassName,
+    label,
+    selectId,
+    invalid,
+    showLoadingDescription = false,
+}: BaseSelectPeriodoProps) {
+    const { loading, periodos } = useVisiblePeriodos(value, onValueChange)
 
     if (loading) {
         return (
             <div className={cn("space-y-2", className)}>
                 {label && <Skeleton className="h-4 w-20" />}
                 <Skeleton className="h-10 w-full" />
-                {control && name && <Skeleton className="h-3 w-40" />}
+                {showLoadingDescription && <Skeleton className="h-3 w-40" />}
             </div>
         )
     }
 
-    const SelectComponent = (
-        <Select
-            value={currentValue}
-            onValueChange={handleChange}
-            disabled={disabled}
-        >
+    return (
+        <Select value={value} onValueChange={onValueChange} disabled={disabled}>
             <SelectTrigger
-                id={name ? `select-${name}` : undefined}
-                aria-invalid={fieldState?.invalid}
+                id={selectId}
+                aria-invalid={invalid}
                 className={cn("w-full", triggerClassName)}
             >
                 <SelectValue placeholder={placeholder} />
@@ -96,36 +96,115 @@ export function SelectPeriodo<T extends FieldValues>({
             </SelectContent>
         </Select>
     )
+}
 
-    if (control && name && fieldState) {
-        return (
-            <Field
-                orientation={orientation}
-                data-invalid={fieldState.invalid}
-                className={className}
-            >
-                {label && (
-                    <FieldLabel htmlFor={`select-${name}`}>
-                        {label}
-                    </FieldLabel>
+function ControlledSelectPeriodo<T extends FieldValues>({
+    control,
+    name,
+    className,
+    placeholder,
+    disabled,
+    triggerClassName,
+    orientation,
+    label,
+}: SelectPeriodoProps<T> & { control: Control<T>; name: Path<T>; placeholder: string; disabled: boolean; label: string }) {
+    const { field, fieldState } = useController({ control, name })
+    const selectId = `select-${name}`
+
+    return (
+        <Field
+            orientation={orientation}
+            data-invalid={fieldState.invalid}
+            className={className}
+        >
+            {label && (
+                <FieldLabel htmlFor={selectId}>
+                    {label}
+                </FieldLabel>
+            )}
+            <FieldContent>
+                <BaseSelectPeriodo
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder={placeholder}
+                    disabled={disabled}
+                    triggerClassName={triggerClassName}
+                    label={label}
+                    selectId={selectId}
+                    invalid={fieldState.invalid}
+                    showLoadingDescription
+                />
+                <FieldDescription>
+                    Seleccionar {label}
+                </FieldDescription>
+                {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
                 )}
-                <FieldContent>
-                    {SelectComponent}
-                    <FieldDescription>
-                        Seleccionar {label}
-                    </FieldDescription>
-                    {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
-                    )}
-                </FieldContent>
-            </Field>
+            </FieldContent>
+        </Field>
+    )
+}
+
+function StandaloneSelectPeriodo({
+    value,
+    onValueChange,
+    className,
+    placeholder,
+    disabled,
+    triggerClassName,
+    label,
+}: BaseSelectPeriodoProps) {
+    return (
+        <div className={className}>
+            {label && <label className="text-sm font-medium mb-2 block">{label}</label>}
+            <BaseSelectPeriodo
+                value={value}
+                onValueChange={onValueChange}
+                placeholder={placeholder}
+                disabled={disabled}
+                triggerClassName={triggerClassName}
+                label={label}
+            />
+        </div>
+    )
+}
+
+export function SelectPeriodo<T extends FieldValues>({
+    control,
+    name,
+    value,
+    onValueChange,
+    className,
+    placeholder = "Seleccionar periodo",
+    disabled = false,
+    triggerClassName,
+    orientation = "vertical",
+    label = "Periodo"
+}: SelectPeriodoProps<T>) {
+    if (control && name) {
+        return (
+            <ControlledSelectPeriodo
+                control={control}
+                name={name}
+                className={className}
+                placeholder={placeholder}
+                disabled={disabled}
+                triggerClassName={triggerClassName}
+                orientation={orientation}
+                label={label}
+            />
         )
     }
 
     return (
-        <div className={className}>
-            {label && !control && <label className="text-sm font-medium mb-2 block">{label}</label>}
-            {SelectComponent}
-        </div>
+        <StandaloneSelectPeriodo
+            value={value}
+            onValueChange={onValueChange}
+            className={className}
+            placeholder={placeholder}
+            disabled={disabled}
+            triggerClassName={triggerClassName}
+            label={label}
+        />
     )
 }

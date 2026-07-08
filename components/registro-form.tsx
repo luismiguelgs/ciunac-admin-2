@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -192,7 +193,7 @@ export function RegistroForm({
                                     {isLoading ? "Registrando..." : "Registrarse"}
                                 </Button>
                                 <FieldDescription className="text-center mt-4">
-                                    ¿Ya tienes una cuenta? <a href="/" className="underline">Inicia sesión</a>
+                                    ¿Ya tienes una cuenta? <Link href="/" className="underline">Inicia sesión</Link>
                                 </FieldDescription>
                             </Field>
                         </FieldGroup>
