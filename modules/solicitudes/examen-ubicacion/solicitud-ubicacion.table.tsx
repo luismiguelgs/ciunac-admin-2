@@ -1,6 +1,6 @@
 'use client'
 
-import { SolicitudConstanciasDataTable } from "../constancias/solicitud-constancias.table"
+import { SolicitudDataTable } from "../shared/solicitud-data-table"
 import { ISolicitud } from "../shared/solicitud.interface"
 
 interface SolicitudUbicacionDataTableProps {
@@ -13,7 +13,7 @@ export function SolicitudUbicacionDataTable({
     actionMode = "reject"
 }: SolicitudUbicacionDataTableProps) {
     return (
-        <SolicitudConstanciasDataTable
+        <SolicitudDataTable
             data={data}
             actionMode={actionMode}
             basePath="/solicitudes/ubicacion"

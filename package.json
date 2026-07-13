@@ -1,6 +1,6 @@
 {
   "name": "ciunac-admin",
-  "version": "1.8.4",
+  "version": "1.8.7",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -26,6 +26,7 @@
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "@react-input/mask": "^2.0.4",
     "@react-pdf/renderer": "^4.5.1",
     "@tanstack/react-table": "^8.21.3",
     "class-variance-authority": "^0.7.1",

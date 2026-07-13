@@ -27,6 +27,7 @@ import {
     Check,
     Archive,
     List,
+    Award,
 } from "lucide-react"
 
 import { NavMain } from "@/components/sidebar/nav-main"
@@ -170,6 +171,12 @@ const data: {
             icon: Archive,
             items: [
                 {
+                    title: "Nueva Solicitud",
+                    url: "/solicitudes/nueva",
+                    icon: FilePlus,
+                    requiredPermission: getPermissionByExactPath("/solicitudes/nueva")
+                },
+                {
                     title: "Becas CIUNAC",
                     url: "/solicitudes/becas",
                     icon: GraduationCap,
@@ -180,6 +187,12 @@ const data: {
                     url: "/solicitudes/constancias",
                     icon: FileText,
                     requiredPermission: getPermissionByExactPath("/solicitudes/constancias")
+                },
+                {
+                    title: "Certificados",
+                    url: "/solicitudes/certificados",
+                    icon: Award,
+                    requiredPermission: getPermissionByExactPath("/solicitudes/certificados")
                 },
                 {
                     title: "Examen de Ubicacion",

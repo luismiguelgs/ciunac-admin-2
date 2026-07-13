@@ -1,15 +1,16 @@
 'use client'
 
 import type { ComponentProps } from "react"
-import { SolicitudConstanciasDetails } from "../constancias/solicitud-constancias.details"
+import { SolicitudDetails } from "../shared/solicitud-details"
 
-type SolicitudUbicacionDetailsProps = Omit<ComponentProps<typeof SolicitudConstanciasDetails>, "backHref">
+type SolicitudUbicacionDetailsProps = Omit<ComponentProps<typeof SolicitudDetails>, "backHref" | "tipoGroup">
 
 export function SolicitudUbicacionDetails(props: SolicitudUbicacionDetailsProps) {
     return (
-        <SolicitudConstanciasDetails
+        <SolicitudDetails
             {...props}
             backHref="/solicitudes/ubicacion"
+            tipoGroup="ubicacion"
         />
     )
 }

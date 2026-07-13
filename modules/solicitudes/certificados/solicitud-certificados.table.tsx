@@ -3,21 +3,24 @@
 import { SolicitudDataTable } from "../shared/solicitud-data-table"
 import type { ISolicitud } from "../shared/solicitud.interface"
 
-interface SolicitudConstanciasDataTableProps {
+interface SolicitudCertificadosDataTableProps {
     data: ISolicitud[]
     actionMode?: "reject" | "restore"
 }
 
-export function SolicitudConstanciasDataTable({
+export function SolicitudCertificadosDataTable({
     data,
     actionMode = "reject",
-}: SolicitudConstanciasDataTableProps) {
+}: SolicitudCertificadosDataTableProps) {
     return (
         <SolicitudDataTable
             data={data}
             actionMode={actionMode}
-            basePath="/solicitudes/constancias"
+            basePath="/solicitudes/certificados"
             showTipoColumn
+            showFormatoColumn
+            showNivelColumn
+            showOnlineColumn
         />
     )
 }

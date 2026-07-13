@@ -7,6 +7,7 @@ export type RoutePermissionRule = {
 
 export const ROUTE_PERMISSION_RULES: RoutePermissionRule[] = [
     { path: "/solicitudes/becas", permission: "gestion_becas" },
+    { path: "/solicitudes/nueva", permission: "gestion_solicitudes" },
     { path: "/usuarios", permission: "gestionar_usuarios" },
     { path: "/estructura", permission: "gestionar_estructura" },
     { path: "/grupos", permission: "gestionar_estructura" },
@@ -27,6 +28,8 @@ export const ROUTE_PERMISSION_RULES: RoutePermissionRule[] = [
     { path: "/perfil-docente/mi-perfil", permission: "mi_perfil_docente" },
     { path: "/solicitudes/constancias", permission: "gestion_solicitudes" },
     { path: "/solicitudes/constancias/[id]", permission: "gestion_solicitudes" },
+    { path: "/solicitudes/certificados", permission: "gestion_solicitudes" },
+    { path: "/solicitudes/certificados/[id]", permission: "gestion_solicitudes" },
     { path: "/solicitudes/ubicacion", permission: "gestion_solicitudes" },
     { path: "/solicitudes/ubicacion/[id]", permission: "gestion_solicitudes" },
     { path: "/solicitudes/importar-pagos", permission: "importar_pagos" },

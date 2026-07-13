@@ -1,22 +1,22 @@
 import NavigationBread from "@/components/navigation-bread"
-import { SolicitudConstanciasDataTable } from "@/modules/solicitudes/constancias/solicitud-constancias.table"
+import { SolicitudCertificadosDataTable } from "@/modules/solicitudes/certificados/solicitud-certificados.table"
 import { SolicitudStateTabs } from "@/modules/solicitudes/shared/solicitud-state-tabs"
 import { fetchSolicitudWorkflow } from "@/modules/solicitudes/shared/solicitud-workflow.loader"
 
 export const dynamic = "force-dynamic"
 
-export default async function PageSolicitudesConstancias() {
-    const solicitudes = await fetchSolicitudWorkflow("constancias")
+export default async function PageSolicitudesCertificados() {
+    const solicitudes = await fetchSolicitudWorkflow("certificados")
 
     return (
         <>
-            <NavigationBread section="Solicitudes" href="/solicitudes" page="Constancias" />
+            <NavigationBread section="Solicitudes" href="/solicitudes" page="Certificados" />
             <div className="container mx-auto px-2 py-2">
-                <h1 className="mb-4 text-2xl font-bold">Constancias CIUNAC</h1>
+                <h1 className="mb-4 text-2xl font-bold">Solicitudes de Certificados</h1>
                 <SolicitudStateTabs
                     data={solicitudes}
                     renderTable={(items, actionMode) => (
-                        <SolicitudConstanciasDataTable data={items} actionMode={actionMode} />
+                        <SolicitudCertificadosDataTable data={items} actionMode={actionMode} />
                     )}
                 />
             </div>

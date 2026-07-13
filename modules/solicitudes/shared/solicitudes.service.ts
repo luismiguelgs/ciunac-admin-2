@@ -1,6 +1,6 @@
 import { apiFetch } from '@/services/api.service';
 import { uploadCSVFile } from '@/services/upload.service';
-import { ISolicitud } from './solicitud.interface';
+import { CreateSolicitudPayload, ISolicitud } from './solicitud.interface';
 
 export default class SolicitudesService {
     private static collection = 'solicitudes';
@@ -9,6 +9,10 @@ export default class SolicitudesService {
     public static async fetchItemByState(solicitud: string, state: number): Promise<ISolicitud[]> {
         const response = await apiFetch<ISolicitud[]>(`${this.collection}/${solicitud}?estado=${state}`, 'GET')
         return response
+    }
+
+    public static async create(data: CreateSolicitudPayload): Promise<ISolicitud> {
+        return apiFetch<ISolicitud>(this.collection, 'POST', data)
     }
 
     //Eliminar Solicitud

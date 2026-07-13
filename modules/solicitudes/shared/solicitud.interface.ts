@@ -1,3 +1,40 @@
+export interface IEstudianteSolicitud {
+    id?: string
+    nombres: string
+    apellidos: string
+    genero?: string
+    fechaNacimiento?: string
+    tipoDocumento: string
+    numeroDocumento: string
+    celular: string
+    email?: string | null
+    imgDoc?: string | null
+    facultadId?: number | null
+    escuelaId?: number | null
+    codigo?: string | null
+    direccion?: string | null
+    creadoEn?: string
+    modificadoEn?: string
+}
+
+export interface CreateSolicitudPayload {
+    estudianteId: string
+    tipoSolicitudId: number
+    idiomaId: number
+    nivelId: number
+    estadoId: number
+    periodo: string
+    alumnoCiunac: boolean
+    fechaPago: string
+    pago: number
+    numeroVoucher: string
+    imgVoucher?: string | null
+    imgCertEstudio?: string | null
+    observaciones?: string
+    digital: boolean
+    manual: boolean
+}
+
 export interface ISolicitud {
     id: number,
     estudianteId: string,
@@ -10,30 +47,14 @@ export interface ISolicitud {
     fechaPago: string,
     pago: number,
     numeroVoucher: string,
-    imgVoucher: string,
-    imgCertEstudio: string,
+    imgVoucher: string | null,
+    imgCertEstudio: string | null,
     observaciones?: string,
     digital: boolean,
     manual: boolean,
     creadoEn: string,
     modificadoEn: string,
-    estudiante?: {
-        id: string,
-        nombres: string,
-        apellidos: string,
-        genero: string,
-        fechaNacimiento: string,
-        tipoDocumento: string,
-        numeroDocumento: string,
-        celular: string,
-        imgDoc: string | null,
-        facultadId: number,
-        escuelaId: number,
-        codigo: string,
-        direccion: string | null,
-        creadoEn: string,
-        modificadoEn: string
-    },
+    estudiante?: IEstudianteSolicitud,
     tiposSolicitud?: {
         id: number,
         solicitud: string,

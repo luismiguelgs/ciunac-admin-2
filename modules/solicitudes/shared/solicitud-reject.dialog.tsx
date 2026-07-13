@@ -19,10 +19,11 @@ import { Textarea } from "@/components/ui/textarea"
 import useOpciones from "@/modules/estructura/hooks/use-opciones"
 import { IEstado } from "@/modules/estructura/interfaces/types.interface"
 import { Collection } from "@/modules/estructura/services/opciones.service"
-import { ISolicitud } from "../shared/solicitud.interface"
-import SolicitudesService from "../shared/solicitudes.service"
+import { ISolicitud } from "./solicitud.interface"
+import SolicitudesService from "./solicitudes.service"
+import { findSolicitudEstado } from "./solicitud-workflow"
 
-interface SolicitudConstanciasRejectDialogProps {
+interface SolicitudRejectDialogProps {
     isOpen: boolean
     onOpenChange: (open: boolean) => void
     solicitud: ISolicitud | null
@@ -58,23 +59,18 @@ const REJECTION_REASONS = [
     },
 ]
 
-export function SolicitudConstanciasRejectDialog({
+export function SolicitudRejectDialog({
     isOpen,
     onOpenChange,
     solicitud,
     onRejected
-}: SolicitudConstanciasRejectDialogProps) {
+}: SolicitudRejectDialogProps) {
     const { data: estados } = useOpciones<IEstado>(Collection.Estados)
     const [selectedReason, setSelectedReason] = React.useState("")
     const [customReason, setCustomReason] = React.useState("")
     const [isRejecting, setIsRejecting] = React.useState(false)
 
-    const rejectedEstado = React.useMemo(() => {
-        return estados.find(estado =>
-            estado.referencia === "SOLICITUD" &&
-            estado.nombre.toLowerCase().includes("rechaz")
-        )
-    }, [estados])
+    const rejectedEstado = React.useMemo(() => findSolicitudEstado(estados, "rechazada"), [estados])
 
     const selectedReasonText = React.useMemo(() => {
         return REJECTION_REASONS.find(reason => reason.value === selectedReason)?.text || ""
