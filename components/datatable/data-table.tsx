@@ -32,6 +32,7 @@ interface DataTableProps<TData, TValue> {
     filterColumn: string
     selectable?: boolean
     pageSize?: number
+    compact?: boolean
     searchPlaceholder?: string
     initialColumnVisibility?: VisibilityState
 }
@@ -42,6 +43,7 @@ export function DataTable<TData, TValue>({
     filterColumn,
     selectable = false,
     pageSize = 10,
+    compact = false,
     searchPlaceholder,
     initialColumnVisibility
 }: DataTableProps<TData, TValue>) {
@@ -87,13 +89,16 @@ export function DataTable<TData, TValue>({
                 <DataTableViewOptions table={table} />
             </div>
             <div className="overflow-hidden rounded-md border">
-                <Table>
+                <Table className={compact ? "text-[13px]" : undefined}>
                     <TableHeader className="bg-black hover:bg-black">
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id} className="hover:bg-black border-b-gray-800">
                                 {headerGroup.headers.map((header) => {
                                     return (
-                                        <TableHead key={header.id} className="text-white font-semibold">
+                                        <TableHead
+                                            key={header.id}
+                                            className={`text-white font-semibold${compact ? " h-9 py-1" : ""}`}
+                                        >
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
@@ -114,7 +119,7 @@ export function DataTable<TData, TValue>({
                                     data-state={row.getIsSelected() && "selected"}
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
+                                        <TableCell key={cell.id} className={compact ? "py-1.5" : undefined}>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </TableCell>
                                     ))}

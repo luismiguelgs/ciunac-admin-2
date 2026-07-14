@@ -37,6 +37,11 @@ export interface SolicitudDataTableProps {
     showNivelColumn?: boolean
     showOnlineColumn?: boolean
     showFormatoColumn?: boolean
+    showFechaColumn?: boolean
+    showPagoColumn?: boolean
+    pageSize?: number
+    compact?: boolean
+    searchByDocument?: boolean
 }
 
 export function SolicitudDataTable({
@@ -46,7 +51,12 @@ export function SolicitudDataTable({
     showTipoColumn = true,
     showNivelColumn = false,
     showOnlineColumn = true,
-    showFormatoColumn = false
+    showFormatoColumn = false,
+    showFechaColumn = false,
+    showPagoColumn = true,
+    pageSize = 10,
+    compact = false,
+    searchByDocument = false,
 }: SolicitudDataTableProps) {
     const router = useRouter()
     const [isRejectDialogOpen, setIsRejectDialogOpen] = React.useState(false)
@@ -103,12 +113,36 @@ export function SolicitudDataTable({
             accessorFn: (row) => `${row.estudiante?.nombres} ${row.estudiante?.apellidos}`,
             id: "nombres",
             header: "Estudiante",
+            ...(searchByDocument ? {
+                filterFn: (row, _columnId, filterValue) => {
+                    const search = String(filterValue).toLowerCase().trim()
+                    const student = row.original.estudiante
+                    const name = `${student?.nombres ?? ""} ${student?.apellidos ?? ""}`
+                    return `${name} ${student?.numeroDocumento ?? ""}`.toLowerCase().includes(search)
+                },
+            } : {}),
         },
         {
             accessorFn: (row) => row.estudiante?.numeroDocumento,
             id: "documento",
             header: "Documento",
         },
+        ...(showFechaColumn ? [{
+            accessorKey: "creadoEn",
+            header: "Fecha y hora",
+            cell: ({ row }) => {
+                const date = new Date(row.original.creadoEn)
+                return Number.isNaN(date.getTime())
+                    ? "-"
+                    : date.toLocaleString("es-PE", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    })
+            },
+        } satisfies ColumnDef<ISolicitud>] : []),
         ...(showTipoColumn ? [{
             accessorFn: (row) => row.tiposSolicitud?.solicitud,
             id: "tipo",
@@ -189,7 +223,7 @@ export function SolicitudDataTable({
                 )
             }
         } satisfies ColumnDef<ISolicitud>] : []),
-        {
+        ...(showPagoColumn ? [{
             accessorKey: "pago",
             header: "Pago",
             cell: ({ row }) => {
@@ -197,7 +231,7 @@ export function SolicitudDataTable({
                 const numericPago = Number(pago) || 0
                 return `S/ ${numericPago.toFixed(2)}`
             }
-        },
+        } satisfies ColumnDef<ISolicitud>] : []),
         {
             accessorKey: "periodo",
             header: "Periodo",
@@ -246,9 +280,12 @@ export function SolicitudDataTable({
         <React.Fragment>
             <React.Suspense fallback={<DataTableSkeleton />}>
                 <DataTable
+                    searchPlaceholder={searchByDocument ? "Buscar por nombre o documento..." : undefined}
                     columns={columns}
                     data={sortedData}
                     filterColumn="nombres"
+                    pageSize={pageSize}
+                    compact={compact}
                 />
             </React.Suspense>
 

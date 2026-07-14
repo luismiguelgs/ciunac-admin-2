@@ -21,6 +21,11 @@ export function SolicitudCertificadosDataTable({
             showFormatoColumn
             showNivelColumn
             showOnlineColumn
+            showFechaColumn
+            showPagoColumn={false}
+            pageSize={20}
+            compact
+            searchByDocument
         />
     )
 }
