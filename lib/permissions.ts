@@ -4,6 +4,7 @@ import type { PermissionCode } from "@/lib/access-control";
 // Permissions that are restricted to specific roles (DOCENTE and ADMINISTRATIVO cannot access these)
 const ROLE_RESTRICTED_PERMISSIONS: PermissionCode[] = [
     "gestion_constancias",
+    "gestion_certificados",
     "gestion_solicitudes",
     "examenes_ubicacion",
     "importar_pagos",

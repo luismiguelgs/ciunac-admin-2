@@ -119,9 +119,11 @@ export function DataTableEditable<TData, TValue>({
                     }
                     className="max-w-sm"
                 />
-                <Button variant="outline" onClick={onRowAdd}>
-                    Nuevo
-                </Button>
+                {onRowAdd ? (
+                    <Button type="button" variant="outline" onClick={onRowAdd}>
+                        Nuevo
+                    </Button>
+                ) : null}
                 <div className="ml-auto">
                     <DataTableViewOptions table={table} />
                 </div>

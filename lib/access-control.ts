@@ -43,6 +43,11 @@ export const ROUTE_PERMISSION_RULES: RoutePermissionRule[] = [
     { path: "/constancias/nueva", permission: "gestion_constancias" },
     { path: "/constancias/firmadas", permission: "gestion_constancias" },
     { path: "/constancias/entregadas", permission: "gestion_constancias" },
+    { path: "/certificados", permission: "gestion_certificados" },
+    { path: "/certificados/[id]", permission: "gestion_certificados" },
+    { path: "/certificados/nuevo", permission: "gestion_certificados" },
+    { path: "/certificados/firmados", permission: "gestion_certificados" },
+    { path: "/certificados/impresos", permission: "gestion_certificados" },
 ];
 
 const SORTED_RULES = [...ROUTE_PERMISSION_RULES].sort((a, b) => b.path.length - a.path.length);

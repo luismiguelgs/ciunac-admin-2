@@ -14,7 +14,9 @@ export async function fetchSolicitudWorkflow(endpoint: string): Promise<Solicitu
         SolicitudesService.fetchItemByState(endpoint, stateIds.pagada),
         SolicitudesService.fetchItemByState(endpoint, stateIds.asignada),
         SolicitudesService.fetchItemByState(endpoint, stateIds.finalizada),
-        SolicitudesService.fetchItemByState(endpoint, stateIds.observada),
+        typeof stateIds.observada === "number"
+            ? SolicitudesService.fetchItemByState(endpoint, stateIds.observada)
+            : Promise.resolve([]),
         SolicitudesService.fetchItemByState(endpoint, stateIds.rechazada),
     ])
 

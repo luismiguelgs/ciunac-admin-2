@@ -19,6 +19,10 @@ export type SolicitudWorkflowData = {
     rechazadas: ISolicitud[]
 }
 
+export type SolicitudWorkflowStateIds = Record<Exclude<SolicitudEstadoKey, "observada">, number> & {
+    observada?: number
+}
+
 const STATE_MATCHERS: Record<SolicitudEstadoKey, string[]> = {
     nueva: ["NUEVA", "NUEVO", "PENDIENTE"],
     pagada: ["PAGADA", "PAGADO"],
@@ -80,12 +84,12 @@ export function findSolicitudEstado(estados: IEstado[], key: SolicitudEstadoKey)
     })
 }
 
-export function resolveSolicitudWorkflowEstados(estados: IEstado[]): Record<SolicitudEstadoKey, number> {
-    const keys: SolicitudEstadoKey[] = ["nueva", "pagada", "asignada", "finalizada", "observada", "rechazada"]
-    const resolved = {} as Record<SolicitudEstadoKey, number>
+export function resolveSolicitudWorkflowEstados(estados: IEstado[]): SolicitudWorkflowStateIds {
+    const requiredKeys: Array<Exclude<SolicitudEstadoKey, "observada">> = ["nueva", "pagada", "asignada", "finalizada", "rechazada"]
+    const resolved = {} as SolicitudWorkflowStateIds
     const missing: string[] = []
 
-    for (const key of keys) {
+    for (const key of requiredKeys) {
         const estado = findSolicitudEstado(estados, key)
         if (typeof estado?.id !== "number") {
             missing.push(key)
@@ -97,6 +101,9 @@ export function resolveSolicitudWorkflowEstados(estados: IEstado[]): Record<Soli
     if (missing.length) {
         throw new Error(`No se encontraron los estados de solicitud: ${missing.join(", ")}`)
     }
+
+    const observada = findSolicitudEstado(estados, "observada")
+    if (typeof observada?.id === "number") resolved.observada = observada.id
 
     return resolved
 }

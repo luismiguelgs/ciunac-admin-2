@@ -28,6 +28,7 @@ import {
     Archive,
     List,
     Award,
+    FileCheck2,
 } from "lucide-react"
 
 import { NavMain } from "@/components/sidebar/nav-main"
@@ -236,6 +237,31 @@ const data: {
                     url: "/constancias/nueva",
                     icon: FilePlus,
                     requiredPermission: getPermissionByExactPath("/constancias/nueva")
+                }
+            ]
+        },
+        {
+            title: "Emisión de Certificados",
+            url: "#",
+            icon: FileCheck2,
+            items: [
+                {
+                    title: "Pendientes",
+                    url: "/certificados",
+                    icon: Clock,
+                    requiredPermission: getPermissionByExactPath("/certificados")
+                },
+                {
+                    title: "Firmados",
+                    url: "/certificados/firmados",
+                    icon: PenTool,
+                    requiredPermission: getPermissionByExactPath("/certificados/firmados")
+                },
+                {
+                    title: "Nuevo certificado",
+                    url: "/certificados/nuevo",
+                    icon: FilePlus,
+                    requiredPermission: getPermissionByExactPath("/certificados/nuevo")
                 }
             ]
         },
