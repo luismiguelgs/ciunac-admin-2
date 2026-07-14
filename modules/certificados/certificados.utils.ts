@@ -9,6 +9,24 @@ export function isCertificadoDigital(tipo?: string | null): boolean {
     return normalized === "VIRTUAL" || normalized === "DIGITAL"
 }
 
+export function getNumeroRegistroSuggestion(tipo: string, nivel?: string | null): string {
+    const normalizedLevel = (nivel ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toUpperCase()
+
+    const isBasic = normalizedLevel.includes("BASICO")
+    const isIntermediateOrAdvanced = normalizedLevel.includes("INTERMEDIO") || normalizedLevel.includes("AVANZADO")
+    if (!isBasic && !isIntermediateOrAdvanced) return ""
+
+    if (isCertificadoDigital(tipo)) return isBasic ? "D-B00" : "D-IA0"
+    return isBasic ? "B00 - Folio " : "IA0 - Folio "
+}
+
+export function normalizeNumeroRegistro(value: string): string {
+    return value.trim().replace(/\s+/g, " ").toLocaleUpperCase("es-PE")
+}
+
 export function getCurrentCertificatePeriod(date = new Date()): string {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
 }

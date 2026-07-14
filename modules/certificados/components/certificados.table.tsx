@@ -97,13 +97,21 @@ export function CertificadosTable({ initialData, signed }: { initialData: ICerti
     ], [processingId, signed])
 
     return (
-        <DataTable
-            columns={columns}
-            data={data}
-            filterColumn="busqueda"
-            searchPlaceholder="Buscar por estudiante, documento o registro..."
-            initialColumnVisibility={{ busqueda: false }}
-            pageSize={25}
-        />
+        <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-medium" aria-live="polite">
+                <span>{signed ? "Certificados firmados" : "Certificados pendientes"}</span>
+                <Badge variant="secondary" className="min-w-8 justify-center tabular-nums">
+                    {data.length}
+                </Badge>
+            </div>
+            <DataTable
+                columns={columns}
+                data={data}
+                filterColumn="busqueda"
+                searchPlaceholder="Buscar por estudiante, documento o registro..."
+                initialColumnVisibility={{ busqueda: false }}
+                pageSize={25}
+            />
+        </div>
     )
 }

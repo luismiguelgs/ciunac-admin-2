@@ -32,12 +32,15 @@ import {
     cleanCertificadoNotas,
     getCertificadoId,
     getCurrentCertificatePeriod,
+    getNumeroRegistroSuggestion,
     isCertificadoDigital,
+    normalizeNumeroRegistro,
 } from "../certificados.utils"
 import { CertificadoNotasTable } from "./certificado-notas.table"
 import { CertificadoFirmaButton } from "./certificado-firma.button"
 import { CertificadoPdfButton } from "./certificado-pdf.button"
 import { CertificadoUploadButton } from "./certificado-upload.button"
+import { CertificadoSaveErrorDialog } from "./certificado-save-error.dialog"
 
 interface CertificadoFormProps {
     certificado?: ICertificado
@@ -50,6 +53,7 @@ export function CertificadoForm({ certificado, elaborador = "" }: CertificadoFor
     const signed = Boolean(certificado?.impreso)
     const [editing, setEditing] = React.useState(!certificado)
     const [notas, setNotas] = React.useState<ICertificadoNota[]>(certificado?.notas || [])
+    const [saveError, setSaveError] = React.useState("")
     const form = useForm<CertificadoFormValues>({
         resolver: zodResolver(certificadoSchema) as never,
         defaultValues: getCertificadoDefaults(certificado),
@@ -67,6 +71,7 @@ export function CertificadoForm({ certificado, elaborador = "" }: CertificadoFor
     const idiomaId = form.watch("idiomaId")
     const nivelId = form.watch("nivelId")
     const tipo = form.watch("tipo")
+    const numeroRegistro = form.watch("numeroRegistro")
     const curriculaAnterior = form.watch("curriculaAnterior")
     const duplicado = form.watch("duplicado")
     const liveValues = form.watch()
@@ -82,6 +87,16 @@ export function CertificadoForm({ certificado, elaborador = "" }: CertificadoFor
             if (nivel?.id) form.setValue("nivelId", String(nivel.id))
         }
     }, [certificado, form, idiomas, niveles])
+
+    React.useEffect(() => {
+        if (certificado || numeroRegistro.trim()) return
+
+        const nivel = niveles.find(item => String(item.id) === nivelId)
+        const suggestion = getNumeroRegistroSuggestion(tipo, nivel?.nombre)
+        if (suggestion) {
+            form.setValue("numeroRegistro", suggestion, { shouldValidate: true })
+        }
+    }, [certificado, form, nivelId, niveles, numeroRegistro, tipo])
 
     function handleSolicitud(solicitud: ISolicitud) {
         const requestType = normalizeCatalogText(solicitud.tiposSolicitud?.solicitud)
@@ -130,10 +145,9 @@ export function CertificadoForm({ certificado, elaborador = "" }: CertificadoFor
             curriculaAnterior: values.curriculaAnterior,
             impreso: Boolean(certificado?.impreso),
             duplicado: values.duplicado,
-            certificadoOriginal: values.duplicado ? values.certificadoOriginal.trim() : "",
-            url: certificado?.url || null,
-            driveId: certificado?.driveId || null,
-            aceptado: Boolean(certificado?.aceptado),
+              certificadoOriginal: values.duplicado ? values.certificadoOriginal.trim() : "",
+              url: certificado?.url || null,
+              aceptado: Boolean(certificado?.aceptado),
             fechaAceptacion: certificado?.fechaAceptacion || null,
             elaboradoPor: certificado?.elaboradoPor || elaborador,
             notas: cleanCertificadoNotas(notas),
@@ -149,51 +163,80 @@ export function CertificadoForm({ certificado, elaborador = "" }: CertificadoFor
         await CertificadosService.uploadArchivo(id, file)
     }
 
+    async function numeroRegistroExists(value: string): Promise<boolean> {
+        const normalizedValue = normalizeNumeroRegistro(value)
+        const matches = (item: ICertificado) => (
+            getCertificadoId(item) !== certificadoId &&
+            normalizeNumeroRegistro(item.numeroRegistro) === normalizedValue
+        )
+
+        const pendientes = await CertificadosService.fetchBySigned(false)
+        if (pendientes.some(matches)) return true
+
+        const firmados = await CertificadosService.fetchBySigned(true)
+        return firmados.some(matches)
+    }
+
     async function onSubmit(values: CertificadoFormValues) {
         let saved: ICertificado | undefined
         let created = false
+
         try {
             const payload = buildPayload(values)
+            if (await numeroRegistroExists(payload.numeroRegistro)) {
+                setSaveError(`El numero de registro ${payload.numeroRegistro} ya fue utilizado en otro certificado.`)
+                return
+            }
+
             if (certificadoId) {
                 saved = await CertificadosService.update(certificadoId, payload)
-                toast.success("Certificado actualizado")
             } else {
                 saved = await CertificadosService.create(payload)
                 created = true
-                toast.success("Certificado creado")
             }
 
             const savedId = getCertificadoId(saved)
             if (!savedId) throw new Error("El backend no devolvio el ID del certificado")
+        } catch (error) {
+            console.error(error)
+            setSaveError(error instanceof Error ? error.message : "Ocurrio un error inesperado al guardar el certificado.")
+            return
+        }
 
-            if (created) {
+        toast.success(created ? "Certificado creado" : "Certificado actualizado")
+
+        const savedId = getCertificadoId(saved)
+        if (!saved || !savedId) return
+
+        if (created) {
+            try {
                 if (typeof estadoProcesada?.id === "number") {
                     const updated = await SolicitudesService.update(values.solicitudId, { estadoId: estadoProcesada.id })
                     if (!updated) toast.warning("El certificado fue creado, pero no se actualizo el estado de la solicitud")
                 } else {
                     toast.warning("El certificado fue creado, pero falta el estado Observada/Procesada")
                 }
+            } catch (error) {
+                console.error(error)
+                toast.warning("El certificado fue creado, pero no se actualizo el estado de la solicitud")
             }
+        }
 
-            if (isCertificadoDigital(saved.tipo)) {
-                try {
-                    await uploadDigitalPdf(saved)
-                    toast.success("PDF digital guardado en Drive")
-                } catch (error) {
-                    console.error(error)
-                    toast.error("Los datos se guardaron, pero no se pudo subir el PDF. Puede reintentar desde el detalle.")
-                }
+        if (isCertificadoDigital(saved.tipo)) {
+            try {
+                await uploadDigitalPdf(saved)
+                toast.success("PDF digital guardado en Drive")
+            } catch (error) {
+                console.error(error)
+                toast.error("Los datos se guardaron, pero no se pudo subir el PDF. Puede reintentar desde el detalle.")
             }
+        }
 
-            if (created) {
-                router.push(`/certificados/${savedId}`)
-            } else {
-                setEditing(false)
-                router.refresh()
-            }
-        } catch (error) {
-            console.error(error)
-            toast.error(saved ? "El certificado se guardo parcialmente" : "No se pudo guardar el certificado")
+        if (created) {
+            router.push(`/certificados/${savedId}`)
+        } else {
+            setEditing(false)
+            router.refresh()
         }
     }
 
@@ -308,6 +351,14 @@ export function CertificadoForm({ certificado, elaborador = "" }: CertificadoFor
                     />
                 </CardContent>
             </Card>
+
+            <CertificadoSaveErrorDialog
+                open={Boolean(saveError)}
+                onOpenChange={(open) => {
+                    if (!open) setSaveError("")
+                }}
+                message={saveError}
+            />
         </div>
     )
 }

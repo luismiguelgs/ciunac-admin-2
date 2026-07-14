@@ -40,4 +40,4 @@ export interface ICertificado {
     notas: ICertificadoNota[]
 }
 
-export type CertificadoPayload = Omit<ICertificado, "id" | "_id" | "creadoEn" | "modificadoEn">
+export type CertificadoPayload = Omit<ICertificado, "id" | "_id" | "creadoEn" | "modificadoEn" | "driveId">
