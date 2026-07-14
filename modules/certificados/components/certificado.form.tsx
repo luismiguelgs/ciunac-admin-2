@@ -59,7 +59,10 @@ export function CertificadoForm({ certificado, elaborador = "" }: CertificadoFor
     const { data: niveles, loading: loadingNiveles } = useOpciones<INivel>(Collection.Niveles)
     const { data: ciclos } = useOpciones<ICiclo>(Collection.Ciclos)
     const { data: estados } = useOpciones<IEstado>(Collection.Estados)
-    const estadoProcesada = React.useMemo(() => findSolicitudEstado(estados, "observada"), [estados])
+    const estadoProcesada = React.useMemo(
+        () => findSolicitudEstado(estados, "observada", "certificados"),
+        [estados]
+    )
 
     const idiomaId = form.watch("idiomaId")
     const nivelId = form.watch("nivelId")

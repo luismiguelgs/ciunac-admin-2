@@ -16,7 +16,10 @@ interface AsignarSolicitudButtonProps {
 
 export function AsignarSolicitudButton({ onAsignar }: AsignarSolicitudButtonProps) {
     const { data: estados } = useOpciones<IEstado>(Collection.Estados)
-    const estadoAsignada = React.useMemo(() => findSolicitudEstado(estados, "asignada"), [estados])
+    const estadoAsignada = React.useMemo(
+        () => findSolicitudEstado(estados, "asignada", "constancias"),
+        [estados]
+    )
 
     async function handleSelect(solicitud: ISolicitud) {
         if (typeof estadoAsignada?.id !== "number") {

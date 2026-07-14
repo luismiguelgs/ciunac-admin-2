@@ -32,6 +32,15 @@ const STATE_MATCHERS: Record<SolicitudEstadoKey, string[]> = {
     rechazada: ["RECHAZADA", "RECHAZADO"],
 }
 
+const DOCUMENT_REQUEST_STATE_IDS: Record<SolicitudEstadoKey, number> = {
+    nueva: 1,
+    asignada: 2,
+    finalizada: 3,
+    pagada: 4,
+    rechazada: 5,
+    observada: 12,
+}
+
 export function normalizeCatalogText(value?: string | null): string {
     return (value ?? "")
         .normalize("NFD")
@@ -72,25 +81,40 @@ export function isTipoSolicitudDigital(tipo: Pick<ITipoSolicitud, "solicitud"> |
     return name.includes("DIGITAL") || name.includes("CONSTANCIA")
 }
 
-export function findSolicitudEstado(estados: IEstado[], key: SolicitudEstadoKey): IEstado | undefined {
+export function findSolicitudEstado(
+    estados: IEstado[],
+    key: SolicitudEstadoKey,
+    group?: SolicitudTipoGroup
+): IEstado | undefined {
+    const estadosSolicitud = estados.filter((estado) =>
+        typeof estado.id === "number" && normalizeCatalogText(estado.referencia) === "SOLICITUD"
+    )
+    const documentRequest = group === "constancias" || group === "certificados"
+    const expectedId = documentRequest ? DOCUMENT_REQUEST_STATE_IDS[key] : undefined
+
+    if (typeof expectedId === "number") {
+        const estadoById = estadosSolicitud.find((estado) => estado.id === expectedId)
+        if (estadoById) return estadoById
+    }
+
     const aliases = STATE_MATCHERS[key]
 
-    return estados.find((estado) => {
-        if (typeof estado.id !== "number") return false
-        if (normalizeCatalogText(estado.referencia) !== "SOLICITUD") return false
-
+    return estadosSolicitud.find((estado) => {
         const name = normalizeCatalogText(estado.nombre)
         return aliases.some(alias => name.includes(alias))
     })
 }
 
-export function resolveSolicitudWorkflowEstados(estados: IEstado[]): SolicitudWorkflowStateIds {
+export function resolveSolicitudWorkflowEstados(
+    estados: IEstado[],
+    group?: SolicitudTipoGroup
+): SolicitudWorkflowStateIds {
     const requiredKeys: Array<Exclude<SolicitudEstadoKey, "observada">> = ["nueva", "pagada", "asignada", "finalizada", "rechazada"]
     const resolved = {} as SolicitudWorkflowStateIds
     const missing: string[] = []
 
     for (const key of requiredKeys) {
-        const estado = findSolicitudEstado(estados, key)
+        const estado = findSolicitudEstado(estados, key, group)
         if (typeof estado?.id !== "number") {
             missing.push(key)
         } else {
@@ -102,7 +126,7 @@ export function resolveSolicitudWorkflowEstados(estados: IEstado[]): SolicitudWo
         throw new Error(`No se encontraron los estados de solicitud: ${missing.join(", ")}`)
     }
 
-    const observada = findSolicitudEstado(estados, "observada")
+    const observada = findSolicitudEstado(estados, "observada", group)
     if (typeof observada?.id === "number") resolved.observada = observada.id
 
     return resolved
