@@ -1,111 +1,73 @@
 # 13 - Error Handling
 
-## Objetivo
+## Taxonomia
 
-Definir una politica uniforme de manejo de errores para auth, formularios, servicios, uploads y vistas protegidas.
-
-## Taxonomia de errores
-
-| Categoria | Ejemplos | Respuesta esperada |
+| Tipo | HTTP esperado | UX |
 | --- | --- | --- |
-| Validacion | Campo requerido, enum invalido, fecha invalida | Error inline por campo |
-| Autenticacion | Credenciales invalidas, sesion expirada | Toast + retorno al login si corresponde |
-| Autorizacion | Permiso faltante, rol restringido | Redireccion o estado `unauthorized` |
-| Contexto docente | `docenteId` o `perfilId` faltante | Redireccion o banner explicativo |
-| Red / backend | Timeout, 500, API caida | Toast operativo + opcion de reintento |
-| Upload | Archivo no valido, rechazo de storage | Toast especifico + conservar formulario |
-| Datos vacios | Lista sin resultados, detalle inexistente | Estado vacio, no toast salvo que sea inesperado |
+| Validacion | 400/422 | error inline y resumen |
+| Credenciales | 401 | mensaje de login invalido |
+| Autorizacion | 403 | redireccion/estado unauthorized |
+| Contexto docente | 403/409 de dominio | mensaje missing context |
+| No encontrado | 404 | estado no encontrado y retorno seguro |
+| Conflicto/transicion | 409 | explicar estado actual y refrescar |
+| Integracion | 502/503 | conservar datos y permitir reintento |
+| Interno | 500 | mensaje generico y correlationId |
 
-## Patrones actuales del proyecto
-
-- `apiFetch` lanza `Error` en fallos de red o HTTP no OK.
-- Algunos servicios encapsulan el error y retornan `false` o `undefined`.
-- Las vistas client suelen mostrar `toast.error(...)`.
-- Las vistas server y guards usan `redirect(...)`.
-- `ProtectedRoute` y `auth.config.ts` usan query params de error para denegaciones.
-
-## Politica estandar recomendada
-
-### Formularios
-
-- Mostrar error inline para campos.
-- Mostrar `toast.error` solo para fallos de submit o backend.
-- Mantener el formulario montado y conservar valores cuando falle el submit.
-
-### Servicios
-
-- Preferir una sola estrategia por servicio:
-  - o lanzar `Error`
-  - o devolver resultado tipado `ok/error`
-- Evitar mezclar `throw`, `false` y `undefined` para la misma clase de fallo.
-
-### Guards y paginas protegidas
-
-- Sin sesion -> login
-- Sin permiso -> `/dashboard?error=unauthorized`
-- Sin contexto docente -> `/dashboard?error=missing-docente-context`
-
-### Uploads
-
-- Preservar el archivo seleccionado mientras sea posible.
-- Traducir errores HTTP a mensajes orientados al usuario.
-- Registrar detalle tecnico solo en consola o herramienta de observabilidad.
-
-## Flujo recomendado
+## Flujo
 
 ```mermaid
 flowchart TD
-    A["Operacion UI"] --> B{"Validacion local OK?"}
-    B -- No --> C["Mostrar errores inline"]
-    B -- Si --> D["Llamar servicio"]
-    D --> E{"Respuesta OK?"}
-    E -- Si --> F["Toast success / refresh / redirect"]
-    E -- No --> G{"Tipo de error"}
-    G --> H["Toast de negocio"]
-    G --> I["Redirect por permiso o sesion"]
-    G --> J["Estado vacio o fallback visual"]
-    G --> K["Log tecnico"]
+    A["Accion UI"] --> B{"Valida localmente?"}
+    B -->|No| C["Errores inline"]
+    B -->|Si| D["Servicio API"]
+    D --> E{"Resultado"}
+    E -->|Exito| F["Actualizar UI y confirmar"]
+    E -->|401| G["Reautenticar"]
+    E -->|403| H["Unauthorized/contexto"]
+    E -->|409| I["Refrescar estado y explicar conflicto"]
+    E -->|Red/5xx| J["Conservar datos y reintentar"]
+    J --> K["Log tecnico sanitizado"]
 ```
 
-## Reglas de logging
+## Estado `AS-IS`
 
-- No loggear payloads sensibles de login en produccion.
-- Log tecnico con contexto minimo:
-  - recurso
-  - operacion
-  - status
-  - id relevante si existe
-- No exponer stack traces al usuario final.
+- `apiFetch` lanza `Error` con status y body como texto.
+- Algunos servicios propagan error; otros devuelven `false` o `undefined`.
+- Formularios y tablas usan toasts locales.
+- Redirecciones usan query params `unauthorized` y `missing-docente-context`.
+- `GAP-ERR-001`: no existe tipo de error comun ni codigo de dominio.
+- `GAP-ERR-002`: algunos catch convierten problemas de permiso/contexto en error generico.
 
-## Contrato minimo para mensajes de UI
+## Contrato `TO-BE`
 
-- Mensaje corto:
-  - `No se pudo guardar el examen`
-- Descripcion opcional:
-  - `Verifica los campos obligatorios o intenta nuevamente`
-- Accion opcional:
-  - reintentar
-  - volver a cargar
-  - contactar al administrador
+```ts
+type ApiError = {
+  statusCode: number
+  code: string
+  message: string
+  details?: Record<string, unknown>
+  correlationId?: string
+}
+```
 
-## Estados visuales obligatorios
+- Servicios retornan datos o lanzan un error tipado; no mezclan booleanos silenciosos.
+- UI traduce `code` a mensaje de usuario.
+- Backend registra causa e integracion sin exponer secretos.
+- Operaciones parciales devuelven fases completadas y accion de recuperacion.
 
-- `loading`
-- `error`
-- `empty`
-- `success`
-- `unauthorized`
+## Operaciones parciales criticas
 
-## Riesgos actuales
+- Crear documento y luego fallar PDF/upload.
+- Asignar solicitud y luego cancelar creacion de constancia.
+- Mover archivo firmado y luego fallar actualizacion de solicitud.
+- Importar CSV con filas validas e invalidas.
 
-- Existen servicios con contratos de error heterogeneos.
-- Algunos `catch` esconden el motivo real del fallo.
-- La capa de auth tiene varios puntos de decision y debe mantener mensajes coherentes.
-- Los uploads dependen de un backend externo y necesitan mensajes mas uniformes.
+Cada spec define compensacion, reintento e idempotencia.
 
-## Checklist de aceptacion
+## Estados visuales
 
-- Cada modulo documenta que errores puede emitir.
-- El usuario siempre sabe si el problema es validacion, permisos o backend.
-- Los errores de permisos no se silencian como si fueran fallos genericos.
-- Los servicios nuevos no mezclan `throw` y retorno booleano sin documentarlo.
+- `loading`: skeleton/spinner sin accion duplicada.
+- `empty`: mensaje y accion permitida.
+- `error`: causa comprensible y reintento.
+- `partial`: datos guardados, archivo/segunda fase pendiente.
+- `unauthorized`: sin revelar datos protegidos.

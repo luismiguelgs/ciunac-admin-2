@@ -1,24 +1,12 @@
 # Modulo Constancias - Tests
 
-## Unitarias
-
-- Regla condicional de `validation.schema.ts`
-
-## Integracion
-
-- Crear constancia `MATRICULA` con modalidad y horario
-- Rechazar submit de `MATRICULA` sin modalidad
-- Marcar constancia como aceptada
-- Marcar constancia como impresa
-- Subir PDF
-
-## E2E
-
-- Usuario autorizado emite y procesa una constancia
-- Usuario sin `gestion_constancias` es redirigido
-
-## Casos negativos
-
-- Upload rechaza archivo o backend falla
-- Procesar firma sin `fileId`
-- Constancia asociada a solicitud inexistente
+| ID | Nivel | Escenario |
+| --- | --- | --- |
+| `TEST-CONS-001` | Regression | cancelar/fallar no cambia solicitud a 2 |
+| `TEST-CONS-002` | Integration | crear+asignar exitoso y rollback |
+| `TEST-CONS-003` | Component | seleccionar solo completa formulario |
+| `TEST-CONS-004` | Unit/component | matricula y notas validas/invalidas |
+| `TEST-CONS-005` | Integration | PDF/upload/reintento sin duplicado |
+| `TEST-CONS-006` | Integration/E2E | pendiente→firmada→entregada |
+| `TEST-CONS-007` | Security | mutaciones 401/403/permitidas |
+| `TEST-CONS-008` | A11y | formulario, detalle y acciones accesibles |

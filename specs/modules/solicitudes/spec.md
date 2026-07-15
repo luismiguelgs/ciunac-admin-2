@@ -1,79 +1,70 @@
 # Modulo Solicitudes - Spec
 
-## Objetivo
+## Objetivo y actores
 
-Gestionar solicitudes entrantes de becas, constancias y examen de ubicacion, ademas del flujo administrativo de rechazo, actualizacion de estado e importacion de pagos.
+Registrar y gestionar solicitudes de beca, certificado, constancia y examen de ubicacion, incluyendo estudiantes, pagos y transiciones de estado. Actor operativo sujeto a `DECISION-001`; `SUPERADMIN` funciona `AS-IS`.
 
-## Actores
+## Historias
 
-- `SUPERADMIN`
-- `ADMINISTRATIVO` con permisos de solicitudes o importacion
+- `HU-SOL-001`: registrar solicitud manual y estudiante.
+- `HU-SOL-002`: consultar por tipo y estado.
+- `HU-SOL-003`: editar, observar o rechazar.
+- `HU-SOL-004`: importar y reverificar pagos.
 
-## Reglas de negocio
+## Reglas
 
-- Las solicitudes se listan por tipo y estado.
-- El rechazo usa `PATCH /solicitudes/:id/rechazo`.
-- La edicion de solicitudes actualiza estado, idioma, nivel, voucher, pago y observaciones.
-- La importacion de pagos usa archivo CSV.
-- Las solicitudes de beca usan un recurso dedicado y fuerzan mayusculas en nombres/direccion y el periodo actual.
+- `RN-SOL-001`: estudiante se reutiliza por documento cuando existe.
+- `RN-SOL-002`: tipo, estado, idioma y nivel provienen de catalogos.
+- `RN-SOL-003`: transiciones deben estar permitidas por flujo.
+- `RN-SOL-004`: rechazo conserva motivo; no equivale a delete fisico.
+- `RN-SOL-005`: pago solo cambia solicitudes compatibles.
 
-## Criterios de aceptacion
+## Criterios
 
-- Se pueden listar solicitudes por tipo y estado.
-- Se puede ver el detalle de una solicitud.
-- Se puede editar una solicitud administrativa.
-- Se puede rechazar una solicitud.
-- Se puede importar un CSV de pagos.
-- Se pueden crear, listar y consultar solicitudes de beca.
+- `CA-SOL-001`: alta crea/reutiliza estudiante y solicitud sin duplicacion.
+- `CA-SOL-002`: tabs/listas contienen solo tipo y estado solicitado.
+- `CA-SOL-003`: edicion/rechazo actualiza y refresca vista.
+- `CA-SOL-004`: CSV entrega resumen y no corrompe solicitudes ya procesadas.
 
-## Endpoints necesarios
+## UI
 
-- `GET /solicitudes/:tipo?estado=:id`
-- `GET /solicitudes/:id`
-- `PATCH /solicitudes/:id`
-- `PATCH /solicitudes/:id/rechazo`
-- `POST /pagos-banco/upload`
-- `GET /solicitudbecas`
-- `POST /solicitudbecas`
-- `GET /solicitudbecas/:id`
-- `PATCH /solicitudbecas/:id`
-- `DELETE /solicitudbecas/:id`
-- `GET /solicitudbecas/documento/:dni`
+| Area | Rutas/componentes |
+| --- | --- |
+| Alta | `/solicitudes/nueva`, `NuevaSolicitudForm`, student/pago/solicitud fields |
+| Becas | `/solicitudes/becas`, `/{id}`, tabla y detalle propios |
+| Certificados | `/solicitudes/certificados`, `/{id}`, tabla/estado/detalle compartidos |
+| Constancias | `/solicitudes/constancias`, `/{id}` |
+| Ubicacion | `/solicitudes/ubicacion`, `/{id}` |
+| Pagos | `/solicitudes/importar-pagos`, `ImportarPagos` |
+| Tablas/filtros | filtro de tabla, tabs por estado, acciones editar/rechazar |
+| Estado | formularios, tablas y catalogos; sin store propio |
 
-## Modelo de datos relacionado
+## API y datos
 
-- `ISolicitud`
-- `ISolicitudBeca`
-- Catalogos de `ITipoSolicitud`, `IEstado`, `IIdioma`, `INivel`
+- `/solicitudes/*`, `/solicitudbecas/*`, `/estudiantes/*`, `/pagos-banco/*`, `/upload/*`.
+- Solicitud, Estudiante, TipoSolicitud, Estado, PagoBanco y SolicitudBeca.
 
-## Validaciones
+## Validaciones y errores
 
-- `tipoSolicitudId`, `estadoId`, `idiomaId`, `nivelId` obligatorios en detalle de constancias
-- `numeroVoucher` obligatorio
-- `pago >= 0`
-- `fechaPago` valida
-- CSV requerido para importacion de pagos
-- En becas, numero de documento, facultad, escuela, codigo y archivos obligatorios segun flujo de negocio
+- Documento, nombres, tipo, estado, montos/fecha/voucher y catalogos.
+- Duplicado, transicion invalida, CSV parcial, estudiante inconsistente, pago ya aplicado.
+- `GAP`: aliases/IDs de estados no son canonicos y `/solicitudes` no tiene pagina indice.
 
-## Errores posibles
-
-- Solicitud inexistente
-- Error al actualizar o rechazar
-- CSV de pagos invalido
-- Busqueda de beca sin resultados
-- Permiso faltante para importar pagos
+```mermaid
+stateDiagram-v2
+    [*] --> Nueva
+    Nueva --> Pagada
+    Pagada --> Asignada
+    Asignada --> Finalizada
+    Nueva --> Rechazada
+    Pagada --> Rechazada
+    Asignada --> Rechazada
+```
 
 ## Tareas tecnicas
 
-- Homogeneizar contratos entre solicitudes genericas y becas
-- Tipar mejor estados de error en servicios
-- Documentar reglas de estado por tipo de solicitud
-- Cubrir importacion de pagos con pruebas
+Definidas en `tasks.md` como `TASK-SOL-*`.
 
 ## Pruebas
 
-- Listado por estado
-- Edicion de detalle
-- Rechazo de solicitud
-- Importacion de pagos
-- CRUD de becas
+Definidas en `tests.md` como `TEST-SOL-*`.

@@ -1,148 +1,93 @@
-# 11 - Auth Security
+# 11 - Authentication And Security
 
-## Objetivo
-
-Definir el comportamiento esperado de autenticacion, autorizacion y controles de seguridad del frontend, tomando como fuente de verdad el estado actual del repositorio y dejando claras las reglas que deben mantenerse en cualquier cambio futuro.
-
-## Componentes involucrados
-
-- `auth.ts`
-- `auth.config.ts`
-- `proxy.ts`
-- `components/providers.tsx`
-- `components/login-form.tsx`
-- `components/protected-route.tsx`
-- `lib/access-control.ts`
-- `lib/permissions.ts`
-- `lib/role-context.ts`
-- `lib/server-permissions.ts`
-- `modules/usuarios/store/auth.store.ts`
-- `modules/seguimiento-docente/docentes/docente.store.ts`
-
-## Flujo de autenticacion
+## Flujo `AS-IS`
 
 ```mermaid
 sequenceDiagram
-    participant U as Usuario
-    participant LF as LoginForm
-    participant NA as NextAuth authorize
-    participant API as Backend API
-    participant JWT as JWT / Session
-    participant ST as Stores cliente
-
-    U->>LF: Envia email + password
-    LF->>NA: signIn("credentials")
-    NA->>API: POST /auth/login
-    API-->>NA: access_token + user
-    NA->>API: GET /rol-permisos/rol/:rol
-    NA->>API: GET /docentes/usuario/:userId (solo DOCENTE)
-    NA-->>JWT: rol + permisos + docenteId + perfilId
-    LF->>JWT: getSession()
-    LF->>ST: setAuthData()
-    LF->>ST: setDocenteContext() si aplica
-    LF-->>U: Redireccion segun rol
+    actor U as Usuario
+    participant F as LoginForm
+    participant N as NextAuth authorize
+    participant B as Backend
+    participant J as JWT/Session
+    participant Z as Zustand
+    U->>F: submit email y password
+    F->>N: signIn credentials, redirect false
+    N->>B: POST /auth/login
+    B-->>N: access_token y usuario
+    N->>B: GET /rol-permisos/rol/:rol
+    opt DOCENTE sin contexto completo
+        N->>B: GET /docentes/usuario/:usuarioId
+    end
+    N-->>J: token enriquecido
+    F->>J: getSession
+    F->>Z: usuario, permisos y contexto
+    F-->>U: redirect permitido
 ```
 
-## Roles soportados
+## Payload de sesion
 
-| Rol | Uso principal | Regla clave |
+- `accessToken`.
+- `user.id`, `email`, `name` y `rol`.
+- `user.permisos[]`.
+- `user.docenteId` y `user.perfilId` cuando aplica.
+
+## Comportamiento por rol
+
+### SUPERADMIN
+
+- Login puede continuar aun sin permisos explicitos porque frontend aplica bypass.
+- Ve todas las opciones protegidas.
+- El bypass frontend no obliga al backend a permitir la operacion; backend debe reconocer el rol o permiso.
+
+### ADMINISTRATIVO
+
+- Depende de carga de permisos.
+- `AS-IS`: aunque posea permisos sensibles, `canAccessRoute` bloquea solicitudes, certificados, constancias, examenes e importacion de pagos.
+- `DECISION-001` debe resolver si este bloqueo es intencional.
+
+### DOCENTE
+
+- Requiere permisos de experiencia personal.
+- Requiere `docenteId` y `perfilId` para rutas personales.
+- El lookup correcto del backend es `GET /docentes/usuario/:usuarioId`.
+- Si falta contexto, el error debe ser especifico y no “login fallido”.
+
+## Capas de control
+
+| Capa | Responsabilidad | Autoridad de seguridad |
 | --- | --- | --- |
-| `SUPERADMIN` | Acceso total | Bypass de permisos por rol |
-| `ADMINISTRATIVO` | Operacion administrativa | Requiere permisos explicitos |
-| `DOCENTE` | Experiencia personal docente | Requiere permisos y contexto `docenteId` + `perfilId` |
+| NextAuth | autenticar y construir sesion | Identidad frontend |
+| Proxy | redireccion temprana | No sustituye backend |
+| Server helper | permiso en paginas server | UX/SSR |
+| ProtectedRoute | permiso y contexto client | UX |
+| Sidebar | visibilidad | No |
+| Backend guards | identidad y autorizacion | Si |
 
-## Modelo de sesion
+## Amenazas y controles
 
-La sesion enriquecida debe conservar como minimo:
-
-- `user.id`
-- `user.email`
-- `user.name`
-- `user.rol`
-- `user.permisos[]`
-- `user.docenteId` cuando aplica
-- `user.perfilId` cuando aplica
-- `accessToken`
-
-## Reglas de autorizacion
-
-### 1. Proteccion por ruta
-
-- `lib/access-control.ts` define el permiso requerido por ruta.
-- Si una ruta protegida no tiene sesion, se devuelve al login.
-- Si la ruta requiere permiso y el usuario no lo tiene, debe ir a `/dashboard?error=unauthorized`.
-
-### 2. Rol `SUPERADMIN`
-
-- `isSuperAdminRole()` concede acceso a cualquier ruta protegida.
-- El bypass solo debe usarse para autorizacion, no para saltarse trazabilidad o validaciones de negocio.
-
-### 3. Rol `DOCENTE`
-
-- Para rutas del dominio docente se exige contexto completo.
-- Si falta `docenteId` o `perfilId`, el flujo debe enviar a `/dashboard?error=missing-docente-context` o mostrar mensaje equivalente.
-- El contexto debe poder recuperarse desde backend al iniciar sesion.
-
-### 4. Restricciones adicionales por rol
-
-El frontend ya bloquea a `DOCENTE` y `ADMINISTRATIVO` en permisos sensibles:
-
-- `gestion_constancias`
-- `gestion_solicitudes`
-- `examenes_ubicacion`
-- `importar_pagos`
-
-Estas restricciones deben seguir existiendo tambien en backend.
-
-## Capas de control actuales
-
-| Capa | Archivo | Funcion |
+| Riesgo | Estado | Control requerido |
 | --- | --- | --- |
-| Edge/proxy | `proxy.ts` | Primer filtro de acceso |
-| Session callback | `auth.config.ts` | Enriquecimiento de JWT y session |
-| Server guard | `lib/server-permissions.ts` | Proteccion de paginas server |
-| Client guard | `components/protected-route.tsx` | Proteccion de vistas client |
-| Sidebar | `components/sidebar/app-sidebar.tsx` | Oculta rutas no permitidas |
+| API Key expuesta | `NEXT_PUBLIC_API_KEY` es publica | No usarla como autenticacion de usuario |
+| Store manipulado | Zustand vive en navegador | Backend valida JWT y permiso |
+| Sesion/store desincronizados | Datos duplicados | Rehidratar stores desde sesion y limpiar al logout |
+| Endpoint con solo API Key | Presente en muchos controladores | Agregar JWT y permiso por accion |
+| Enumeracion de usuario/docente | Lookup por IDs | Verificar actor y alcance |
+| Registro publico | `/registro` accesible | Decidir habilitacion por ambiente |
+| Token en logs | Riesgo operacional | Sanitizar logs y errores |
 
-## Reglas de redireccion
+## Seguridad `TO-BE`
 
-- Usuario sin sesion:
-  - intento a ruta protegida -> login `/`
-- Usuario autenticado que entra a `/`:
-  - `DOCENTE` -> `/perfil-docente/mis-resultados`
-  - otros roles -> `/dashboard`
-- Usuario sin permiso:
-  - `/dashboard?error=unauthorized`
-- Usuario docente sin contexto:
-  - `/dashboard?error=missing-docente-context`
+- Endpoint privado = API Key de aplicacion + JWT valido + permiso/ownership.
+- Endpoints publicos se marcan explicitamente.
+- `DOCENTE` usa ownership backend, no solo IDs del cliente.
+- Permisos de sesion tienen estrategia de refresco o expiracion.
+- Acciones de firma, rechazo, eliminacion y publicacion generan auditoria.
+- Rate limiting para login y uploads.
 
-## Variables de entorno esperadas
+## Casos obligatorios
 
-| Variable | Uso | Tipo |
-| --- | --- | --- |
-| `NEXT_PUBLIC_API_URL` | URL base del backend | Publica |
-| `NEXT_PUBLIC_API_KEY` | Header `x-api-key` para requests | Publica |
-| `AUTH_SECRET` | Firma de NextAuth | Secreta |
-
-## Politicas de seguridad recomendadas
-
-- El backend debe seguir siendo la autoridad final de permisos.
-- El frontend no debe depender solo de ocultar botones o links.
-- Cualquier logging de payloads de login debe estar deshabilitado en produccion.
-- Los stores locales nunca deben almacenar secretos adicionales fuera de la sesion minima requerida.
-- Los cambios de permiso por rol deben invalidar o refrescar sesion antes de dar por vigente la nueva autorizacion.
-
-## Riesgos actuales a vigilar
-
-- `NEXT_PUBLIC_API_KEY` es visible por definicion; no debe tratarse como control suficiente por si sola.
-- Hay varias capas de autorizacion; cualquier cambio debe mantenerse consistente en las tres.
-- Si un flujo client-only usa stores locales sin refrescar desde sesion, puede aparecer desincronizacion temporal.
-- La recuperacion de contexto docente depende de que el backend devuelva `docente.id` y `perfil.id`.
-
-## Checklist de aceptacion
-
-- El login devuelve siempre rol y token validos o falla de forma explicita.
-- Los permisos se cargan de forma consistente para roles no `SUPERADMIN`.
-- Un `DOCENTE` puede entrar a sus rutas propias solo cuando existe contexto completo.
-- Las rutas protegidas quedan cubiertas por permiso y redireccion de error.
-- La navegacion del sidebar refleja exactamente lo que el usuario puede abrir.
+- Superadmin con y sin permisos cargados.
+- Administrativo con permiso permitido, faltante y actualmente restringido.
+- Docente con contexto completo, parcial e inexistente.
+- Token expirado, API Key invalida y permiso revocado.
+- Manipulacion de localStorage sin token valido.

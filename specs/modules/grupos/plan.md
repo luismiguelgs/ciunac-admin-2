@@ -1,33 +1,18 @@
 # Modulo Grupos - Plan
 
-## Resumen
+## Enfoque
 
-El modulo combina CRUD tradicional con una integracion externa de importacion. La calidad del dato depende tanto de validacion local como del contrato de Q10.
-
-## Fases
-
-1. Confirmar contrato del CRUD local.
-2. Confirmar contrato de `q10/horarios-cursos`.
-3. Alinear formulario manual y flujo de importacion.
-4. Probar escenarios de duplicados, vacios y errores de red.
+- Mantener CRUD actual y reforzar schema/errores.
+- Definir clave de idempotencia para importacion por periodo y codigo.
+- Separar preview, confirmacion y resultado.
+- Proteger Q10 y mutaciones con JWT/permiso.
 
 ## Dependencias
 
-- `modules/grupos/grupo.service.ts`
-- `modules/grupos/forms/grupo.schema.ts`
-- `modules/grupos/forms/import.form.tsx`
-- Catalogos de estructura
-- Combo de docentes
+- Estructura, docentes, Q10 y auth.
+- Posible indice unico requiere migracion y limpieza de duplicados.
 
-## Riesgos y aclaraciones
+## Rollout y DoD
 
-- El endpoint Q10 puede tener latencia o devolver estructuras diferentes por periodo.
-- El periodo visible en UI depende del modulo activo de estructura.
-- La importacion debe ser idempotente o, al menos, reportar duplicados con claridad.
-
-## Tareas tecnicas
-
-- Revisar shape real de `ICursoQ10`
-- Documentar regla de merge/import
-- Unificar manejo de errores entre CRUD e importacion
-- Agregar estados visuales para preview vacio y error
+- Activar primero preview y reporte; validar importacion en QA.
+- `CA-GRP-001..003`, regresion CRUD y smoke Q10 aprobados.

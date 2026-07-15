@@ -1,24 +1,10 @@
 # Modulo Usuarios - Tests
 
-## Unitarias
-
-- `extractPermissionCodes()` resuelve strings y objetos
-- `normalizeRole()` normaliza variantes de rol
-
-## Integracion
-
-- Crear usuario desde UI con datos validos
-- Rechazar alta con email invalido
-- Editar rol y reflejarlo en tabla
-- Cargar permisos de un rol sin romper sidebar
-
-## E2E
-
-- `SUPERADMIN` entra a `/usuarios` y gestiona usuarios
-- `ADMINISTRATIVO` sin `gestionar_usuarios` es redirigido
-
-## Casos negativos
-
-- Backend devuelve error 409 por email duplicado
-- Backend devuelve lista vacia de permisos
-- Backend devuelve payload inesperado de `rol-permisos`
+| ID | Nivel | Escenario |
+| --- | --- | --- |
+| `TEST-USR-001` | Unit | normalizacion y tipos de usuario |
+| `TEST-USR-002` | Component | email/rol/password validos e invalidos |
+| `TEST-USR-003` | Integration | impedir regla critica aprobada |
+| `TEST-USR-004` | Integration | CRUD y conflictos |
+| `TEST-USR-005` | Security/E2E | acceso permitido y 403 |
+| `TEST-USR-006` | A11y | tabla y dialog operables por teclado |

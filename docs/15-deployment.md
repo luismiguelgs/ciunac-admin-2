@@ -1,107 +1,90 @@
 # 15 - Deployment
 
-## Objetivo
-
-Definir el contrato operativo para desplegar el frontend con seguridad, trazabilidad y validaciones minimas antes de habilitar nuevas funciones.
-
-## Topologia esperada
+## Topologia
 
 ```mermaid
 flowchart LR
-    A["Cliente web"] --> B["Next.js frontend"]
-    B --> C["Backend API"]
-    B --> D["Servicios de upload / storage"]
-    C --> E["Base de datos / servicios externos"]
+    U["Browser"] --> V["Next.js / Vercel"]
+    V --> API["NestJS / api.ciunac.site"]
+    API --> PG["PostgreSQL"]
+    API --> MG["MongoDB"]
+    API --> GD["Google Drive"]
+    API --> Q10["Q10"]
+    API --> MAIL["SMTP"]
 ```
 
-## Entornos
+## Ambientes
 
-| Entorno | Uso | Requisitos minimos |
+| Ambiente | Objetivo | Datos |
 | --- | --- | --- |
-| Local | Desarrollo | Variables de entorno, backend alcanzable, storage accesible |
-| QA / Staging | Validacion funcional | Misma configuracion de auth y permisos que produccion |
-| Produccion | Operacion real | Secretos definitivos, monitoreo, smoke tests aprobados |
+| Local | desarrollo | fixtures/no productivos |
+| QA/Staging | aceptacion e integracion | datos sanitizados |
+| Produccion | operacion CIUNAC | datos reales y auditoria |
 
-## Variables de entorno requeridas
+## Configuracion frontend
 
-| Variable | Uso | Clasificacion |
-| --- | --- | --- |
-| `NEXT_PUBLIC_API_URL` | URL del backend consumido por `apiFetch` y auth | Publica |
-| `NEXT_PUBLIC_API_KEY` | Header requerido por backend y uploads | Publica |
-| `AUTH_SECRET` | Firma de NextAuth | Secreta |
+- `NEXT_PUBLIC_API_URL`: publica.
+- `NEXT_PUBLIC_API_KEY`: publica; no es secreto de usuario.
+- `AUTH_SECRET`: secreto de NextAuth.
+- `NEXT_PUBLIC_EXCEPTION_USER`: excepcion existente que debe auditarse antes de produccion.
 
-## Dependencias operativas
+## Configuracion backend
 
-- Backend disponible y con CORS correcto.
-- Endpoints de auth operativos:
-  - `/auth/login`
-  - `/rol-permisos/rol/:rol`
-  - `/docentes/usuario/:userId` para flujo docente
-- Endpoints de upload disponibles para CSV y archivos.
-- Mismos permisos y nombres de roles entre frontend y backend.
+- PostgreSQL: host, port, user, password y database.
+- MongoDB: URI.
+- JWT: access secret.
+- API Key del backend.
+- Google OAuth/refresh token y carpetas Drive.
+- Credenciales SMTP por tipo de correo.
+- Credenciales Q10.
+- CORS y habilitacion de Swagger por ambiente.
 
-## Comandos base
+No se documentan valores secretos.
 
-```bash
-npm run dev
-npm run build
-npm run start
-npm run lint
+## Pipeline
+
+```mermaid
+flowchart LR
+    A["Commit"] --> B["Lint/typecheck"]
+    B --> C["Unit/integration"]
+    C --> D["Build"]
+    D --> E["Deploy QA"]
+    E --> F["E2E y smoke"]
+    F --> G{"Aprobacion"}
+    G -->|Si| H["Deploy produccion"]
+    G -->|No| I["Corregir"]
 ```
 
-## Checklist previo al despliegue
+## Orden de despliegue
 
-- Variables de entorno definidas por ambiente.
-- `AUTH_SECRET` no reutilizado entre apps no relacionadas.
-- `NEXT_PUBLIC_API_URL` apunta al backend correcto del ambiente.
-- Verificar que las rutas protegidas cargan permiso esperado.
-- Verificar que login `DOCENTE` resuelve contexto completo.
-- Verificar uploads:
-  - constancias
-  - pagos CSV
-  - encuestas CSV
-- Verificar sidebar por rol.
+1. Backup y migraciones compatibles.
+2. Backend backward-compatible.
+3. Smoke de API y guards.
+4. Frontend.
+5. Smoke por rol y flujo critico.
+6. Retiro posterior de contratos obsoletos.
 
-## Smoke tests posteriores al despliegue
+## Smoke tests
 
-1. Login como `SUPERADMIN`
-2. Login como `ADMINISTRATIVO`
-3. Login como `DOCENTE`
-4. Navegar a:
-   - `/usuarios`
-   - `/estructura`
-   - `/grupos`
-   - `/perfil-docente/mis-resultados`
-   - `/constancias`
-   - `/examen-ubicacion`
-5. Ejecutar al menos un upload no destructivo
-6. Confirmar redirecciones de acceso denegado
-
-## Riesgos de despliegue
-
-- Si cambia el contrato del backend, varios modulos fallan simultaneamente.
-- Si la API key publica deja de coincidir con backend, fallan datos y uploads.
-- Si el secreto de auth cambia sin invalidacion controlada, las sesiones activas se rompen.
-- Si el backend cambia nombres de roles o permisos, el sidebar y los guards pueden desalinearse.
+- Login de los tres roles.
+- Permiso permitido y denegado.
+- Contexto docente completo y ausente.
+- Consulta de usuarios, estructura y grupos.
+- Registro/listado de solicitud en ambiente controlado.
+- Preview/upload no destructivo de documento.
+- Examen y seguimiento docente.
 
 ## Rollback
 
-- Mantener disponible la version anterior del frontend.
-- Revertir solo despues de validar:
-  - auth
-  - permisos
-  - modulo afectado
-- Si el fallo es de contrato backend, priorizar feature flag o rollback coordinado.
+- Mantener artefactos frontend/backend anteriores.
+- Migraciones incluyen `down` o procedimiento probado.
+- Evitar rollback backend si una migracion destructiva ya fue usada.
+- Deshabilitar feature o revertir frontend cuando el contrato siga compatible.
+- Registrar version, hora, responsable y motivo.
 
-## Observabilidad minima
+## Brechas
 
-- Logs del host del frontend
-- Logs de login fallido y redirects por permiso
-- Logs de backend para endpoints usados por auth y uploads
-- Monitoreo de errores de red al backend
-
-## Politica para cambios futuros
-
-- Ningun cambio de contrato backend se despliega sin actualizar `docs/` y `specs/`.
-- Ningun despliegue a produccion se considera listo sin smoke tests por rol.
-- Cualquier nueva variable de entorno debe agregarse primero a esta guia.
+- `GAP-DEP-001`: CORS esta codificado en backend.
+- `GAP-DEP-002`: no se encontro pipeline CI compartido en el frontend.
+- `GAP-DEP-003`: propietario y plataforma exacta del backend no estan documentados.
+- `GAP-DEP-004`: estrategia formal de migraciones y rollback requiere aprobacion operativa.

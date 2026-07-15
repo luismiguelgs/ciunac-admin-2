@@ -1,83 +1,58 @@
 # Modulo Estructura - Spec
 
-## Objetivo
+## Objetivo y actores
 
-Mantener los catalogos maestros usados por el resto de la aplicacion: tipos de solicitud, estados, facultades, idiomas, aulas, escuelas, modulos, ciclos, niveles y textos configurables.
+Administrar catalogos compartidos por grupos, solicitudes, documentos, examenes y seguimiento. Actores: `SUPERADMIN` y roles autorizados con `gestionar_estructura`.
 
-## Actores
+## Historia y reglas
 
-- `SUPERADMIN`
-- `ADMINISTRATIVO` con permiso `gestionar_estructura`
+- `HU-ESTR-001`: mantener aulas, ciclos, idiomas, niveles, modulos/periodos y textos.
+- `RN-ESTR-001`: IDs de catalogo son referencias, no el texto visible.
+- `RN-ESTR-002`: ciclo relaciona idioma y nivel.
+- `RN-ESTR-003`: modulos visibles alimentan selectores operativos.
+- `RN-ESTR-004`: una mutacion invalida el cache correspondiente.
 
-## Reglas de negocio
+## Criterios
 
-- `modulos` funcionan como periodos visibles del sistema.
-- `ciclos` dependen de `idiomaId` y `nivelId`.
-- Las colecciones visibles deben poder consultarse mediante `/visibles` cuando el modulo lo requiera.
-- `textos` se gestionan como contenido configurable por `codigo`.
-- Los catalogos deben permanecer consistentes porque alimentan formularios de otros modulos.
+- `CA-ESTR-001`: CRUD se refleja en tabs y consumidores.
+- `CA-ESTR-002`: referencias en uso no se eliminan sin control.
+- `CA-ESTR-003`: cache no sirve datos obsoletos despues de editar.
 
-## Criterios de aceptacion
+## UI
 
-- Se puede listar cada coleccion maestra.
-- Se puede crear, editar y eliminar items de cada coleccion.
-- Los ciclos muestran relacion con idioma y nivel.
-- Los modulos pueden marcarse como `activo` y `visible`.
-- Los textos configurables se pueden editar sin romper otros modulos.
+| Tipo | Inventario |
+| --- | --- |
+| Ruta | `/estructura` |
+| Componentes | tabs `op-aulas`, `op-ciclos`, `op-idiomas`, `op-niveles`, `op-periodos`, `op-textos` |
+| Formularios | edicion inline |
+| Tablas/filtros | datatables editables por catalogo |
+| Estado | `useOpcionesStore` en sessionStorage |
+| Permiso | `gestionar_estructura` |
 
-## Endpoints necesarios
+## API y modelo
 
-- `GET /tipossolicitud`
-- `GET /estados`
-- `GET /facultades`
-- `GET /idiomas`
-- `GET /aulas`
-- `GET /escuelas`
-- `GET /modulos`
-- `GET /modulos/visibles`
-- `GET /ciclos`
-- `GET /niveles`
-- `GET /textos`
-- `POST/PATCH/DELETE` para cada coleccion anterior
+- CRUD `/aulas`, `/ciclos`, `/idiomas`, `/niveles`, `/modulos`, `/textos`.
+- `GET /modulos/visibles`.
+- Entidades TipoORM para catalogos; `Texto` en MongoDB.
 
-## Modelo de datos relacionado
+## Validaciones y errores
 
-- `ITipoSolicitud`
-- `IEstado`
-- `IFacultad`
-- `IIdioma`
-- `ISalon`
-- `IEscuela`
-- `IModulo`
-- `ICiclo`
-- `INivel`
-- `ITexto`
+- Nombre/codigo requerido; IDs relacionados existentes; fechas de modulo coherentes; visibilidad booleana.
+- Duplicados, referencia en uso, cache obsoleto, API y permisos.
+- `GAP`: tablas inline no comparten schema canonico.
 
-## Validaciones
-
-- `nombre` obligatorio en catalogos basicos
-- `codigo` obligatorio donde la entidad lo use como identificador funcional
-- `facultadId` obligatorio en escuelas
-- `idiomaId` y `nivelId` obligatorios en ciclos
-- `fechaInicio <= fechaFin` en modulos
-
-## Errores posibles
-
-- Catalogo vacio
-- Error de red al cargar opciones
-- Eliminacion rechazada por referencias activas
-- Datos inconsistentes entre colecciones relacionadas
+```mermaid
+flowchart LR
+    A["Editar catalogo"] --> B["Validar"]
+    B --> C["API"]
+    C --> D["Invalidar cache"]
+    D --> E["Refrescar consumidores"]
+```
 
 ## Tareas tecnicas
 
-- Normalizar schemas de alta/edicion para cada coleccion
-- Reducir duplicacion entre tablas editables
-- Definir reglas de eliminacion segura para items en uso
-- Cubrir cache de `useOpciones` con pruebas
+Definidas en `tasks.md` como `TASK-ESTR-*`.
 
 ## Pruebas
 
-- CRUD por coleccion
-- Relacion ciclo -> idioma/nivel
-- Uso de `/visibles` en modulos dependientes
-- Proteccion por `gestionar_estructura`
+Definidas en `tests.md` como `TEST-ESTR-*`.

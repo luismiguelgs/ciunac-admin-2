@@ -1,32 +1,23 @@
-# Modulo Examen de Ubicacion - Plan
+# Modulo Examen De Ubicacion - Plan
 
-## Resumen
+## Arquitectura objetivo
 
-El modulo mezcla configuracion, operacion diaria y formatos de salida. La documentacion debe separar claramente examen principal, detalles de participantes y tablas de configuracion.
+- Centralizar estados y transiciones participante/solicitud en backend.
+- Validar rangos de calificacion sin solapamiento.
+- Mantener acta como snapshot idempotente.
+- Añadir agregado y persistencia de publicacion por periodo/version.
 
-## Fases
+## Dependencias y migraciones
 
-1. Confirmar contratos de examen y detalle.
-2. Confirmar contratos de cronograma y calificaciones.
-3. Documentar reglas de codigo, estado y finalizacion.
-4. Probar rutas de lista, detalle, participantes y configuracion.
+- Solicitudes, estructura, docentes, PostgreSQL, MongoDB y PDF.
+- Publicacion requiere modelo de metadata/version y posiblemente storage; definir migracion antes de implementar.
 
-## Dependencias
+## Compatibilidad y rollout
 
-- `modules/examen-ubicacion/services/*.ts`
-- Catalogos de estructura
-- Combo de docentes
-- Solicitudes de ubicacion
+- Mantener CRUD actual.
+- Implementar consulta consolidada antes de publicacion.
+- Habilitar publicacion despues de pruebas con periodos historicos sanitizados.
 
-## Riesgos y aclaraciones
+## Definition of Done
 
-- Las reglas de calculo de nivel dependen de configuracion de calificaciones.
-- Los detalles pueden quedar inconsistentes si faltan solicitud o estudiante.
-- El modulo comparte lenguaje con solicitudes de ubicacion y debe conservar contratos compatibles.
-
-## Tareas tecnicas
-
-- Agregar schemas faltantes para detalle, cronograma y calificaciones
-- Revisar generacion automatica de codigo
-- Alinear mensajes de error en CRUD y configuracion
-- Preparar casos felices y negativos por subflujo
+- `CA-EXU-001..006`, permisos, estados, PDFs y versionado cubiertos.

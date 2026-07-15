@@ -1,34 +1,31 @@
 # Modulo Seguimiento Docente - Plan
 
-## Resumen
+## Arquitectura objetivo
 
-Es el modulo con mayor densidad funcional del sistema. La estrategia debe separar claramente rutas administrativas, rutas personales de docente y catalogos internos.
+- Sesion como fuente del contexto; store recuperable.
+- Ownership backend para endpoints personales.
+- Permisos y guards por subdominio.
+- Servicios tipados y selector de modulo compartido.
+- Schemas para edicion inline e importacion.
 
-## Fases
+## Dependencias y migraciones
 
-1. Confirmar contratos de auth y contexto docente.
-2. Mapear permisos por subruta y submodulo.
-3. Consolidar contratos de servicios del dominio.
-4. Cubrir formularios y uploads con validacion explicita.
-5. Probar escenarios personales y administrativos.
+- Auth, usuarios, estructura/modulos, docentes y entidades de seguimiento.
+- Restricciones ownership/FK o auditoria requieren migraciones tras validar datos existentes.
 
-## Dependencias
+## Orden de implementacion
 
-- `auth.ts`
-- `auth.config.ts`
-- `lib/access-control.ts`
-- `modules/seguimiento-docente/**/*`
-- Catalogos de `estructura`
+1. Contexto/ownership y guards.
+2. Docentes y perfiles/documentos.
+3. Opciones y cumplimiento.
+4. Encuestas/importacion.
+5. Ranking/dashboard y vistas personales.
 
-## Riesgos y aclaraciones
+## Rollout
 
-- Cualquier error en `docenteId` o `perfilId` rompe varias vistas personales.
-- Las tablas con edicion inline requieren validacion adicional.
-- El modulo mezcla paginas server y client; los permisos deben mantenerse equivalentes.
+- Fixtures por rol y modulo.
+- Backend compatible primero; activar subflujos progresivamente.
 
-## Tareas tecnicas
+## Definition of Done
 
-- Revisar sincronizacion `Session -> useAuthStore -> useDocenteStore`
-- Revisar todas las rutas del sidebar docente
-- Definir schemas faltantes en encuestas, ranking y cumplimiento
-- Asegurar manejo uniforme de vacios y errores por submodulo
+- `CA-SDOC-001..006`, permisos por subruta, contexto y CSV cubiertos.

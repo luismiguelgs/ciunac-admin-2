@@ -1,75 +1,53 @@
 # Modulo Grupos - Spec
 
-## Objetivo
+## Objetivo y actores
 
-Gestionar grupos academicos del periodo y permitir la importacion de cursos desde Q10 para acelerar la carga operativa.
+Gestionar grupos academicos manualmente o mediante importacion Q10. Actores: `SUPERADMIN` y usuarios con `gestionar_estructura`.
 
-## Actores
+## Historia y reglas
 
-- `SUPERADMIN`
-- `ADMINISTRATIVO` con permiso `gestionar_estructura`
+- `HU-GRP-001`: listar, filtrar, crear y editar grupos.
+- `HU-GRP-002`: importar horarios/cursos de un periodo Q10.
+- `RN-GRP-001`: grupo requiere modulo, ciclo, codigo, docente, frecuencia y modalidad.
+- `RN-GRP-002`: importacion exige periodo y debe ser repetible sin duplicar.
 
-## Reglas de negocio
+## Criterios
 
-- Un grupo requiere modulo, ciclo, codigo, docente, frecuencia y modalidad.
-- `aulaId` es opcional en el schema actual.
-- La importacion desde Q10 depende de un `periodo` seleccionado.
-- La vista de importacion debe permitir preview de cursos antes de ejecutar el import final.
+- `CA-GRP-001`: grupo valido aparece en tabla y detalle.
+- `CA-GRP-002`: preview Q10 no persiste hasta confirmar.
+- `CA-GRP-003`: importacion informa aceptados, rechazados y duplicados.
 
-## Criterios de aceptacion
+## UI, API y datos
 
-- Se puede listar grupos existentes.
-- Se puede crear un grupo manualmente.
-- Se puede editar un grupo existente.
-- Se puede eliminar un grupo.
-- Se puede consultar cursos importables por periodo.
-- Se puede importar cursos desde Q10 al modulo local.
+| Tipo | Inventario |
+| --- | --- |
+| Rutas | `/grupos`, `/grupos/{id}`, `/grupos/nuevo`, `/grupos/importar` |
+| Componentes | `GruposDataTable`, `GrupoForm`, `ImportarGrupos` |
+| Formularios | grupo + schema; importacion + periodo |
+| Tabla/filtro | grupos, columnas academicas y busqueda configurada |
+| Estado | local + catalogos estructura |
+| API | CRUD `/grupos`; GET/POST `/q10/horarios-cursos` |
+| Datos | Grupo, Modulo, Ciclo, Docente, Aula, curso Q10 |
 
-## Endpoints necesarios
+## Validaciones y errores
 
-- `GET /grupos`
-- `GET /grupos/:id`
-- `POST /grupos`
-- `PATCH /grupos/:id`
-- `DELETE /grupos/:id`
-- `GET /q10/horarios-cursos?periodo=:nombrePeriodo`
-- `POST /q10/horarios-cursos`
+- IDs existentes, codigo no vacio, periodo requerido, modalidad/frecuencia validas.
+- Q10 no disponible, respuesta invalida, duplicado, referencia inexistente y fila parcial.
+- `GAP`: idempotencia de importacion no esta explicitada en contrato.
 
-## Modelo de datos relacionado
-
-- `IGrupo`
-- `ICursoQ10`
-- Catalogos de `IModulo`, `ICiclo`, `ISalon`
-- `IDocente` para asignacion
-
-## Validaciones
-
-- `moduloId` obligatorio
-- `cicloId` obligatorio
-- `codigo` obligatorio
-- `docenteId` obligatorio
-- `frecuencia` obligatoria
-- `modalidad` obligatoria
-- `periodo` obligatorio para preview e importacion
-
-## Errores posibles
-
-- Grupo no encontrado
-- Periodo no seleccionado
-- Importacion Q10 sin cursos disponibles
-- Error de red al importar
-- Docente inexistente o no visible
+```mermaid
+flowchart LR
+    A["Elegir periodo"] --> B["Preview Q10"]
+    B --> C{"Confirmar"}
+    C -->|No| D["Cancelar"]
+    C -->|Si| E["Importar"]
+    E --> F["Resumen por fila"]
+```
 
 ## Tareas tecnicas
 
-- Mantener schema de grupo como contrato unico de formulario
-- Tipar correctamente importacion Q10
-- Definir reglas de reconciliacion si Q10 devuelve cursos repetidos
-- Cubrir creacion, edicion e importacion con pruebas
+Definidas en `tasks.md` como `TASK-GRP-*`.
 
 ## Pruebas
 
-- CRUD de grupos
-- Preview de cursos por periodo
-- Importacion exitosa y fallida
-- Proteccion por permiso
+Definidas en `tests.md` como `TEST-GRP-*`.

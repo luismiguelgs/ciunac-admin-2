@@ -1,131 +1,73 @@
 # 12 - Validation Rules
 
-## Objetivo
+## Estrategia
 
-Definir las reglas de validacion del frontend y establecer una politica clara para entradas de usuario, parametros de ruta, cargas de archivos y datos enviados al backend.
+```mermaid
+flowchart LR
+    I["Entrada usuario"] --> UI["Validacion visual/RHF"]
+    UI --> Z["Schema Zod o regla tipada"]
+    Z --> DTO["DTO y ValidationPipe"]
+    DTO --> RN["Reglas de negocio en service"]
+    RN --> DB["Restricciones de persistencia"]
+```
 
-## Principios
+Frontend mejora UX; backend es autoridad. Un dato valido por tipo puede seguir siendo invalido por negocio.
 
-- Validar temprano en UI para mejorar UX.
-- Validar de nuevo en backend como autoridad final.
-- Usar `zod` como contrato canonico del formulario cuando exista schema.
-- Convertir tipos antes de enviar (`number`, `date`, `boolean`) para no delegar ambiguedades al backend.
-- Mantener mensajes breves, accionables y orientados al campo.
+## Inventario de formularios y schemas
 
-## Inventario actual de schemas
-
-| Ubicacion | Alcance | Reglas principales |
+| Dominio | Archivos cubiertos | Reglas relevantes |
 | --- | --- | --- |
-| `components/login-form.tsx` | Login | Email valido, password minimo 6 |
-| `modules/grupos/forms/grupo.schema.ts` | Crear/editar grupo | `moduloId`, `cicloId`, `codigo`, `docenteId`, `frecuencia`, `modalidad` obligatorios |
-| `modules/grupos/forms/import.form.tsx` | Importar grupos | `periodo` obligatorio |
-| `modules/constancias/validation.schema.ts` | Crear/editar constancia | Campos base obligatorios; `MATRICULA` exige `modalidad` y `horario` |
-| `modules/examen-ubicacion/components/examen-form.tsx` | Crear/editar examen | `estadoId`, `fecha`, `aulaId`, `docenteId`, `idiomaId`, `codigo` obligatorios |
-| `modules/seguimiento-docente/docentes/forms/docente.schema.tsx` | Crear/editar docente | Nombres/apellidos max 50, genero y tipoDocumento por enum, celular requerido |
-| `modules/seguimiento-docente/perfil-docente/forms/perfil-docente.schema.ts` | Crear/editar perfil docente | `docenteId`, `experienciaTotal`, `idiomaId`, `puntajeFinal` obligatorios |
-| `modules/seguimiento-docente/perfil-docente/forms/documento.schema.ts` | Documentos de perfil | Tipo, estado, descripcion y fecha requeridos |
-| `modules/solicitudes/constancias/solicitud-constancias.details.tsx` | Edicion de solicitud | Tipo, estado, idioma, nivel, voucher, pago y fecha requeridos |
+| Auth | login y registro | email, password, rol |
+| Grupos | grupo, schema e importacion | modulo, ciclo, docente, modalidad, periodo |
+| Solicitudes | nueva solicitud y schema | estudiante, tipo, pago, catalogos |
+| Certificados | formulario y schema | solicitud, registro, curso y notas |
+| Constancias | formulario y schema | solicitud, tipo y regla matricula/notas |
+| Examen ubicacion | formulario | fecha, estado, aula, docente, idioma y codigo |
+| Docentes | formulario y schema | identidad, documento, genero y contacto |
+| Perfil docente | perfil/documento y dos schemas | docente, idioma, experiencia, puntaje y documento |
 
-## Reglas compartidas por tipo de dato
+## Reglas comunes
 
-### Strings
-
-- Trim antes de persistir cuando el campo representa codigo, nombre o descripcion.
-- No aceptar strings vacios para campos marcados como requeridos.
-- Usar enums para dominios cerrados: rol, genero, tipoDocumento, tipo de constancia.
-
-### Numeros
-
-- Convertir con `z.coerce.number()` o casteo controlado antes de enviar.
-- No enviar strings numericos al backend si el contrato del recurso es numerico.
-- Validar minimos explicitos cuando el negocio lo requiere.
-
-### Fechas
-
-- Convertir a `Date` en UI.
-- Serializar al backend en formato `YYYY-MM-DD` cuando el recurso lo espera como fecha plana.
-- Rechazar fechas invalidas despues del parseo.
-
-### Booleanos
-
-- Mantener valores por defecto explicitos en formularios.
-- Evitar `undefined` para toggles que alteran estados del negocio.
+- Strings funcionales se recortan y no aceptan vacio.
+- IDs se convierten y validan como numero/string segun contrato.
+- Fechas se validan antes de serializar.
+- Enums no aceptan valores fuera del catalogo.
+- Booleanos tienen default explicito.
+- Referencias deben existir y estar activas cuando el negocio lo exige.
+- Parametros de ruta usan pipes o validacion equivalente.
 
 ## Reglas por dominio
 
-### Auth
+- Auth: email valido; password minima; rol conocido.
+- Grupos: modulo, ciclo y docente compatibles; importacion exige periodo.
+- Solicitudes: estudiante valido, tipo y estado de referencia `SOLICITUD`, pago coherente.
+- Certificados: solicitud compatible y notas sin duplicados funcionales.
+- Constancias: `MATRICULA` exige modalidad y horario; `NOTAS` exige detalle coherente.
+- Examen: solicitud pagada antes de asignar; nota/calificacion/nivel compatibles.
+- Seguimiento: contexto docente completo en vistas personales; archivos y CSV con estructura esperada.
 
-- Login:
-  - `email` valido
-  - `password` minimo 6
-- Registro de usuario:
-  - `email` obligatorio
-  - `rol` obligatorio
-  - password obligatoria en flujos de alta local
+## Archivos
 
-### Catalogos de estructura
-
-- `nombre` requerido en colecciones basicas.
-- `codigo` requerido cuando la entidad lo usa como identificador funcional.
-- `ciclos` deben referenciar `idiomaId` y `nivelId`.
-- `modulos` deben mantener fechas coherentes y visibilidad controlada.
-
-### Grupos
-
-- Un grupo no debe guardarse sin modulo, ciclo, docente y modalidad.
-- `aulaId` puede ser opcional segun el schema actual.
-- La importacion exige `periodo` seleccionado antes de preview o import.
-
-### Seguimiento docente
-
-- `DOCENTE` debe operar con `docenteId` y `perfilId` validos cuando la vista es personal.
-- Perfil docente exige docente, idioma, experiencia y puntaje final.
-- Documento de perfil exige tipo de documento, estado, descripcion y fecha de emision.
-- Cargas CSV de encuestas deben ser archivo valido y endpoint soportado.
-
-### Solicitudes y constancias
-
-- Solicitudes de constancias exigen voucher, monto y fecha de pago.
-- Constancias tipo `MATRICULA` exigen `modalidad` y `horario`.
-- Los uploads deben identificar carpeta y metadata minima antes de enviar.
-
-### Examen de ubicacion
-
-- Examen exige estado, fecha, docente, idioma, aula y codigo.
-- Detalle de examen debe respetar `examenId`, `solicitudId`, `estudianteId`, `nota`, `nivelId`, `calificacionId`.
-- Cronograma y calificaciones deben mantener relacion con modulo/ciclo.
-
-## Validacion de archivos
-
-| Flujo | Regla |
+| Flujo | Validacion minima |
 | --- | --- |
-| `uploadCSVFile` | Archivo requerido, respuesta HTTP valida |
-| Encuestas CSV | Solo CSV y estructura esperada por backend |
-| Pagos CSV | Archivo CSV del banco |
-| Upload general | Carpeta permitida: `dnis`, `vouchers`, `becas`, `cvs`, `constancias` |
-| Constancias PDF | Debe subirse a carpeta `constancias` con metadata de nombre |
+| DNI, voucher, beca, CV | archivo presente, tipo/tamano permitido y carpeta valida |
+| Pagos CSV | extension, headers, filas y montos |
+| Encuestas CSV | extension, preguntas/columnas y modulo |
+| Certificado/constancia PDF | MIME PDF, documento asociado y estrategia de reemplazo |
 
-## Politica de mensajes de error
+`GAP-VAL-001`: frontend no aplica de forma uniforme tipo y tamaño antes de upload.
 
-- Error por campo:
-  - mensaje corto y directo
-  - ejemplo: `Idioma requerido`
-- Error de submit:
-  - toast con accion o siguiente paso
-  - ejemplo: `No se pudo guardar el examen`
-- Error de permisos/contexto:
-  - redireccion controlada o pantalla con estado claro
+## Validacion visual
 
-## Gaps actuales a resolver
+- Error junto al campo y `aria-describedby` cuando aplique.
+- Primer campo invalido recibe foco.
+- Submit muestra estado ocupado y evita doble envio.
+- Errores de catalogo bloquean submit con explicacion.
+- Error backend no borra valores.
 
-- No todos los modulos tienen schemas dedicados.
-- Algunas tablas con edicion inline dependen de validacion implicita.
-- Hay servicios que aceptan `any` y necesitan contratos tipados mas estrictos.
-- Las validaciones de backend no estan representadas siempre en el frontend.
+## Brechas
 
-## Checklist de aceptacion
-
-- Todo formulario critico tiene schema o reglas equivalentes documentadas.
-- Todos los IDs enviados al backend tienen tipo consistente.
-- Los uploads validan extension y metadata minima antes del submit.
-- Las reglas condicionales quedan escritas junto al modulo que las consume.
+- `GAP-VAL-002`: tablas editables carecen de schema uniforme.
+- `GAP-VAL-003`: algunos servicios usan `any` y ocultan diferencias de DTO.
+- `GAP-VAL-004`: estados se resuelven por ID o alias de texto sin contrato unico.
+- `GAP-VAL-005`: validaciones Zod y DTO backend no tienen pruebas de contrato compartidas.

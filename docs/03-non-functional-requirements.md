@@ -1,135 +1,60 @@
 # 03 - Non-Functional Requirements
 
-## Rendimiento
-
-### NFR-001 - Tiempo de carga de lista
-
-La lista de Examenes de Ubicacion debe cargar en un tiempo aceptable para uso administrativo recurrente. Como objetivo inicial, la primera carga no deberia exceder 3 segundos en condiciones normales de red interna.
-
-### NFR-002 - Tiempo de generacion de PDF
-
-La generacion del PDF por periodo deberia completarse en menos de 10 segundos para volumenes regulares. Si excede ese tiempo, la interfaz debe mostrar estado de progreso o procesamiento.
-
-### NFR-003 - Volumen de resultados
-
-El proceso debe soportar periodos con multiples idiomas y decenas o cientos de participantes sin degradar la experiencia.
-
 ## Seguridad
 
-### NFR-004 - Autenticacion obligatoria
+- `NFR-SEC-001`: ninguna autorizacion sensible dependera solo del sidebar o de un store cliente.
+- `NFR-SEC-002`: los endpoints privados validaran identidad y permiso en backend.
+- `NFR-SEC-003`: `NEXT_PUBLIC_API_KEY` se tratara como identificador publico, no como secreto.
+- `NFR-SEC-004`: tokens, passwords y payloads sensibles no se registraran en logs.
+- `NFR-SEC-005`: datos persistidos en navegador se limitaran al contexto minimo de UI.
 
-Todas las operaciones administrativas deben requerir sesion valida.
+## Rendimiento
 
-### NFR-005 - Autorizacion por permiso
+- `NFR-PERF-001`: las paginas de lista deben mostrar feedback de carga inmediatamente.
+- `NFR-PERF-002`: filtros locales no deben provocar solicitudes por cada pulsacion salvo contrato explicito.
+- `NFR-PERF-003`: catalogos cacheados deben poder invalidarse despues de una mutacion.
+- `NFR-PERF-004`: generacion de PDF y upload deben mostrar progreso o estado de procesamiento.
 
-La publicacion de resultados debe validar permisos tanto en frontend como en backend.
+## Confiabilidad
 
-### NFR-006 - Proteccion de datos personales
+- `NFR-REL-001`: operaciones de negocio con dos persistencias deben ser atomicas o compensables.
+- `NFR-REL-002`: reintentos de firma o upload no deben duplicar documentos.
+- `NFR-REL-003`: errores parciales deben indicar que parte fue persistida.
+- `NFR-REL-004`: estados se resolveran por constantes o catalogos validados, no por numeros sin nombre.
 
-El PDF y las vistas asociadas deben exponer solo los datos necesarios para publicar resultados. Se debe evitar mostrar datos sensibles innecesarios.
+## Usabilidad y accesibilidad
 
-### NFR-007 - Integridad del documento
-
-Una vez publicado, el documento debe conservar integridad. Cualquier reemplazo o nueva publicacion debe quedar registrado.
-
-### NFR-008 - No confiar solo en UI
-
-El backend debe validar periodo, tipo de examen, permiso y estado de resultados aunque la UI ya haya aplicado esos filtros.
-
-## Disponibilidad y confiabilidad
-
-### NFR-009 - Manejo de fallos de API
-
-La aplicacion debe mostrar mensajes claros cuando el backend no responda, devuelva errores o no pueda generar el PDF.
-
-### NFR-010 - Operacion idempotente o controlada
-
-Reintentar una generacion o publicacion no debe crear documentos duplicados accidentalmente sin regla definida.
-
-### NFR-011 - Recuperacion de documento publicado
-
-Un documento ya publicado debe poder consultarse aun si una generacion posterior falla.
-
-## Usabilidad
-
-### NFR-012 - Claridad de periodo
-
-El periodo seleccionado debe estar siempre visible durante generacion, vista previa y publicacion.
-
-### NFR-013 - Confirmaciones explicitas
-
-Las acciones irreversibles o publicas deben requerir confirmacion.
-
-### NFR-014 - Mensajes comprensibles
-
-Los mensajes deben estar orientados al usuario administrativo, evitando errores tecnicos sin explicacion.
-
-### NFR-015 - Flujo corto
-
-El flujo principal debe poder completarse desde la lista de Examenes de Ubicacion sin obligar al usuario a navegar por varias secciones.
-
-## Accesibilidad
-
-### NFR-016 - Navegacion por teclado
-
-Las acciones principales deben poder ejecutarse mediante teclado.
-
-### NFR-017 - Contraste y legibilidad
-
-Estados, botones y mensajes deben tener contraste suficiente y texto legible.
-
-### NFR-018 - Etiquetas de acciones
-
-Botones con iconos deben tener etiquetas accesibles o tooltips descriptivos.
+- `NFR-UX-001`: formularios deben identificar el campo invalido y conservar valores.
+- `NFR-UX-002`: tablas deben ofrecer filtro comprensible, paginacion y estado vacio.
+- `NFR-A11Y-001`: controles interactivos deben ser operables con teclado y tener nombre accesible.
+- `NFR-A11Y-002`: estados no se comunicaran unicamente por color.
+- `NFR-A11Y-003`: dialogs deben gestionar foco y cierre de forma predecible.
 
 ## Mantenibilidad
 
-### NFR-019 - Separacion de responsabilidades
-
-La logica de obtencion de datos, generacion de documento, publicacion y presentacion UI debe mantenerse separada.
-
-### NFR-020 - Reutilizacion de servicios
-
-La nueva funcionalidad debe integrarse con los servicios existentes del modulo Examen de Ubicacion cuando sea razonable.
-
-### NFR-021 - Tipado consistente
-
-Los contratos de datos deben estar tipados de forma consistente con las interfaces existentes.
-
-### NFR-022 - Documentacion actualizable
-
-Los cambios funcionales deben reflejarse en estos documentos antes de implementarse.
+- `NFR-MNT-001`: contratos compartidos no usaran `any` cuando exista un modelo conocido.
+- `NFR-MNT-002`: permisos por ruta tendran una sola fuente canonica y consumidores consistentes.
+- `NFR-MNT-003`: servicios de un mismo dominio usaran una estrategia de error uniforme.
+- `NFR-MNT-004`: cada cambio funcional actualizara spec, task y prueba vinculada.
 
 ## Observabilidad
 
-### NFR-023 - Registro de errores
-
-Los errores de generacion, publicacion y descarga deben registrarse con contexto: periodo, usuario, fecha y operacion.
-
-### NFR-024 - Auditoria funcional
-
-Debe existir forma de conocer quien publico un documento, cuando lo hizo y a que periodo corresponde.
+- `NFR-OBS-001`: errores backend registraran operacion, recurso, status e identificador de correlacion cuando exista.
+- `NFR-OBS-002`: auth distinguira fallo de credenciales, permisos y contexto sin exponer secretos.
+- `NFR-OBS-003`: despliegues conservaran version frontend y backend para diagnostico.
 
 ## Compatibilidad
 
-### NFR-025 - Navegadores modernos
+- `NFR-COMP-001`: soportar versiones vigentes de Chrome, Edge y Firefox de escritorio.
+- `NFR-COMP-002`: las paginas deben ser utilizables en escritorio y viewport movil.
+- `NFR-COMP-003`: PDFs deben abrirse en lectores estandar y conservar formato institucional.
 
-La aplicacion debe funcionar en navegadores modernos usados por el personal administrativo.
+## Calidad minima
 
-### NFR-026 - PDF estandar
-
-El documento generado debe abrirse correctamente en visores PDF comunes.
-
-## Calidad del PDF
-
-### NFR-027 - Formato institucional
-
-El documento debe mantener encabezado, portada, jerarquia visual, tablas legibles y pie institucional.
-
-### NFR-028 - Paginacion correcta
-
-Las tablas largas deben paginar sin cortar filas ni ocultar encabezados importantes.
-
-### NFR-029 - Orden consistente
-
-Los idiomas y participantes deben mostrarse en un orden definido y reproducible.
+| Cambio | Verificacion obligatoria |
+| --- | --- |
+| Auth o permisos | Unitarias, integracion y E2E por rol |
+| Formulario | Schema, submit, error y accesibilidad basica |
+| Servicio/API | Contrato feliz, 4xx, 5xx y red |
+| Estado de negocio | Transiciones validas, invalidas y reintento |
+| Upload/PDF | Archivo valido, rechazo, reintento y consistencia |

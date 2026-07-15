@@ -1,33 +1,22 @@
 # Modulo Solicitudes - Plan
 
-## Resumen
+## Arquitectura objetivo
 
-Solicitudes mezcla flujos administrativos transaccionales y una excepcion de dominio para becas. La documentacion debe mantener separados ambos contratos sin perder consistencia de estados.
+- Centralizar estados y transiciones en backend.
+- Mantener componentes compartidos por tipo, con adaptadores explicitos.
+- Tipar resultados de update/rechazo en lugar de booleanos silenciosos.
+- Definir pagina indice o corregir breadcrumbs `/solicitudes`.
 
-## Fases
+## Dependencias y migraciones
 
-1. Confirmar contratos del recurso general `solicitudes`.
-2. Confirmar recurso dedicado `solicitudbecas`.
-3. Documentar reglas de estado y rechazo.
-4. Documentar importacion de pagos y dependencias de archivo.
-5. Probar flujos de actualizacion y rechazo.
+- Estudiantes, catalogos, pagos, documentos y examen.
+- Si se agrega historial de estados/auditoria, requiere entidad y migracion PostgreSQL.
 
-## Dependencias
+## Compatibilidad y rollout
 
-- `modules/solicitudes/shared/solicitudes.service.ts`
-- `modules/solicitudes/becas/solicitud-becas.service.ts`
-- Catalogos de estructura
-- `services/upload.service.ts`
+- Introducir endpoint/servicio de transicion manteniendo PATCH temporalmente.
+- Migrar consumidores por subflujo y verificar documentos/examen.
 
-## Riesgos y aclaraciones
+## Definition of Done
 
-- El recurso general y el recurso de becas no siguen el mismo contrato de IDs.
-- Los errores hoy se expresan como booleanos en varios servicios.
-- La importacion de pagos depende de archivo y backend externo.
-
-## Tareas tecnicas
-
-- Unificar mensajes de error del dominio
-- Revisar uso de `_id` vs `id` en becas
-- Documentar ciclo de estados por tipo de solicitud
-- Agregar casos negativos de CSV y rechazo
+- `CA-SOL-001..004`; transiciones, CSV, seguridad y navegacion cubiertos.

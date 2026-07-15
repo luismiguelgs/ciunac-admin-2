@@ -1,108 +1,82 @@
 # Modulo Seguimiento Docente - Spec
 
-## Objetivo
+## Objetivo y actores
 
-Gestionar el ecosistema de seguimiento docente: dashboard, perfiles, documentos, docentes, encuestas, ranking, cumplimiento academico-administrativo y catalogos propios del dominio.
+Gestionar docentes, perfiles, documentos, cumplimiento, encuestas, ranking y catalogos; ofrecer a `DOCENTE` vistas personales limitadas a su contexto. Actores: `SUPERADMIN`, `ADMINISTRATIVO` con permisos especificos y `DOCENTE` con permisos personales.
 
-## Actores
+## Historias
 
-- `SUPERADMIN`
-- `ADMINISTRATIVO` con permisos del dominio docente
-- `DOCENTE` con experiencia personal sobre `mi-perfil`, `mis-resultados` y `mi-encuesta`
+- `HU-SDOC-001`: administrar docentes y perfiles.
+- `HU-SDOC-002`: gestionar documentos y cumplimiento.
+- `HU-SDOC-003`: importar/configurar encuestas y consultar metricas.
+- `HU-SDOC-004`: consultar ranking y detalle.
+- `HU-SDOC-005`: consultar mi perfil, resultados y encuestas.
 
-## Reglas de negocio
+## Reglas
 
-- Un usuario `DOCENTE` requiere `docenteId` y `perfilId` para acceder a vistas personales.
-- Cada ruta del dominio docente exige el permiso definido en `lib/access-control.ts`.
-- `perfil-docente` relaciona un docente con idioma, experiencia y puntaje final.
-- Los documentos de perfil se agrupan por `perfilId`.
-- Las encuestas se consumen por `moduloId` y, cuando aplica, por `docenteId`.
-- El cumplimiento academico-administrativo se consulta por `moduloId` y `academicoAdministrativoId`.
-- Los catalogos del dominio usan colecciones independientes:
-  - `tipos-documento-perfil`
-  - `academico-administrativo`
-  - `puntaje-academico-administrativo`
+- `RN-SDOC-001`: usuario docente se vincula mediante `/docentes/usuario/:usuarioId`.
+- `RN-SDOC-002`: perfil pertenece a docente e idioma.
+- `RN-SDOC-003`: documento pertenece a perfil y tipo de documento.
+- `RN-SDOC-004`: metricas/resultados se consultan en el mismo `moduloId`.
+- `RN-SDOC-005`: vistas personales requieren `docenteId` y `perfilId` de sesion y ownership backend.
+- `RN-SDOC-006`: CSV de encuestas valida columnas antes de persistir.
 
-## Criterios de aceptacion
+## Criterios
 
-- El dashboard docente carga indicadores globales.
-- Se puede listar y editar docentes.
-- Se puede crear y editar perfil docente.
-- Se pueden cargar y consultar documentos de perfil.
-- Se pueden consultar metricas, respuestas y preguntas de encuestas.
-- Un docente puede ver `mi-perfil`, `mis-resultados` y `mi-encuesta` con su contexto.
-- Se pueden consultar ranking y detalle de resultados por modulo/docente.
-- Se puede gestionar cumplimiento por rubro academico-administrativo.
+- `CA-SDOC-001`: CRUD docente/perfil/documento mantiene relaciones.
+- `CA-SDOC-002`: dashboard, cumplimiento y ranking usan modulo seleccionado.
+- `CA-SDOC-003`: importacion reporta filas y metricas consultables.
+- `CA-SDOC-004`: docente ve solo sus datos.
+- `CA-SDOC-005`: contexto parcial bloquea vistas personales con mensaje.
+- `CA-SDOC-006`: acciones administrativas respetan permiso de subruta.
 
-## Endpoints necesarios
+## UI
 
-- `GET/POST/PATCH/DELETE /docentes`
-- `GET /docentes/:id`
-- `GET /docentes/usuario/:userId`
-- `GET/POST/PATCH/DELETE /perfil-docente`
-- `GET /perfil-docente/:id`
-- `GET/POST/PATCH/DELETE /documentos-docente`
-- `GET /documentos-docente/perfil/:perfilId`
-- `GET /dashboard-docentes/*`
-- `GET /encuesta-metricas-docente?moduloId=:id`
-- `GET /encuesta-respuestas/buscar?docenteId=:id&moduloId=:id`
-- `POST /encuesta-respuestas/upload`
-- `GET/POST/PATCH/DELETE /encuesta-preguntas`
-- `GET /perfil-docente-resultados/modulo/:moduloId`
-- `GET /perfil-docente-resultados/docente/:docenteId`
-- `GET /perfil-docente-resultados/detalle/:moduloId/:docenteId`
-- `GET/POST/PATCH/DELETE /cumplimiento-docente`
-- `GET /cumplimiento-docente?academicoAdministrativoId=:id&moduloId=:id`
-- `GET/POST/PATCH/DELETE /tipos-documento-perfil`
-- `GET/POST/PATCH/DELETE /academico-administrativo`
-- `GET/POST/PATCH/DELETE /puntaje-academico-administrativo`
+| Subflujo | Rutas/componentes |
+| --- | --- |
+| Dashboard | `/perfil-docente`, indicadores y pilares |
+| Docentes | `/docentes`, `/nuevo`, `/{id}`, tabla/form/schema/store |
+| Perfiles/documentos | `/documentos`, `/nuevo`, `/{id}`, forms/schemas/tables |
+| Cumplimiento | `/academico-administrativo`, tabs de rubros |
+| Encuestas | `/encuestas`, `/{id}`, `/preguntas`, `/importar`, `/mi-encuesta` |
+| Ranking | `/ranking-docentes`, `/{id}`, tabla, graficos y detalle |
+| Personal | `/mi-perfil`, `/mis-resultados`, `/mi-encuesta` |
+| Opciones | `/opciones`, catalogos docentes |
 
-## Modelo de datos relacionado
+## Formularios, tablas, filtros y estado
 
-- `IDocente`
-- `PerfilDocente`
-- `DocumentosPerfil`
-- `IEncuestaMetricas`
-- `IEncuestaRespuesta`
-- `IPregunta`
-- `IPerfilResultado`
-- `DetalleResultado`
-- `ICumplimientoDocente`
-- `ITipoDocumentosPerfil`
-- `IAreasSeguimiento`
-- `IPuntajesAcademicoAdmin`
+- Forms/schemas de docente, perfil y documento; importacion CSV.
+- Tablas de docentes, perfiles, preguntas, respuestas, metricas y ranking.
+- Filtros por docente, modulo y campos de tabla.
+- `useDocenteStore` en localStorage y `usePerfilOpcionesStore` en sessionStorage.
+- Permisos por subruta definidos en `lib/access-control.ts`.
 
-## Validaciones
+## API y datos
 
-- `DocenteSchema`
-- `perfilDocenteSchema`
-- `documentoSchema`
-- Contexto docente obligatorio para vistas personales
-- Validacion de CSV en upload de encuestas
-- Validacion de queries `moduloId`, `docenteId`, `perfilId` antes de consumir servicios
+- `/docentes`, `/perfil-docente`, `/documentos-docente`, `/dashboard-docentes`.
+- `/encuesta-*`, `/perfil-docente-resultados`, `/cumplimiento-docente`.
+- `/tipos-documento-perfil`, `/academico-administrativo`, `/puntaje-academico-administrativo`.
+- PostgreSQL: docentes, perfiles, documentos, encuestas, cumplimiento y resultados.
 
-## Errores posibles
+## Validaciones y errores
 
-- Falta de contexto docente
-- Permiso faltante por subruta
-- Perfil o documento inexistente
-- CSV invalido o procesamiento fallido
-- Modulo sin metricas, ranking o cumplimiento
-- Catalogos de opciones vacios o inconsistentes
+- IDs de docente/perfil/modulo, ownership, schema de forms, CSV y catalogos.
+- Sin contexto, perfil inexistente, modulo sin datos, CSV parcial, permiso y endpoint sin guard.
+- `GAP`: varios controladores no declaran guard; servicios incluyen `any`; store puede desincronizarse.
+
+```mermaid
+flowchart TD
+    U["Usuario"] --> R{"Rol"}
+    R -->|Administrativo| A["Subruta + permiso"]
+    R -->|Docente| C{"Contexto y ownership"}
+    C -->|Valido| P["Mi perfil/resultados/encuesta"]
+    C -->|Invalido| E["Bloquear y explicar"]
+```
 
 ## Tareas tecnicas
 
-- Mantener un mapa claro de permisos por submodulo
-- Tipar mejor respuestas de servicios y tablas editables
-- Normalizar manejo de contexto docente entre sesion y stores
-- Definir validaciones faltantes para edicion inline
-- Cubrir rutas personales y administrativas con pruebas
+Definidas en `tasks.md` como `TASK-SDOC-*`.
 
 ## Pruebas
 
-- Auth y contexto docente
-- CRUD de docentes y perfiles
-- Upload y consulta de encuestas
-- Consulta de ranking y detalle
-- Consulta y edicion de cumplimiento
-- Catalogos del dominio
+Definidas en `tests.md` como `TEST-SDOC-*`.

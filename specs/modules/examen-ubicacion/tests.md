@@ -1,26 +1,12 @@
-# Modulo Examen de Ubicacion - Tests
+# Modulo Examen De Ubicacion - Tests
 
-## Unitarias
-
-- Construccion de codigo de examen
-- Validacion del formulario principal
-
-## Integracion
-
-- Crear examen con datos validos
-- Editar examen existente
-- Cargar detalle por examen
-- Crear cronograma
-- Crear rango de calificacion
-
-## E2E
-
-- Usuario autorizado crea examen y accede a detalle
-- Usuario autorizado administra configuracion
-- Usuario sin permiso es redirigido
-
-## Casos negativos
-
-- Guardar examen sin docente o idioma
-- Error HTTP en detalle de participantes
-- Configuracion de calificacion con rango invalido
+| ID | Nivel | Escenario |
+| --- | --- | --- |
+| `TEST-EXU-001` | Unit/component | examen/configuracion validos e invalidos |
+| `TEST-EXU-002` | Integration | asignar, retirar, terminar y rollback |
+| `TEST-EXU-003` | Unit | rangos sin solapamiento y limites |
+| `TEST-EXU-004` | Integration | regenerar acta no duplica |
+| `TEST-EXU-005` | Contract | periodo e idiomas correctos |
+| `TEST-EXU-006` | Component/E2E | vacio e incompleto bloquean publicacion |
+| `TEST-EXU-007` | E2E | preview, publicar, descargar y nueva version |
+| `TEST-EXU-008` | Security | CRUD/acta/publicacion 401/403/permitido |

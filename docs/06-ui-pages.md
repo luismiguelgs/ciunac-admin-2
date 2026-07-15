@@ -1,300 +1,115 @@
 # 06 - UI Pages
 
-## Objetivo
-
-Definir las pantallas necesarias para soportar el flujo de publicacion de resultados de Examen de Ubicacion por periodo, dentro de la aplicacion administrativa existente.
-
-## Pagina: Login
-
-Ruta actual: `/`
-
-Proposito:
-
-- Permitir autenticacion de usuarios.
-- Redirigir al dashboard o al modulo permitido segun sesion.
-
-Estados:
-
-- Formulario inicial.
-- Credenciales invalidas.
-- Cargando.
-- Sesion iniciada.
-
-## Pagina: Dashboard
-
-Ruta actual: `/dashboard`
-
-Proposito:
-
-- Servir como entrada principal despues de iniciar sesion.
-- Mostrar acceso a modulos segun permisos.
-- Mostrar mensajes de acceso no autorizado cuando corresponda.
-
-Estados:
-
-- Usuario con permisos administrativos.
-- Usuario docente.
-- Usuario sin acceso a la ruta solicitada.
-
-## Pagina: Lista de Examenes de Ubicacion
-
-Ruta actual: `/examen-ubicacion`
-
-Proposito:
-
-- Mostrar examenes de ubicacion existentes.
-- Permitir acciones sobre cada examen.
-- Iniciar la generacion/publicacion de resultados por periodo.
-
-Columnas actuales esperadas:
-
-- Codigo.
-- Estado.
-- Fecha Examen.
-- Idioma.
-- Docente.
-- Sala.
-- Acciones.
-
-Acciones actuales:
-
-- Ver detalle.
-- Eliminar examen.
-
-Acciones nuevas sugeridas:
-
-- Generar resultados por periodo.
-- Ver documento publicado.
-- Descargar documento publicado.
-- Publicar documento generado.
-
-Controles sugeridos:
-
-- Filtro por codigo.
-- Filtro por periodo.
-- Filtro por idioma.
-- Filtro por estado.
-- Boton de generar documento por periodo.
-
-Estados:
-
-- Cargando examenes.
-- Lista con datos.
-- Lista vacia.
-- Error al cargar.
-- Documento no generado.
-- Documento generado como borrador.
-- Documento publicado.
-
-## Pagina: Nuevo Examen de Ubicacion
-
-Ruta actual: `/examen-ubicacion/nuevo`
-
-Proposito:
-
-- Crear un examen de ubicacion.
-
-Campos relevantes para esta iniciativa:
-
-- Codigo.
-- Fecha.
-- Periodo.
-- Estado.
-- Idioma.
-- Docente.
-- Aula.
-
-Consideracion:
-
-- El periodo debe registrarse de forma obligatoria si el examen sera usado para generar documentos por periodo.
-
-## Pagina: Detalle de Examen de Ubicacion
-
-Ruta actual: `/examen-ubicacion/[id]`
-
-Proposito:
-
-- Consultar informacion del examen.
-- Gestionar o revisar participantes y resultados.
-
-Informacion esperada:
-
-- Codigo.
-- Periodo.
-- Fecha.
-- Estado.
-- Idioma.
-- Docente.
-- Aula.
-- Participantes.
-- Notas.
-- Nivel de ubicacion.
-- Estado de resultado por participante.
-
-Acciones sugeridas:
-
-- Actualizar estado del examen.
-- Editar resultados segun permisos.
-- Ir a generar documento del periodo del examen.
-
-Estados:
-
-- Examen cargado.
-- Examen no encontrado.
-- Error de carga.
-- Participantes incompletos.
-- Examen terminado.
-
-## Pagina: Participantes de Examen de Ubicacion
-
-Ruta actual: `/examen-ubicacion/participantes`
-
-Proposito:
-
-- Consultar o administrar participantes asociados a examenes de ubicacion.
-
-Consideracion:
-
-- Debe permitir identificar si un participante tiene nota, calificacion y nivel de ubicacion listos para publicacion.
-
-## Pagina: Configuracion de Examen de Ubicacion
-
-Ruta actual: `/examen-ubicacion/configuracion`
-
-Proposito:
-
-- Gestionar configuraciones del modulo.
-
-Elementos relacionados:
-
-- Cronograma de ubicacion.
-- Calificaciones de ubicacion.
-- Escalas o reglas de niveles, si aplican.
-
-Consideracion:
-
-- Las escalas de niveles usadas en el PDF deben provenir de configuracion o de una fuente controlada.
-
-## Modal/Dialog: Generar Resultados por Periodo
-
-Proposito:
-
-- Confirmar periodo y parametros antes de generar el documento.
-
-Contenido:
-
-- Selector de periodo.
-- Resumen de examenes encontrados.
-- Idiomas incluidos.
-- Cantidad de participantes con resultados.
-- Advertencias de resultados incompletos.
-
-Acciones:
-
-- Cancelar.
-- Generar vista previa.
-
-Estados:
-
-- Sin periodo seleccionado.
-- Buscando datos.
-- Datos listos.
-- Sin resultados.
-- Error al consultar.
-
-## Modal/Dialog: Vista Previa del PDF
-
-Proposito:
-
-- Permitir revisar el documento antes de publicarlo.
-
-Contenido:
-
-- Vista previa embebida o enlace de apertura.
-- Periodo.
-- Idiomas incluidos.
-- Fecha de generacion.
-- Advertencias si existen.
-
-Acciones:
-
-- Descargar borrador.
-- Regenerar.
-- Publicar.
-- Cerrar.
-
-Estados:
-
-- Generando PDF.
-- PDF listo.
-- Error de generacion.
-
-## Modal/Dialog: Confirmar Publicacion
-
-Proposito:
-
-- Evitar publicaciones accidentales.
-
-Contenido:
-
-- Periodo.
-- Idiomas incluidos.
-- Cantidad de participantes.
-- Mensaje de confirmacion indicando que el documento quedara disponible.
-
-Acciones:
-
-- Cancelar.
-- Confirmar publicacion.
-
-Estados:
-
-- Confirmacion pendiente.
-- Publicando.
-- Publicado.
-- Error de publicacion.
-
-## Pagina o seccion: Documento Publicado
-
-Ubicacion sugerida:
-
-- Dentro de `/examen-ubicacion`.
-- Dentro de `/examen-ubicacion/[id]`.
-- O como seccion agrupada por periodo.
-
-Proposito:
-
-- Mostrar documento vigente para el periodo.
-
-Datos visibles:
-
-- Periodo.
-- Estado.
-- Fecha de generacion.
-- Fecha de publicacion.
-- Usuario responsable.
-- Nombre del archivo.
-
-Acciones:
-
-- Ver.
-- Descargar.
-- Regenerar, si aplica.
-
-## Reglas de UI
-
-- El periodo debe estar visible en todo el flujo.
-- Las acciones de publicar deben estar protegidas por confirmacion.
-- Los botones de acciones criticas deben estar deshabilitados mientras se procesa.
-- Los errores deben explicar que ocurrio y que puede hacer el usuario.
-- La UI no debe mostrar acciones que el usuario no puede ejecutar.
-- La experiencia debe funcionar correctamente en escritorio, que es el escenario principal administrativo.
-
-## Navegacion sugerida
-
-1. Dashboard.
-2. Examen de Ubicacion.
-3. Generar resultados por periodo.
-4. Vista previa.
-5. Confirmar publicacion.
-6. Documento publicado disponible desde lista o detalle.
+## Inventario de paginas
+
+| Modulo | Ruta | Tipo | UI principal | Permiso `AS-IS` |
+| --- | --- | --- | --- | --- |
+| Autenticacion | `/` | Login | `LoginForm` | Publica |
+| Autenticacion | `/registro` | Formulario | `RegistroForm` | Publica (`GAP-UI-001`) |
+| Dashboard | `/dashboard` | Resumen | cards y reportes | Sesion |
+| Estructura | `/estructura` | Tabs CRUD | opciones academicas | `gestionar_estructura` |
+| Grupos | `/grupos` | Tabla | `GruposDataTable` | `gestionar_estructura` |
+| Grupos | `/grupos/{id}` | Detalle/form | `GrupoForm` | `gestionar_estructura` |
+| Grupos | `/grupos/nuevo` | Formulario | `GrupoForm` | `gestionar_estructura` |
+| Grupos | `/grupos/importar` | Importacion | `ImportarGrupos` | `gestionar_estructura` |
+| Usuarios | `/usuarios` | Tabla CRUD | `UsuariosDataTable` | `gestionar_usuarios` |
+| Certificados | `/certificados` | Tabla pendientes | `CertificadosTable` | `gestion_certificados` |
+| Certificados | `/certificados/{id}` | Detalle/form | `CertificadoForm` | `gestion_certificados` |
+| Certificados | `/certificados/nuevo` | Formulario | `CertificadoForm` | `gestion_certificados` |
+| Certificados | `/certificados/firmados` | Tabla | `CertificadosTable` | `gestion_certificados` |
+| Certificados | `/certificados/impresos` | Tabla | `CertificadosTable` | `gestion_certificados` |
+| Constancias | `/constancias` | Tabla pendientes | `ConstanciasTable` | `gestion_constancias` |
+| Constancias | `/constancias/{id}` | Detalle/form | `ConstanciaForm` | `gestion_constancias` |
+| Constancias | `/constancias/nueva` | Formulario | `ConstanciaForm` | `gestion_constancias` |
+| Constancias | `/constancias/firmadas` | Tabla | `ConstanciasTable` | `gestion_constancias` |
+| Constancias | `/constancias/entregadas` | Tabla | `ConstanciasTable` | `gestion_constancias` |
+| Examen ubicacion | `/examen-ubicacion` | Tabla | `ExamenesUbicacionTable` | `examenes_ubicacion` |
+| Examen ubicacion | `/examen-ubicacion/{id}` | Detalle | `ExamenDetail` | `examenes_ubicacion` |
+| Examen ubicacion | `/examen-ubicacion/nuevo` | Formulario | `ExamenForm` | `examenes_ubicacion` |
+| Examen ubicacion | `/examen-ubicacion/participantes` | Tabla | `ParticipantsGlobalTable` | `examenes_ubicacion` |
+| Examen ubicacion | `/examen-ubicacion/configuracion` | Tabs CRUD | cronograma y calificaciones | `examenes_ubicacion` |
+| Seguimiento | `/perfil-docente` | Dashboard | indicadores | `dashboard_docente` |
+| Seguimiento | `/perfil-docente/{id}` | Detalle perfil | perfil/documentos | regla por prefijo |
+| Seguimiento | `/perfil-docente/nuevo` | Formulario | `PerfilDocenteForm` | `dashboard_docente` por prefijo (`GAP-UI-002`) |
+| Seguimiento | `/perfil-docente/documentos` | Tabla | `PerfilesDataTable` | `perfil_docente` |
+| Seguimiento | `/perfil-docente/docentes` | Tabla | `DocentesDataTable` | `gestion_docentes` |
+| Seguimiento | `/perfil-docente/docentes/{id}` | Formulario | `DocenteForm` | `gestion_docentes` |
+| Seguimiento | `/perfil-docente/docentes/nuevo` | Formulario | `DocenteForm` | `gestion_docentes` |
+| Seguimiento | `/perfil-docente/academico-administrativo` | Tabs/tabla | cumplimiento | `cumplimiento_docente` |
+| Seguimiento | `/perfil-docente/encuestas` | Tabla | respuestas | `encuesta_respuestas` |
+| Seguimiento | `/perfil-docente/encuestas/{id}` | Detalle | respuestas detalle | `encuesta_respuestas` |
+| Seguimiento | `/perfil-docente/encuestas/importar` | Importacion | `ImportarEncuesta` | `encuesta_preguntas` |
+| Seguimiento | `/perfil-docente/encuestas/preguntas` | Tabla editable | `PreguntasDataTable` | `encuesta_preguntas` |
+| Seguimiento | `/perfil-docente/encuestas/mi-encuesta` | Tabla personal | respuestas propias | `mi_encuesta_respuestas` + contexto |
+| Seguimiento | `/perfil-docente/mi-perfil` | Perfil personal | perfil/documentos | `mi_perfil_docente` + contexto |
+| Seguimiento | `/perfil-docente/mis-resultados` | Resultados personales | graficos/detalle | `mi_perfil_docente_resultados` + contexto |
+| Seguimiento | `/perfil-docente/opciones` | Tabs CRUD | catalogos propios | `puntaje_academico_administrativo` |
+| Seguimiento | `/perfil-docente/ranking-docentes` | Tabla | `RankingDataTable` | `perfil_docente_resultados` |
+| Seguimiento | `/perfil-docente/ranking-docentes/{id}` | Detalle | graficos y pilares | `perfil_docente_resultados` |
+| Solicitudes | `/solicitudes/nueva` | Formulario | `NuevaSolicitudForm` | `gestion_solicitudes` |
+| Solicitudes | `/solicitudes/becas` | Tabla | `SolicitudBecasTable` | `gestion_becas` |
+| Solicitudes | `/solicitudes/becas/{id}` | Detalle | beca | `gestion_becas` por prefijo |
+| Solicitudes | `/solicitudes/certificados` | Tabla/estados | tabla compartida | `gestion_solicitudes` |
+| Solicitudes | `/solicitudes/certificados/{id}` | Detalle/form | `SolicitudDetails` | `gestion_solicitudes` |
+| Solicitudes | `/solicitudes/constancias` | Tabla/estados | tabla compartida | `gestion_solicitudes` |
+| Solicitudes | `/solicitudes/constancias/{id}` | Detalle/form | `SolicitudDetails` | `gestion_solicitudes` |
+| Solicitudes | `/solicitudes/ubicacion` | Tabla/estados | tabla compartida | `gestion_solicitudes` |
+| Solicitudes | `/solicitudes/ubicacion/{id}` | Detalle/form | `SolicitudDetails` | `gestion_solicitudes` |
+| Solicitudes | `/solicitudes/importar-pagos` | Importacion | `ImportarPagos` | `importar_pagos` |
+
+## Componentes compartidos
+
+- Formularios: `InputField`, `SelectField`, `ComboField`, `DatePickerField`, `RadioGroupField`, `SwitchField`, `TextareaField`, `UploadField`.
+- Tablas: `DataTable`, `DataTableEditable`, paginacion, selector de columnas y skeleton.
+- Navegacion: sidebar, breadcrumbs, tabs y botones de retorno.
+- Feedback: Sonner, dialogs de confirmacion, estados empty/loading y preview PDF.
+
+## Formularios y validacion visual
+
+Los 18 archivos de formulario/schema son:
+
+- Compartidos: `components/login-form.tsx`, `components/registro-form.tsx`.
+- Grupos: `grupo.form.tsx`, `grupo.schema.ts`, `import.form.tsx`.
+- Solicitudes: `nueva-solicitud.form.tsx`, `nueva-solicitud.schema.ts`.
+- Certificados: `certificado.form.tsx`, `certificado.schema.ts`.
+- Constancias: `constancia.form.tsx`, `validation.schema.ts`.
+- Examen: `examen-form.tsx`.
+- Docentes: `docente.form.tsx`, `docente.schema.tsx`.
+- Perfil docente: `perfil-docente.form.tsx`, `perfil-docente.schema.ts`, `documento.form.tsx`, `documento.schema.ts`.
+
+- Error de campo debe aparecer junto al control.
+- Error de API debe usar toast y conservar valores.
+- Submit debe deshabilitarse durante la operacion.
+- Upload debe indicar archivo, progreso y error parcial.
+- `GAP-UI-003`: varias tablas editables validan implicitamente y no poseen schema dedicado.
+
+## Tablas y filtros
+
+Los 22 archivos de tabla/datatable son:
+
+- Compartidos: `data-table.tsx`, `data-table-editable.tsx`, `components/ui/table.tsx`.
+- Usuarios: `usuarios-datatable.tsx`.
+- Grupos: `grupos-data-table.tsx`.
+- Solicitudes: tabla compartida, becas, certificados, constancias y ubicacion.
+- Certificados: certificados y notas.
+- Constancias: constancias y detalle de notas.
+- Examen: examenes y participantes globales.
+- Seguimiento: docentes, perfiles, preguntas, respuestas, metricas y ranking.
+
+- El patron compartido ofrece filtro por una columna, paginacion y visibilidad de columnas.
+- Cada spec declara columna filtrada, acciones, estados y permisos visibles.
+- `GAP-UI-004`: no existe una politica uniforme de filtros multiples, persistencia o busqueda remota.
+
+## Estado y consumo de API
+
+- Paginas server cargan datos directamente mediante servicios.
+- Componentes client usan servicios, hooks y estado local.
+- NextAuth es fuente de sesion; Zustand replica auth y contexto docente.
+- Stores de opciones cachean catalogos en `sessionStorage`.
+
+## Brechas de navegacion
+
+- `GAP-UI-001`: `/registro` es publica y debe confirmarse si corresponde en produccion.
+- `GAP-UI-002`: algunas subrutas de perfil dependen de permisos heredados por prefijo, no de regla exacta.
+- `GAP-UI-005`: breadcrumbs enlazan a `/solicitudes`, pero no existe `app/(main)/solicitudes/page.tsx`.
+- `GAP-UI-006`: existe `/certificados/impresos`, pero no aparece en el sidebar actual.

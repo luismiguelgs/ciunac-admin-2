@@ -1,79 +1,75 @@
 # Modulo Constancias - Spec
 
-## Objetivo
+## Objetivo y actores
 
-Emitir constancias oficiales a partir de solicitudes, gestionar su estado administrativo y controlar el flujo de firma, impresion y entrega.
+Emitir constancias de matricula o notas asociadas a solicitudes y gestionar PDF, firma, impresion y entrega. Acceso mediante `gestion_constancias`, sujeto a `DECISION-001`.
 
-## Actores
+## Historias
 
-- `SUPERADMIN`
-- `ADMINISTRATIVO` con permiso `gestion_constancias`
+- `HU-CONS-001`: seleccionar solicitud y crear constancia.
+- `HU-CONS-002`: generar/subir PDF.
+- `HU-CONS-003`: firmar, imprimir y entregar.
 
-## Reglas de negocio
+## Reglas
 
-- Una constancia pertenece a una solicitud (`id_solicitud`).
-- Existen dos tipos principales:
-  - `MATRICULA`
-  - `NOTAS`
-- Si el tipo es `MATRICULA`, `modalidad` y `horario` son obligatorios.
-- El flujo operativo usa al menos estos campos de estado:
-  - `aceptado`
-  - `impreso`
-  - `url`
-  - `driveId`
-- El proceso de firma requiere `constanciaId`, `fileId` y `solicitudId`.
+- `RN-CONS-001`: constancia requiere solicitud existente y compatible.
+- `RN-CONS-002`: `MATRICULA` exige modalidad y horario.
+- `RN-CONS-003`: `NOTAS` exige detalle academico coherente.
+- `RN-CONS-004`: asignacion de solicitud y creacion deben ser atomicas o compensables.
+- `RN-CONS-005`: firma actualiza constancia y solicitud a firmada.
 
-## Criterios de aceptacion
+## Criterios
 
-- Se puede listar constancias por estado operativo.
-- Se puede crear o editar una constancia.
-- Se puede subir el archivo PDF asociado.
-- Se puede procesar la firma.
-- Se puede marcar una constancia como aceptada o impresa.
-- Se puede consultar el detalle, incluyendo notas cuando aplique.
+- `CA-CONS-001`: constancia se crea y solicitud queda asignada solo despues de exito.
+- `CA-CONS-002`: reglas condicionales bloquean datos incompletos.
+- `CA-CONS-003`: PDF puede reintentarse sin duplicar archivo.
+- `CA-CONS-004`: firma, impresion y entrega respetan orden y consistencia.
 
-## Endpoints necesarios
+## UI
 
-- `GET /constancias`
-- `GET /constancias/:id`
-- `GET /constancias/:state`
-- `POST /constancias`
-- `PATCH /constancias/:id`
-- `DELETE /constancias/:id`
-- `PATCH /constancias/procesar-firma`
-- `POST /upload/constancias`
+| Tipo | Inventario |
+| --- | --- |
+| Rutas | `/constancias`, `/{id}`, `/nueva`, `/firmadas`, `/entregadas` |
+| Componentes | `ConstanciaForm`, asignar solicitud, detalle notas, PDF, tabla |
+| Formulario/schema | `constancia.form.tsx`, `validation.schema.ts` |
+| Tablas/filtros | constancias por estado, filtro estudiante; detalle filtro idioma |
+| Estado | local + hook de listas; catalogos estructura |
+| Permiso | `gestion_constancias` |
 
-## Modelo de datos relacionado
+## API y datos
 
-- `IConstancia`
-- `IConstanciaDetalle`
+- CRUD `/constancias`, listas por estado, `PATCH /constancias/procesar-firma`, `POST /upload/constancias`.
+- MongoDB `Constancia`/detalle; PostgreSQL `Solicitud` por `id_solicitud`.
 
-## Validaciones
+## Error funcional confirmado
 
-- `estudiante`, `dni`, `idioma`, `nivel`, `tipo`, `ciclo`, `id_solicitud` obligatorios
-- `MATRICULA` exige `modalidad` y `horario`
-- `impreso` y `aceptado` deben ser booleanos
-- Los detalles de notas deben mantener `nota`, `mes`, `anio` y `aprobado`
+`AS-IS`: al seleccionar una solicitud, el frontend ejecuta `PATCH /solicitudes/:id { estadoId: 2 }`; despues el usuario guarda la constancia. Si cancela o falla la creacion, la solicitud queda asignada sin constancia. Crear constancia en backend no cambia la solicitud.
 
-## Errores posibles
+## Validaciones y errores
 
-- Solicitud asociada inexistente
-- Error al subir PDF
-- Error al procesar firma
-- Error al marcar aceptado o impreso
-- Archivo sin URL valida
+- Datos base, tipo, ciclo, solicitud, catalogos, modalidad/horario o detalle notas.
+- Solicitud ya usada, Drive, PDF parcial, firma inexistente, estado invalido y compensacion.
+
+```mermaid
+sequenceDiagram
+    actor U as Operador
+    participant FE as Formulario
+    participant BE as Backend
+    participant DB as Solicitud y Constancia
+    U->>FE: Seleccionar y guardar
+    FE->>BE: Crear constancia con solicitudId
+    BE->>DB: Validar y persistir ambas fases
+    alt Todo correcto
+        DB-->>FE: Constancia creada y solicitud asignada
+    else Falla
+        DB-->>FE: Sin cambio parcial
+    end
+```
 
 ## Tareas tecnicas
 
-- Mantener `validation.schema.ts` como contrato canonico
-- Definir reglas explicitas de transicion entre estados
-- Unificar mensajes de error de upload y firma
-- Cubrir formatos PDF y flujo administrativo
+Definidas en `tasks.md` como `TASK-CONS-*`.
 
 ## Pruebas
 
-- Alta y edicion de constancia
-- Regla condicional por tipo `MATRICULA`
-- Upload PDF
-- Procesar firma
-- Cambios de `aceptado` e `impreso`
+Definidas en `tests.md` como `TEST-CONS-*`.

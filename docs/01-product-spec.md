@@ -1,119 +1,85 @@
 # 01 - Product Spec
 
-## Nombre de la iniciativa
+## Vision
 
-Publicacion de resultados de Examen de Ubicacion por periodo.
+Ofrecer una plataforma administrativa unica, trazable y segura para operar procesos academicos y documentarios de CIUNAC, reduciendo tareas manuales y manteniendo una experiencia diferenciada para personal administrativo y docentes.
 
-## Problema
+## Problemas que resuelve
 
-El Centro de Idiomas necesita publicar documentos oficiales de resultados para los Examenes de Ubicacion. Actualmente el documento de referencia agrupa resultados por idioma y periodo, pero se requiere que el flujo dentro de la aplicacion permita generar un documento enfocado solo en Examen de Ubicacion.
+- Informacion distribuida entre sistemas, archivos y operaciones manuales.
+- Seguimiento debil del estado de solicitudes y documentos.
+- Configuraciones academicas reutilizadas por varios procesos sin una vista central.
+- Falta de trazabilidad uniforme entre solicitud, documento, firma y entrega.
+- Experiencias administrativas y docentes que comparten plataforma, pero requieren permisos y contexto distintos.
 
-El proceso debe evitar errores frecuentes como mezclar examenes de distintos periodos, omitir idiomas del periodo o incluir registros de otros tipos de examen.
+## Actores
 
-## Objetivo de producto
+| Actor | Necesidad principal |
+| --- | --- |
+| `SUPERADMIN` | Configurar y supervisar todo el sistema |
+| `ADMINISTRATIVO` | Ejecutar operaciones autorizadas sobre solicitudes, estructura, grupos y seguimiento |
+| `DOCENTE` | Consultar su perfil, resultados y encuestas con contexto docente valido |
+| Estudiante | Actor indirecto cuyos datos originan solicitudes, certificados, constancias y examenes |
+| Sistemas externos | Q10, Google Drive, correo, PostgreSQL y MongoDB |
 
-Permitir que el personal autorizado genere, revise y publique un PDF oficial de resultados de Examen de Ubicacion para un periodo, consolidando en un unico documento todos los idiomas evaluados en ese periodo.
+## Objetivos
 
-## Resultado esperado
+- Centralizar catalogos y operaciones academicas.
+- Controlar acceso por rol, permiso y contexto.
+- Mantener continuidad entre solicitudes y documentos emitidos.
+- Producir documentos PDF y archivos verificables.
+- Dar trazabilidad desde requisito hasta prueba y despliegue.
 
-Un documento PDF institucional, asociado a un periodo, disponible desde el modulo de Examen de Ubicacion para visualizacion o descarga.
+## Epics
 
-## Usuarios objetivo
+| Epic | Resultado esperado |
+| --- | --- |
+| `EP-AUTH` | Acceso seguro y experiencia correcta por rol |
+| `EP-PLAT` | Usuarios y estructura academica administrables |
+| `EP-GRP` | Grupos creados, editados o importados desde fuentes autorizadas |
+| `EP-SOL` | Solicitudes registradas y gestionadas mediante estados controlados |
+| `EP-DOC` | Certificados y constancias emitidos, firmados y entregados |
+| `EP-EXU` | Examenes de ubicacion configurados, ejecutados y reportados |
+| `EP-SDOC` | Perfiles, documentos, encuestas y resultados docentes consultables |
 
-### Usuario primario
+## Capacidades del producto
 
-Personal administrativo o superadministrador responsable de gestionar Examenes de Ubicacion y publicar resultados.
+- Login y registro de usuarios.
+- Dashboard administrativo y dashboard de seguimiento docente.
+- CRUD de usuarios y catalogos academicos.
+- CRUD e importacion de grupos.
+- Registro manual y consulta de solicitudes.
+- Importacion y verificacion de pagos.
+- Emision de certificados y constancias con PDF y firma.
+- Gestion de examenes, participantes, actas y resultados de ubicacion.
+- Gestion de docentes, perfiles, documentos, encuestas, cumplimiento y ranking.
 
-### Usuarios secundarios
+## Indicadores
 
-- Coordinacion academica que revisa resultados antes de su publicacion.
-- Personal de atencion que descarga o comparte documentos publicados.
-- Docentes o responsables academicos que necesitan validar informacion de resultados.
+- Porcentaje de rutas sensibles con permiso frontend y guard backend documentado.
+- Porcentaje de flujos criticos cubiertos por pruebas automatizadas.
+- Solicitudes sin transicion de estado inconsistente.
+- Documentos emitidos con solicitud y archivo asociado validos.
+- Errores de login diferenciados entre credenciales, permisos y contexto.
+- Tiempo de recuperacion ante fallos de API o upload.
 
-## Historia principal
+## Principios
 
-Como administrador del Centro de Idiomas, quiero publicar un documento PDF de resultados desde la lista de Examenes de Ubicacion, agrupado por periodo, para comunicar oficialmente los resultados de todos los idiomas evaluados en ese mismo periodo.
+- El backend es autoridad final de datos y autorizacion.
+- Ocultar una accion en UI no equivale a protegerla.
+- Las transiciones de negocio deben ser atomicas o compensables.
+- Los catalogos tienen identificadores; el texto visible no debe ser la unica regla.
+- Los cambios de contrato se documentan antes de implementarse.
 
-## Alcance MVP
+## Fuera de alcance documental
 
-- Accion para generar documento desde la lista de Examenes de Ubicacion.
-- Seleccion o deteccion del periodo.
-- Agrupacion de examenes por periodo.
-- Consolidacion de resultados de todos los idiomas del periodo.
-- Vista previa o descarga del PDF generado.
-- Publicacion del documento para que quede disponible en el modulo.
-- Validacion cuando no existan resultados publicables.
+- Portal publico anonimo para estudiantes.
+- Rediseño visual integral.
+- Sustitucion de Q10, Google Drive o proveedores de correo.
+- Migracion inmediata de PostgreSQL o MongoDB.
 
-## Alcance futuro
+## Decisiones registradas
 
-- Versionado formal de documentos publicados.
-- Flujo de aprobacion antes de publicar.
-- Firma digital o sello institucional.
-- Publicacion en portal externo.
-- Notificacion automatica a estudiantes.
-- Historial de descargas y visualizaciones.
-
-## Reglas de producto
-
-- Un documento corresponde a un solo periodo.
-- Un periodo puede incluir varios idiomas.
-- El documento debe mostrar secciones separadas por idioma.
-- Solo se incluyen examenes de ubicacion.
-- Los examenes de otros periodos no se incluyen.
-- Los datos publicados deben corresponder a resultados terminados o aprobados segun regla academica.
-- Si el documento ya existe para el periodo, el sistema debe definir si se reemplaza, versiona o bloquea una nueva publicacion.
-
-## Datos clave del dominio
-
-### Periodo
-
-Unidad academica o administrativa usada para agrupar examenes. Ejemplo: `2026-05`.
-
-### Examen de Ubicacion
-
-Registro que representa una evaluacion de ubicacion. Tiene codigo, fecha, estado, idioma, docente, aula y participantes.
-
-### Participante
-
-Estudiante asociado a un examen. Tiene datos personales, nota, nivel ubicado, calificacion y estado de culminacion.
-
-### Idioma
-
-Categoria academica del examen. El informe debe agrupar resultados por idioma.
-
-### Documento publicado
-
-Archivo PDF generado para un periodo. Debe tener estado, fecha de generacion, fecha de publicacion y usuario responsable si el backend lo soporta.
-
-## Ciclo de vida sugerido del documento
-
-1. Sin generar.
-2. Generado como borrador.
-3. Revisado.
-4. Publicado.
-5. Reemplazado o archivado, si se permite regeneracion.
-
-## Indicadores de exito
-
-- El administrador puede generar el documento sin manipular datos manualmente.
-- El documento incluye todos los idiomas del periodo seleccionado.
-- No aparecen registros de otros periodos.
-- El PDF tiene formato institucional consistente.
-- El documento publicado se puede visualizar o descargar desde la aplicacion.
-
-## Riesgos de producto
-
-- Periodos no normalizados o ausentes en examenes existentes.
-- Diferencias entre nota, calificacion y nivel de ubicacion.
-- Publicacion accidental de resultados incompletos.
-- Falta de definicion sobre reemplazo o versionado del PDF.
-- Inconsistencia entre datos mostrados en pantalla y datos incluidos en PDF.
-
-## Decisiones pendientes
-
-- Si la publicacion ocurre automaticamente al generar el PDF o requiere confirmacion.
-- Si se permite regenerar un documento ya publicado.
-- Si se versionan documentos publicados por periodo.
-- Si la escala de niveles se muestra siempre o solo para idiomas incluidos.
-- Si el PDF debe incluir firma, sello, fecha de publicacion o usuario responsable.
-- Si estudiantes o usuarios externos podran acceder al documento publicado.
+- `DECISION-001`: confirmar si `ADMINISTRATIVO` debe poder operar certificados, constancias, solicitudes y examen de ubicacion. El codigo actual lo bloquea por rol aunque posea permiso.
+- `DECISION-002`: confirmar si el registro publico `/registro` debe permanecer habilitado en produccion.
+- `DECISION-003`: definir propietario operativo de despliegue backend y procedimiento formal de migraciones.

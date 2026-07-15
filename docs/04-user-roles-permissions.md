@@ -1,138 +1,82 @@
 # 04 - User Roles And Permissions
 
-## Modelo actual
+## Fuentes de verdad `AS-IS`
 
-La aplicacion usa roles y permisos para controlar el acceso a rutas y funcionalidades.
-
-Roles identificados:
-
-- `SUPERADMIN`
-- `ADMINISTRATIVO`
-- `DOCENTE`
-
-Permiso relevante para esta iniciativa:
-
-- `examenes_ubicacion`
-
-## Principios de autorizacion
-
-- Todo usuario debe estar autenticado.
-- `SUPERADMIN` puede acceder a todas las funcionalidades protegidas.
-- Los demas roles requieren permisos explicitos.
-- La UI debe ocultar o deshabilitar acciones no permitidas.
-- El backend debe validar permisos en cada operacion critica.
+- Roles: `lib/roles.ts`.
+- Ruta a permiso: `lib/access-control.ts`.
+- Evaluacion rol/permiso: `lib/permissions.ts`.
+- Sidebar: `components/sidebar/app-sidebar.tsx`.
+- Guard servidor: `lib/server-permissions.ts`.
+- Guard cliente: `components/protected-route.tsx`.
+- Permisos backend: `GET /rol-permisos/rol/:rol`.
 
 ## Roles
 
-### SUPERADMIN
-
-Responsable de administracion total del sistema.
-
-Permisos esperados:
-
-- Acceder a todos los modulos.
-- Gestionar usuarios y permisos.
-- Crear, editar y eliminar examenes de ubicacion.
-- Generar, revisar, publicar, descargar y reemplazar documentos de resultados.
-
-### ADMINISTRATIVO
-
-Personal administrativo con acceso segun permisos asignados.
-
-Permisos posibles:
-
-- Acceder a Examenes de Ubicacion si tiene `examenes_ubicacion`.
-- Generar documento de resultados si tiene permiso operativo.
-- Publicar documento si el permiso o politica del sistema lo permite.
-- Descargar documentos publicados.
-
-Restricciones:
-
-- No debe acceder a funcionalidades sin permiso.
-- No debe publicar resultados si solo tiene permisos de lectura, si se define esa separacion.
-
-### DOCENTE
-
-Usuario orientado a perfil docente y seguimiento academico.
-
-Permisos posibles:
-
-- Acceder a vistas docentes segun contexto.
-
-Restricciones:
-
-- No debe publicar documentos oficiales de resultados de Examen de Ubicacion.
-- No debe acceder al modulo de Examenes de Ubicacion salvo definicion futura explicita.
-
-## Permisos sugeridos para granularidad futura
-
-El permiso actual `examenes_ubicacion` puede ser suficiente para MVP. Para un control mas fino se sugieren estos permisos:
-
-- `examenes_ubicacion_ver`
-- `examenes_ubicacion_crear`
-- `examenes_ubicacion_editar`
-- `examenes_ubicacion_eliminar`
-- `examenes_ubicacion_resultados_generar`
-- `examenes_ubicacion_resultados_publicar`
-- `examenes_ubicacion_resultados_descargar`
-- `examenes_ubicacion_resultados_reemplazar`
-
-## Matriz de permisos MVP
-
-| Accion | SUPERADMIN | ADMINISTRATIVO con `examenes_ubicacion` | ADMINISTRATIVO sin permiso | DOCENTE |
-| --- | --- | --- | --- | --- |
-| Ver lista de examenes | Si | Si | No | No |
-| Ver detalle de examen | Si | Si | No | No |
-| Crear examen | Si | Si | No | No |
-| Editar examen | Si | Si | No | No |
-| Eliminar examen | Si | Si | No | No |
-| Generar PDF de resultados | Si | Si | No | No |
-| Vista previa de PDF | Si | Si | No | No |
-| Publicar PDF | Si | Si | No | No |
-| Descargar PDF publicado | Si | Si | No | No |
-
-## Matriz de permisos futura recomendada
-
-| Accion | Permiso sugerido |
+| Rol | Comportamiento actual |
 | --- | --- |
-| Ver lista y detalle | `examenes_ubicacion_ver` |
-| Crear examen | `examenes_ubicacion_crear` |
-| Editar examen | `examenes_ubicacion_editar` |
-| Eliminar examen | `examenes_ubicacion_eliminar` |
-| Generar documento | `examenes_ubicacion_resultados_generar` |
-| Publicar documento | `examenes_ubicacion_resultados_publicar` |
-| Descargar documento | `examenes_ubicacion_resultados_descargar` |
-| Reemplazar documento publicado | `examenes_ubicacion_resultados_reemplazar` |
+| `SUPERADMIN` | Bypass de permisos en frontend; entra a todas las rutas protegidas |
+| `ADMINISTRATIVO` | Necesita permiso, pero ademas esta bloqueado para cinco permisos sensibles |
+| `DOCENTE` | Necesita permiso y, en rutas personales, `docenteId` y `perfilId` |
 
-## Reglas de seguridad para publicacion
+## Permisos sensibles restringidos por rol
 
-- Solo usuarios autorizados pueden generar documentos.
-- Solo usuarios autorizados pueden publicar documentos.
-- El usuario debe confirmar antes de publicar.
-- El backend debe validar el permiso del usuario antes de crear o cambiar el estado de un documento.
-- La publicacion debe registrar usuario y fecha.
+`lib/permissions.ts` bloquea tanto a `ADMINISTRATIVO` como a `DOCENTE`, aunque el backend entregue el permiso:
 
-## Estados de acceso en UI
+- `gestion_constancias`
+- `gestion_certificados`
+- `gestion_solicitudes`
+- `examenes_ubicacion`
+- `importar_pagos`
 
-### Sin sesion
+`GAP-PERM-001`: esta regla contradice el modelo habitual de administrativo con permisos explicitos y debe resolverse mediante `DECISION-001` antes de modificarla.
 
-Redirigir a login.
+## Matriz de rutas
 
-### Sin permiso
+| Familia de rutas | Permiso frontend | Superadmin | Administrativo `AS-IS` | Docente `AS-IS` |
+| --- | --- | --- | --- | --- |
+| `/dashboard` | Solo sesion | Si | Si | Si, aunque su destino principal es experiencia docente |
+| `/usuarios` | `gestionar_usuarios` | Si | Si, con permiso | Si, con permiso; requiere decision de producto |
+| `/estructura` | `gestionar_estructura` | Si | Si, con permiso | Si, con permiso; requiere decision de producto |
+| `/grupos/*` | `gestionar_estructura` | Si | Si, con permiso | Si, con permiso; requiere decision de producto |
+| `/solicitudes/*` | `gestion_solicitudes` o `gestion_becas`/`importar_pagos` | Si | Bloqueado en solicitudes e importacion; becas depende de permiso | Bloqueado en solicitudes e importacion; becas depende de permiso |
+| `/certificados/*` | `gestion_certificados` | Si | Bloqueado | Bloqueado |
+| `/constancias/*` | `gestion_constancias` | Si | Bloqueado | Bloqueado |
+| `/examen-ubicacion/*` | `examenes_ubicacion` | Si | Bloqueado | Bloqueado |
+| `/perfil-docente/docentes/*` | `gestion_docentes` | Si | Si, con permiso | Si, con permiso; no recomendado para experiencia personal |
+| `/perfil-docente/ranking-docentes/*` | `perfil_docente_resultados` | Si | Si, con permiso | Si, con permiso |
+| `/perfil-docente/mi-perfil` | `mi_perfil_docente` | Si | Si, con permiso | Si, con permiso y contexto |
+| `/perfil-docente/mis-resultados` | `mi_perfil_docente_resultados` | Si | Si, con permiso | Si, con permiso y contexto |
+| `/perfil-docente/encuestas/mi-encuesta` | `mi_encuesta_respuestas` | Si | Si, con permiso | Si, con permiso y contexto |
 
-Redirigir a dashboard o mostrar mensaje de acceso no autorizado.
+## Acciones visibles
 
-### Con permiso de lectura, sin publicacion
+- El sidebar elimina items cuyo permiso falla en `canAccessRoute`.
+- Los botones dentro de una pagina no tienen una politica transversal por accion; normalmente heredan el permiso del modulo.
+- `GAP-PERM-002`: lectura, creacion, edicion, eliminacion, firma y publicacion no tienen permisos separados.
+- `GAP-PERM-003`: ocultar rutas en UI no demuestra que el controlador backend aplique el mismo rol o permiso.
 
-Mostrar documentos existentes, pero ocultar o deshabilitar acciones de generacion y publicacion.
+## Flujo de autorizacion
 
-### Con permiso completo
+```mermaid
+flowchart TD
+    A["Solicitud de ruta"] --> B{"Existe sesion?"}
+    B -->|No| C["Redirigir a login"]
+    B -->|Si| D{"SUPERADMIN?"}
+    D -->|Si| E["Permitir en frontend"]
+    D -->|No| F{"Rol restringido para el permiso?"}
+    F -->|Si| G["Unauthorized"]
+    F -->|No| H{"Permiso presente?"}
+    H -->|No| G
+    H -->|Si| I{"Ruta docente personal?"}
+    I -->|No| E
+    I -->|Si| J{"Contexto completo?"}
+    J -->|No| K["Missing docente context"]
+    J -->|Si| E
+```
 
-Mostrar acciones de generar, vista previa, publicar y descargar.
+## Reglas `TO-BE`
 
-## Preguntas pendientes
-
-- Si `ADMINISTRATIVO` con `examenes_ubicacion` puede publicar directamente o requiere permiso adicional.
-- Si debe existir un rol de aprobador academico.
-- Si docentes deben poder ver documentos publicados sin capacidad de publicacion.
-- Si los documentos publicados seran visibles fuera del panel administrativo.
+- El backend debe validar identidad y autorizacion para cada accion sensible.
+- Una matriz aprobada debe definir si `ADMINISTRATIVO` usa permisos o bloqueo por rol.
+- Acciones destructivas o de publicacion deben poder tener permisos mas granulares.
+- Cambios de permisos deben invalidar o refrescar la sesion.

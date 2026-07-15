@@ -1,29 +1,13 @@
 # Modulo Seguimiento Docente - Tests
 
-## Unitarias
-
-- `requireDocenteContext()`
-- `canAccessRoute()` en permisos del dominio
-
-## Integracion
-
-- Login `DOCENTE` y carga de contexto
-- Crear/editar docente
-- Crear/editar perfil docente
-- Crear/editar documento de perfil
-- Consultar metricas por modulo
-- Subir CSV de encuestas
-
-## E2E
-
-- `DOCENTE` entra a `mis-resultados`
-- `DOCENTE` entra a `mi-perfil`
-- `ADMINISTRATIVO` accede a ranking y cumplimiento
-- Usuario sin permiso es redirigido
-
-## Casos negativos
-
-- Sesion sin `docenteId` o `perfilId`
-- CSV invalido
-- Modulo sin datos de ranking
-- Catalogo del dominio vacio
+| ID | Nivel | Escenario |
+| --- | --- | --- |
+| `TEST-SDOC-001` | Contract | lookup devuelve docente/perfil tipados |
+| `TEST-SDOC-002` | Security | docente no consulta IDs ajenos |
+| `TEST-SDOC-003` | Security | matriz 401/403/permitido por subruta |
+| `TEST-SDOC-004` | Integration | CRUD y relaciones docente/perfil/documento |
+| `TEST-SDOC-005` | Component | cambio modulo sincroniza indicadores |
+| `TEST-SDOC-006` | Integration | CSV valido, parcial e invalido |
+| `TEST-SDOC-007` | Contract/UI | ranking, metricas y cumplimiento tipados |
+| `TEST-SDOC-008` | E2E | contexto completo/parcial/ausente |
+| `TEST-SDOC-009` | A11y | tablas, tabs y formularios accesibles |
