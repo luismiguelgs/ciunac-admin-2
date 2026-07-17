@@ -98,6 +98,10 @@ export function CertificadoNotasTable({
         if (editingRowId === id) setEditingRowId(null)
     }
 
+    const handleEdit = React.useCallback((row: ICertificadoNota) => {
+        if (!disabled && row.id) setEditingRowId(row.id)
+    }, [disabled])
+
     const columns = React.useMemo<ColumnDef<ICertificadoNota>[]>(() => [
         {
             accessorKey: "ciclo",
@@ -162,13 +166,13 @@ export function CertificadoNotasTable({
                 }
                 return (
                     <div className="flex justify-end gap-1">
-                        <Button type="button" variant="ghost" size="icon" title="Editar fila" onClick={() => getTableMeta(table)?.setEditingRowId(row.id)}><Pencil className="h-4 w-4" /></Button>
+                        <Button type="button" variant="ghost" size="icon" title="Editar fila" onClick={() => handleEdit(row.original)}><Pencil className="h-4 w-4" /></Button>
                         <Button type="button" variant="ghost" size="icon" title="Eliminar fila" onClick={() => getTableMeta(table)?.onRowDelete?.(row.original.id!)}><Trash2 className="h-4 w-4 text-red-600" /></Button>
                     </div>
                 )
             },
         },
-    ], [availableCycles, curriculaAnterior, disabled])
+    ], [availableCycles, curriculaAnterior, disabled, handleEdit])
 
     return (
         <div className="space-y-2">
@@ -184,6 +188,7 @@ export function CertificadoNotasTable({
                 onRowAdd={disabled ? undefined : handleAdd}
                 onRowUpdate={handleUpdate}
                 onRowDelete={handleDelete}
+                onRowDoubleClick={disabled ? undefined : handleEdit}
                 editingRowId={editingRowId}
                 setEditingRowId={setEditingRowId}
                 highlightUnsavedRows

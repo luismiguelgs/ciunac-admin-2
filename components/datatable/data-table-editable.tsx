@@ -36,6 +36,7 @@ interface DataTableProps<TData, TValue> {
     onRowUpdate?: (newRow: TData) => Promise<TValue | void>
     onRowDelete?: (id: any) => Promise<void>
     onRowAdd?: () => void
+    onRowDoubleClick?: (row: TData) => void
     editingRowId: string | null
     setEditingRowId: React.Dispatch<React.SetStateAction<string | null>>
     selectable?: boolean
@@ -51,6 +52,7 @@ export function DataTableEditable<TData, TValue>({
     onRowUpdate,
     onRowDelete,
     onRowAdd,
+    onRowDoubleClick,
     editingRowId,
     setEditingRowId,
     selectable = false,
@@ -157,8 +159,10 @@ export function DataTableEditable<TData, TValue>({
                                         key={row.id}
                                         data-state={row.getIsSelected() && "selected"}
                                         className={cn(
-                                            highlightUnsavedRows && isUnsavedRow && "bg-amber-50/80 text-amber-900 hover:bg-amber-50"
+                                            highlightUnsavedRows && isUnsavedRow && "bg-amber-50/80 text-amber-900 hover:bg-amber-50",
+                                            onRowDoubleClick && "cursor-pointer"
                                         )}
+                                        onDoubleClick={() => onRowDoubleClick?.(row.original)}
                                     >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
