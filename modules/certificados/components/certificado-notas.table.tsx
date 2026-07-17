@@ -28,6 +28,28 @@ const MODALIDADES: Array<{ label: string; value: CertificadoModalidad }> = [
     { label: "Examen de ubicacion", value: "EX.U." },
 ]
 
+function ensureNoteRowIds(notas: ICertificadoNota[], currentNotas: ICertificadoNota[] = []): ICertificadoNota[] {
+    if (notas.every(nota => nota.id)) return notas
+
+    return notas.map((nota, index) => ({
+        ...nota,
+        id: nota.id || currentNotas[index]?.id || crypto.randomUUID(),
+    }))
+}
+
+function haveSameNoteValues(left: ICertificadoNota[], right: ICertificadoNota[]): boolean {
+    if (left.length !== right.length) return false
+
+    return left.every((nota, index) => {
+        const other = right[index]
+        return nota.ciclo === other.ciclo
+            && nota.periodo === other.periodo
+            && nota.modalidad === other.modalidad
+            && Number(nota.nota) === Number(other.nota)
+            && Boolean(nota.isNew) === Boolean(other.isNew)
+    })
+}
+
 interface CertificadoNotasTableMeta {
     editingRowId?: string | null
     updateData: (rowIndex: number, columnId: string, value: unknown) => void
@@ -49,11 +71,17 @@ export function CertificadoNotasTable({
     curriculaAnterior = false,
     disabled = false,
 }: CertificadoNotasTableProps) {
-    const [data, setData] = React.useState<ICertificadoNota[]>(notas)
+    const [data, setData] = React.useState<ICertificadoNota[]>(() => ensureNoteRowIds(notas))
     const [editingRowId, setEditingRowId] = React.useState<string | null>(null)
 
-    React.useEffect(() => setData(notas), [notas])
-    React.useEffect(() => onChange(data), [data, onChange])
+    React.useEffect(() => {
+        setData(currentNotas => haveSameNoteValues(notas, currentNotas)
+            ? currentNotas
+            : ensureNoteRowIds(notas, currentNotas))
+    }, [notas])
+    React.useEffect(() => {
+        if (!haveSameNoteValues(data, notas)) onChange(data)
+    }, [data, notas, onChange])
 
     const availableCycles = React.useMemo(() => ciclos
         .filter(ciclo => String(ciclo.idiomaId) === idiomaId && String(ciclo.nivelId) === nivelId)
