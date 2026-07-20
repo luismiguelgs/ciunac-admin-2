@@ -8,12 +8,33 @@ export const EditableCell = ({
     column,
     table,
     className,
+    saveOnEnter = false,
 }: any) => {
     const initialValue = getValue()
     const [value, setValue] = useState(initialValue)
 
     const onBlur = () => {
         table.options.meta?.updateData(row.index, column.id, value)
+    }
+
+    const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (
+            !saveOnEnter
+            || event.key !== "Enter"
+            || event.repeat
+            || event.nativeEvent.isComposing
+        ) return
+
+        event.preventDefault()
+        event.stopPropagation()
+
+        const updatedRow = {
+            ...row.original,
+            [column.id]: value,
+        }
+
+        table.options.meta?.updateData(row.index, column.id, value)
+        void table.options.meta?.onRowUpdate?.(updatedRow)
     }
 
     useEffect(() => {
@@ -38,6 +59,7 @@ export const EditableCell = ({
                 value={inputValue as string}
                 onChange={(e) => setValue(e.target.value)}
                 onBlur={onBlur}
+                onKeyDown={onKeyDown}
                 className={cn("h-8", className)}
             />
         )

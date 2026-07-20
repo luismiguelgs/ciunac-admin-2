@@ -115,14 +115,14 @@ export function CertificadoNotasTable({
                         </Select>
                     )
                 }
-                return editing ? <EditableCell getValue={() => value} row={row} column={column} table={table} /> : <span className="font-medium">{value}</span>
+                return editing ? <EditableCell getValue={() => value} row={row} column={column} table={table} saveOnEnter /> : <span className="font-medium">{value}</span>
             },
         },
         {
             accessorKey: "periodo",
             header: "Periodo",
             cell: ({ getValue, row, column, table }) => getTableMeta(table)?.editingRowId === row.id
-                ? <EditableCell getValue={getValue} row={row} column={column} table={table} className="w-28" />
+                ? <EditableCell getValue={getValue} row={row} column={column} table={table} className="w-28" saveOnEnter />
                 : <span>{getValue() as string}</span>,
         },
         {
@@ -143,7 +143,7 @@ export function CertificadoNotasTable({
             accessorKey: "nota",
             header: "Nota",
             cell: ({ getValue, row, column, table }) => getTableMeta(table)?.editingRowId === row.id
-                ? <EditableCell getValue={getValue} row={row} column={column} table={table} className="w-20" />
+                ? <EditableCell getValue={getValue} row={row} column={column} table={table} className="w-20" saveOnEnter />
                 : <span className="font-semibold">{Number(getValue()) || 0}</span>,
         },
         {
