@@ -14,7 +14,7 @@ import { getCurrentCertificatePeriod } from "../certificados.utils"
 
 interface CertificadoNotasTableProps {
     notas: ICertificadoNota[]
-    onChange: (notas: ICertificadoNota[]) => void
+    onChange: React.Dispatch<React.SetStateAction<ICertificadoNota[]>>
     ciclos: ICiclo[]
     idiomaId?: string
     nivelId?: string
@@ -27,28 +27,6 @@ const MODALIDADES: Array<{ label: string; value: CertificadoModalidad }> = [
     { label: "Ciclo intensivo", value: "C.I." },
     { label: "Examen de ubicacion", value: "EX.U." },
 ]
-
-function ensureNoteRowIds(notas: ICertificadoNota[], currentNotas: ICertificadoNota[] = []): ICertificadoNota[] {
-    if (notas.every(nota => nota.id)) return notas
-
-    return notas.map((nota, index) => ({
-        ...nota,
-        id: nota.id || currentNotas[index]?.id || crypto.randomUUID(),
-    }))
-}
-
-function haveSameNoteValues(left: ICertificadoNota[], right: ICertificadoNota[]): boolean {
-    if (left.length !== right.length) return false
-
-    return left.every((nota, index) => {
-        const other = right[index]
-        return nota.ciclo === other.ciclo
-            && nota.periodo === other.periodo
-            && nota.modalidad === other.modalidad
-            && Number(nota.nota) === Number(other.nota)
-            && Boolean(nota.isNew) === Boolean(other.isNew)
-    })
-}
 
 interface CertificadoNotasTableMeta {
     editingRowId?: string | null
@@ -71,17 +49,7 @@ export function CertificadoNotasTable({
     curriculaAnterior = false,
     disabled = false,
 }: CertificadoNotasTableProps) {
-    const [data, setData] = React.useState<ICertificadoNota[]>(() => ensureNoteRowIds(notas))
     const [editingRowId, setEditingRowId] = React.useState<string | null>(null)
-
-    React.useEffect(() => {
-        setData(currentNotas => haveSameNoteValues(notas, currentNotas)
-            ? currentNotas
-            : ensureNoteRowIds(notas, currentNotas))
-    }, [notas])
-    React.useEffect(() => {
-        if (!haveSameNoteValues(data, notas)) onChange(data)
-    }, [data, notas, onChange])
 
     const availableCycles = React.useMemo(() => ciclos
         .filter(ciclo => String(ciclo.idiomaId) === idiomaId && String(ciclo.nivelId) === nivelId)
@@ -89,7 +57,7 @@ export function CertificadoNotasTable({
 
     function handleAdd() {
         const period = getCurrentCertificatePeriod()
-        const existing = new Set(data.map(item => item.ciclo.trim().toLocaleUpperCase("es-PE")))
+        const existing = new Set(notas.map(item => item.ciclo.trim().toLocaleUpperCase("es-PE")))
         const newRows: ICertificadoNota[] = curriculaAnterior
             ? [{ id: crypto.randomUUID(), ciclo: "", periodo: period, modalidad: "C.R.", nota: 0, isNew: true }]
             : availableCycles
@@ -108,7 +76,7 @@ export function CertificadoNotasTable({
             return
         }
 
-        setData(current => [...current, ...newRows])
+        onChange(current => [...current, ...newRows])
         setEditingRowId(newRows[0].id!)
     }
 
@@ -117,12 +85,12 @@ export function CertificadoNotasTable({
             toast.error("Complete ciclo, periodo YYYY-MM y una nota entre 0 y 100")
             return
         }
-        setData(current => current.map(item => item.id === row.id ? { ...item, isNew: false, nota: Number(item.nota) } : item))
+        onChange(current => current.map(item => item.id === row.id ? { ...item, isNew: false, nota: Number(item.nota) } : item))
         setEditingRowId(null)
     }
 
     async function handleDelete(id: string) {
-        setData(current => current.filter(item => item.id !== id))
+        onChange(current => current.filter(item => item.id !== id))
         if (editingRowId === id) setEditingRowId(null)
     }
 
@@ -210,8 +178,8 @@ export function CertificadoNotasTable({
             </div>
             <DataTableEditable
                 columns={columns}
-                data={data}
-                setData={setData}
+                data={notas}
+                setData={onChange}
                 filterColumn="ciclo"
                 onRowAdd={disabled ? undefined : handleAdd}
                 onRowUpdate={handleUpdate}

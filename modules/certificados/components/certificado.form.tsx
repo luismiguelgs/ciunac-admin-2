@@ -30,6 +30,7 @@ import { certificadoSchema, getCertificadoDefaults, type CertificadoFormValues }
 import { CertificadosService } from "../certificados.service"
 import {
     cleanCertificadoNotas,
+    ensureCertificadoNotaIds,
     getCertificadoId,
     getCurrentCertificatePeriod,
     getNumeroRegistroSuggestion,
@@ -52,7 +53,7 @@ export function CertificadoForm({ certificado, elaborador = "" }: CertificadoFor
     const certificadoId = getCertificadoId(certificado)
     const signed = Boolean(certificado?.impreso)
     const [editing, setEditing] = React.useState(!certificado)
-    const [notas, setNotas] = React.useState<ICertificadoNota[]>(certificado?.notas || [])
+    const [notas, setNotas] = React.useState<ICertificadoNota[]>(() => ensureCertificadoNotaIds(certificado?.notas || []))
     const [saveError, setSaveError] = React.useState("")
     const form = useForm<CertificadoFormValues>({
         resolver: zodResolver(certificadoSchema) as never,
@@ -71,7 +72,6 @@ export function CertificadoForm({ certificado, elaborador = "" }: CertificadoFor
     const idiomaId = form.watch("idiomaId")
     const nivelId = form.watch("nivelId")
     const tipo = form.watch("tipo")
-    const numeroRegistro = form.watch("numeroRegistro")
     const curriculaAnterior = form.watch("curriculaAnterior")
     const duplicado = form.watch("duplicado")
     const liveValues = form.watch()
@@ -88,18 +88,11 @@ export function CertificadoForm({ certificado, elaborador = "" }: CertificadoFor
         }
     }, [certificado, form, idiomas, niveles])
 
-    React.useEffect(() => {
-        if (certificado || numeroRegistro.trim()) return
-
-        const nivel = niveles.find(item => String(item.id) === nivelId)
-        const suggestion = getNumeroRegistroSuggestion(tipo, nivel?.nombre)
-        if (suggestion) {
-            form.setValue("numeroRegistro", suggestion, { shouldValidate: true })
-        }
-    }, [certificado, form, nivelId, niveles, numeroRegistro, tipo])
-
     function handleSolicitud(solicitud: ISolicitud) {
         const requestType = normalizeCatalogText(solicitud.tiposSolicitud?.solicitud)
+        const selectedTipo = solicitud.digital ? "VIRTUAL" : "FISICO"
+        const selectedNivel = solicitud.nivel?.nombre || niveles.find(item => item.id === solicitud.nivelId)?.nombre
+        const currentNumeroRegistro = form.getValues("numeroRegistro")
         const requestCycles = ciclos
             .filter(ciclo => ciclo.idiomaId === solicitud.idiomaId && ciclo.nivelId === solicitud.nivelId)
             .toSorted((a, b) => a.numeroCiclo - b.numeroCiclo)
@@ -109,9 +102,13 @@ export function CertificadoForm({ certificado, elaborador = "" }: CertificadoFor
         form.setValue("numeroDocumento", solicitud.estudiante?.numeroDocumento || "", { shouldValidate: true })
         form.setValue("idiomaId", String(solicitud.idiomaId), { shouldValidate: true })
         form.setValue("nivelId", String(solicitud.nivelId), { shouldValidate: true })
-        form.setValue("tipo", solicitud.digital ? "VIRTUAL" : "FISICO", { shouldValidate: true })
+        form.setValue("tipo", selectedTipo, { shouldValidate: true })
         form.setValue("duplicado", requestType.includes("COPIA") || requestType.includes("DUPLIC"), { shouldValidate: true })
         form.setValue("cantidadHoras", requestCycles.length * 40, { shouldValidate: true })
+
+        if (!currentNumeroRegistro.trim()) {
+            form.setValue("numeroRegistro", getNumeroRegistroSuggestion(selectedTipo, selectedNivel), { shouldValidate: true })
+        }
 
         setNotas(requestCycles.map(ciclo => ({
             id: crypto.randomUUID(),
@@ -331,7 +328,7 @@ export function CertificadoForm({ certificado, elaborador = "" }: CertificadoFor
                     {certificado && !editing && !signed ? <Button type="button" onClick={() => setEditing(true)}><Pencil className="h-4 w-4" />Editar</Button> : null}
                     {editing && !signed ? (
                         <>
-                            {certificado ? <Button type="button" variant="secondary" onClick={() => { form.reset(getCertificadoDefaults(certificado)); setNotas(certificado.notas || []); setEditing(false) }}><X className="h-4 w-4" />Cancelar</Button> : null}
+                            {certificado ? <Button type="button" variant="secondary" onClick={() => { form.reset(getCertificadoDefaults(certificado)); setNotas(ensureCertificadoNotaIds(certificado.notas || [])); setEditing(false) }}><X className="h-4 w-4" />Cancelar</Button> : null}
                             <SaveButton form={form} formId="certificado-form" />
                         </>
                     ) : null}

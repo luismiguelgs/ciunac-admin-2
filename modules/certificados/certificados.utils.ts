@@ -31,6 +31,15 @@ export function getCurrentCertificatePeriod(date = new Date()): string {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
 }
 
+export function ensureCertificadoNotaIds(notas: ICertificadoNota[]): ICertificadoNota[] {
+    if (notas.every(nota => nota.id)) return notas
+
+    return notas.map(nota => ({
+        ...nota,
+        id: nota.id || crypto.randomUUID(),
+    }))
+}
+
 export function cleanCertificadoNotas(notas: ICertificadoNota[]): ICertificadoNota[] {
     return notas.map(({ id: _id, isNew: _isNew, ...nota }) => ({
         ...nota,
