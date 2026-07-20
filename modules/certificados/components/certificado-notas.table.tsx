@@ -81,11 +81,14 @@ export function CertificadoNotasTable({
     }
 
     async function handleUpdate(row: ICertificadoNota) {
-        if (!row.ciclo.trim() || !/^\d{4}-\d{2}$/.test(row.periodo) || row.nota < 0 || row.nota > 100) {
+        const rawNota = String(row.nota).trim()
+        const nota = Number(rawNota)
+
+        if (!row.ciclo.trim() || !/^\d{4}-\d{2}$/.test(row.periodo) || !rawNota || !Number.isFinite(nota) || nota < 0 || nota > 100) {
             toast.error("Complete ciclo, periodo YYYY-MM y una nota entre 0 y 100")
             return
         }
-        onChange(current => current.map(item => item.id === row.id ? { ...item, isNew: false, nota: Number(item.nota) } : item))
+        onChange(current => current.map(item => item.id === row.id ? { ...item, ...row, isNew: false, nota } : item))
         setEditingRowId(null)
     }
 
@@ -142,6 +145,7 @@ export function CertificadoNotasTable({
         {
             accessorKey: "nota",
             header: "Nota",
+            meta: { type: "number" },
             cell: ({ getValue, row, column, table }) => getTableMeta(table)?.editingRowId === row.id
                 ? <EditableCell getValue={getValue} row={row} column={column} table={table} className="w-20" saveOnEnter />
                 : <span className="font-semibold">{Number(getValue()) || 0}</span>,
