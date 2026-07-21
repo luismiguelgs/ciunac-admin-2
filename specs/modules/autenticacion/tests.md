@@ -7,7 +7,7 @@
 | `TEST-AUTH-003` | Component | login distingue 401, permisos y contexto |
 | `TEST-AUTH-004` | Integration | login/logout sincronizan y limpian stores |
 | `TEST-AUTH-005` | Integration | docente completo/parcial/inexistente |
-| `TEST-AUTH-006` | E2E | matriz aprobada para administrativo |
+| `TEST-AUTH-006` | E2E | `gestion_solicitudes`: bypass superadmin; administrativo/mesa con permiso; docente y rol desconocido bloqueados |
 | `TEST-AUTH-007` | Security | storage manipulado sin JWT recibe 401/403 |
 | `TEST-AUTH-008` | A11y | formulario, errores y foco son accesibles |
 

@@ -9,3 +9,4 @@
 | `TASK-SOL-005` | Validar CSV y resumen | `CA-SOL-004` | `TEST-SOL-005` |
 | `TASK-SOL-006` | Resolver navegacion `/solicitudes` | `GAP-UI-005` | `TEST-SOL-006` |
 | `TASK-SOL-007` | Proteger endpoints por permiso | `RN-SOL-005` | `TEST-SOL-007` |
+| `TASK-SOL-008` | Aplicar matriz frontend de `gestion_solicitudes` | `RN-SOL-006..007`, `CA-SOL-005` | `TEST-SOL-008` |

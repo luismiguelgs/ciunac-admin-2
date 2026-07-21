@@ -2,7 +2,7 @@
 
 ## Objetivo y actores
 
-Registrar y gestionar solicitudes de beca, certificado, constancia y examen de ubicacion, incluyendo estudiantes, pagos y transiciones de estado. Actor operativo sujeto a `DECISION-001`; `SUPERADMIN` funciona `AS-IS`.
+Registrar y gestionar solicitudes de beca, certificado, constancia y examen de ubicacion, incluyendo estudiantes, pagos y transiciones de estado. Para `gestion_solicitudes`, los actores son `SUPERADMIN`, `ADMINISTRATIVO` y `MESADEPARTES` segun la matriz aprobada.
 
 ## Historias
 
@@ -18,6 +18,8 @@ Registrar y gestionar solicitudes de beca, certificado, constancia y examen de u
 - `RN-SOL-003`: transiciones deben estar permitidas por flujo.
 - `RN-SOL-004`: rechazo conserva motivo; no equivale a delete fisico.
 - `RN-SOL-005`: pago solo cambia solicitudes compatibles.
+- `RN-SOL-006`: `SUPERADMIN` accede por bypass; `ADMINISTRATIVO` y `MESADEPARTES` requieren `gestion_solicitudes`; `DOCENTE` y roles desconocidos se bloquean.
+- `RN-SOL-007`: `gestion_becas` e `importar_pagos` no se heredan de `gestion_solicitudes`.
 
 ## Criterios
 
@@ -25,6 +27,7 @@ Registrar y gestionar solicitudes de beca, certificado, constancia y examen de u
 - `CA-SOL-002`: tabs/listas contienen solo tipo y estado solicitado.
 - `CA-SOL-003`: edicion/rechazo actualiza y refresca vista.
 - `CA-SOL-004`: CSV entrega resumen y no corrompe solicitudes ya procesadas.
+- `CA-SOL-005`: las cuatro opciones asociadas a `gestion_solicitudes` son visibles y navegables solo para los actores autorizados por `RN-SOL-006`.
 
 ## UI
 
@@ -38,6 +41,7 @@ Registrar y gestionar solicitudes de beca, certificado, constancia y examen de u
 | Pagos | `/solicitudes/importar-pagos`, `ImportarPagos` |
 | Tablas/filtros | filtro de tabla, tabs por estado, acciones editar/rechazar |
 | Estado | formularios, tablas y catalogos; sin store propio |
+| Permisos visibles | `gestion_solicitudes` cubre alta, certificados, constancias y ubicacion; becas y pagos conservan permisos propios |
 
 ## API y datos
 

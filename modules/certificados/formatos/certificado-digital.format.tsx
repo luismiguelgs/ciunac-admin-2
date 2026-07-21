@@ -3,7 +3,7 @@ import banderas from "@/assets/banderas.png"
 import logoCiunac from "@/assets/logo-ciunac-trans.png"
 import logoUnac from "@/assets/unac-logo.png"
 import type { ICertificado, ICertificadoNota } from "../certificado.interface"
-import { capitalizeCertificateName } from "../certificados.utils"
+import { capitalizeCertificateName, normalizeCertificadoNota } from "../certificados.utils"
 import { CertificateBodyView } from "./body-view"
 
 Font.register({ family: "Dancing Script", src: "/fonts/DancingScript-VariableFont_wght.ttf" })
@@ -36,7 +36,7 @@ function formatLongDate(value: string | Date): string {
 }
 
 function getRows(notas: ICertificadoNota[]): ICertificadoNota[] {
-    const rows = notas.toSorted((a, b) => Number(a.ciclo.match(/\d+$/)?.[0] || 0) - Number(b.ciclo.match(/\d+$/)?.[0] || 0)).map(item => ({ ...item }))
+    const rows = notas.toSorted((a, b) => Number(a.ciclo.match(/\d+$/)?.[0] || 0) - Number(b.ciclo.match(/\d+$/)?.[0] || 0)).map(item => ({ ...item, nota: normalizeCertificadoNota(item.nota) }))
     while (rows.length < 9) rows.push({ ciclo: "", periodo: "", modalidad: "", nota: 0 })
     return rows
 }

@@ -42,8 +42,16 @@ sequenceDiagram
 ### ADMINISTRATIVO
 
 - Depende de carga de permisos.
-- `AS-IS`: aunque posea permisos sensibles, `canAccessRoute` bloquea solicitudes, certificados, constancias, examenes e importacion de pagos.
-- `DECISION-001` debe resolver si este bloqueo es intencional.
+- Puede usar `gestion_solicitudes` cuando el permiso esta presente en la sesion.
+- Permanece bloqueado para certificados, constancias, examenes e importacion de pagos aunque posea esos permisos; esta parte sigue pendiente en `DECISION-001`.
+
+### MESADEPARTES
+
+- El rol entregado por el backend se conserva en JWT, sesion y Zustand.
+- Puede usar `gestion_solicitudes` solo si `GET /rol-permisos/rol/MESADEPARTES` devuelve el permiso.
+- Sin el permiso, el sidebar oculta las opciones y las capas frontend bloquean el acceso directo.
+- El login redirige a `/dashboard`, igual que para otros roles no docentes.
+- `GAP-AUTH-002`: el enum backend reconoce este rol, pero `data.sql` no lo incluye y no debe usarse como esquema vigente sin corregirlo.
 
 ### DOCENTE
 
@@ -87,7 +95,8 @@ sequenceDiagram
 ## Casos obligatorios
 
 - Superadmin con y sin permisos cargados.
-- Administrativo con permiso permitido, faltante y actualmente restringido.
+- Administrativo y mesa de partes con `gestion_solicitudes` presente y faltante.
+- Docente y rol desconocido con `gestion_solicitudes` asignado accidentalmente.
 - Docente con contexto completo, parcial e inexistente.
 - Token expirado, API Key invalida y permiso revocado.
 - Manipulacion de localStorage sin token valido.

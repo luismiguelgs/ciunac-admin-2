@@ -3,6 +3,7 @@ import { normalizeRole } from "@/lib/permissions";
 export const ROLES = {
     SUPERADMIN: "SUPERADMIN",
     ADMINISTRATIVO: "ADMINISTRATIVO",
+    MESADEPARTES: "MESADEPARTES",
     DOCENTE: "DOCENTE",
 } as const;
 

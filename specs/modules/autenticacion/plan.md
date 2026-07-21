@@ -12,7 +12,7 @@
 1. Tipar payload de login, JWT y sesion sin `any`.
 2. Diferenciar errores de authorize.
 3. Resolver contexto docente con contrato unico `/docentes/usuario/:usuarioId`.
-4. Auditar bloqueo de permisos sensibles mediante `DECISION-001`.
+4. Aplicar la matriz aprobada de `gestion_solicitudes` y auditar los cuatro permisos sensibles pendientes mediante `DECISION-001`.
 5. Añadir pruebas antes de simplificar capas duplicadas.
 
 ## Dependencias y compatibilidad
@@ -25,7 +25,7 @@
 
 - Activar primero pruebas y logging sanitizado.
 - Desplegar backend compatible antes del frontend.
-- Verificar los tres roles y rollback por version frontend.
+- Verificar los cuatro roles y rollback por version frontend.
 
 ## Definition of Done
 

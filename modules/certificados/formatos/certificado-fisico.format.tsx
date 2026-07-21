@@ -3,7 +3,7 @@ import coordinadora from "@/assets/coordinadora.jpg"
 import elaborador from "@/assets/elaboradoring.jpg"
 import director from "@/assets/firma.jpg"
 import type { ICertificado, ICertificadoNota } from "../certificado.interface"
-import { capitalizeCertificateName } from "../certificados.utils"
+import { capitalizeCertificateName, normalizeCertificadoNota } from "../certificados.utils"
 import { CertificateBodyView } from "./body-view"
 
 Font.register({ family: "Dancing Script", src: "/fonts/DancingScript-VariableFont_wght.ttf" })
@@ -38,7 +38,7 @@ function getRows(notas: ICertificadoNota[]): ICertificadoNota[] {
         const left = Number(a.ciclo.match(/\d+$/)?.[0] || 0)
         const right = Number(b.ciclo.match(/\d+$/)?.[0] || 0)
         return left - right
-    }).map(item => ({ ...item }))
+    }).map(item => ({ ...item, nota: normalizeCertificadoNota(item.nota) }))
     while (rows.length < 9) rows.push({ ciclo: "", periodo: "", modalidad: "", nota: 0 })
     return rows
 }

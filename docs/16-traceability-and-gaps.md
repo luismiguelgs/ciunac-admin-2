@@ -19,10 +19,11 @@
 
 | ID | Prioridad | Brecha | Impacto | Bloquea implementacion |
 | --- | --- | --- | --- | --- |
-| `GAP-PERM-001` | Alta | Administrativo bloqueado aun con permisos sensibles | Acceso y modelo de roles | Si, cambios de permisos |
+| `GAP-PERM-001` | Alta | Administrativo sigue bloqueado para cuatro permisos sensibles; `gestion_solicitudes` ya tiene matriz aprobada | Acceso y modelo de roles | Si, otros cambios de permisos |
 | `GAP-BE-002` | Critica | Muchos endpoints dependen solo de API Key publica | Autorizacion real | Si, seguridad |
 | `GAP-API-003` | Alta | Solicitud pasa a asignada antes de crear constancia | Estado huerfano | Si, flujo constancia |
 | `GAP-AUTH-001` | Alta | NextAuth y Zustand duplican sesion | Desincronizacion | Si, refactor auth |
+| `GAP-AUTH-002` | Alta | `data.sql` no incluye `MESADEPARTES` en `UsuarioRol`, aunque el backend vigente si lo reconoce | Inicializacion de datos inconsistente | Si se usa ese script |
 | `GAP-UI-005` | Media | Breadcrumb `/solicitudes` sin pagina | Navegacion/404 | No |
 | `GAP-UI-006` | Media | Certificados impresos sin item sidebar | Descubribilidad | No |
 | `GAP-DATA-001` | Alta | Constantes de estado incompletas | Transiciones inconsistentes | Si, estados |
@@ -34,7 +35,7 @@
 
 | ID | Pregunta | Evidencia | Owner sugerido |
 | --- | --- | --- | --- |
-| `DECISION-001` | ¿Administrativo puede operar documentos/solicitudes/examen con permiso? | `lib/permissions.ts` lo bloquea | Producto + seguridad |
+| `DECISION-001` | ¿Administrativo puede operar certificados, constancias, examen e importacion con permiso? Solicitudes ya fue aprobado | `lib/permissions.ts` conserva cuatro bloqueos | Producto + seguridad |
 | `DECISION-002` | ¿Registro publico sigue habilitado? | ruta `/registro` publica | Producto + seguridad |
 | `DECISION-003` | ¿Quien opera backend y migraciones? | no hay pipeline/owner documentado | Operaciones |
 

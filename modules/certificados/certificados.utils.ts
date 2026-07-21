@@ -40,10 +40,17 @@ export function ensureCertificadoNotaIds(notas: ICertificadoNota[]): ICertificad
     }))
 }
 
+export function normalizeCertificadoNota(value: unknown): number {
+    if (value === null || value === undefined || String(value).trim() === "") return 0
+
+    const nota = Number(value)
+    return Number.isFinite(nota) ? nota : 0
+}
+
 export function cleanCertificadoNotas(notas: ICertificadoNota[]): ICertificadoNota[] {
     return notas.map(({ id: _id, isNew: _isNew, ...nota }) => ({
         ...nota,
-        nota: Number(nota.nota),
+        nota: normalizeCertificadoNota(nota.nota),
     }))
 }
 

@@ -15,38 +15,40 @@
 | Rol | Comportamiento actual |
 | --- | --- |
 | `SUPERADMIN` | Bypass de permisos en frontend; entra a todas las rutas protegidas |
-| `ADMINISTRATIVO` | Necesita permiso, pero ademas esta bloqueado para cinco permisos sensibles |
+| `ADMINISTRATIVO` | Necesita permiso; puede usar `gestion_solicitudes`, pero permanece bloqueado para otros cuatro permisos sensibles |
+| `MESADEPARTES` | Puede usar las rutas de `gestion_solicitudes` solo cuando el permiso viene en su sesion |
 | `DOCENTE` | Necesita permiso y, en rutas personales, `docenteId` y `perfilId` |
 
 ## Permisos sensibles restringidos por rol
 
-`lib/permissions.ts` bloquea tanto a `ADMINISTRATIVO` como a `DOCENTE`, aunque el backend entregue el permiso:
+`lib/permissions.ts` bloquea tanto a `ADMINISTRATIVO` como a `DOCENTE`, aunque el backend entregue estos permisos:
 
 - `gestion_constancias`
 - `gestion_certificados`
-- `gestion_solicitudes`
 - `examenes_ubicacion`
 - `importar_pagos`
 
-`GAP-PERM-001`: esta regla contradice el modelo habitual de administrativo con permisos explicitos y debe resolverse mediante `DECISION-001` antes de modificarla.
+`gestion_solicitudes` tiene una politica explicita: `SUPERADMIN` usa bypass; `ADMINISTRATIVO` y `MESADEPARTES` requieren el permiso; `DOCENTE` y roles desconocidos se bloquean. La decision sobre los otros cuatro permisos sensibles permanece abierta en `DECISION-001`.
 
 ## Matriz de rutas
 
-| Familia de rutas | Permiso frontend | Superadmin | Administrativo `AS-IS` | Docente `AS-IS` |
-| --- | --- | --- | --- | --- |
-| `/dashboard` | Solo sesion | Si | Si | Si, aunque su destino principal es experiencia docente |
-| `/usuarios` | `gestionar_usuarios` | Si | Si, con permiso | Si, con permiso; requiere decision de producto |
-| `/estructura` | `gestionar_estructura` | Si | Si, con permiso | Si, con permiso; requiere decision de producto |
-| `/grupos/*` | `gestionar_estructura` | Si | Si, con permiso | Si, con permiso; requiere decision de producto |
-| `/solicitudes/*` | `gestion_solicitudes` o `gestion_becas`/`importar_pagos` | Si | Bloqueado en solicitudes e importacion; becas depende de permiso | Bloqueado en solicitudes e importacion; becas depende de permiso |
-| `/certificados/*` | `gestion_certificados` | Si | Bloqueado | Bloqueado |
-| `/constancias/*` | `gestion_constancias` | Si | Bloqueado | Bloqueado |
-| `/examen-ubicacion/*` | `examenes_ubicacion` | Si | Bloqueado | Bloqueado |
-| `/perfil-docente/docentes/*` | `gestion_docentes` | Si | Si, con permiso | Si, con permiso; no recomendado para experiencia personal |
-| `/perfil-docente/ranking-docentes/*` | `perfil_docente_resultados` | Si | Si, con permiso | Si, con permiso |
-| `/perfil-docente/mi-perfil` | `mi_perfil_docente` | Si | Si, con permiso | Si, con permiso y contexto |
-| `/perfil-docente/mis-resultados` | `mi_perfil_docente_resultados` | Si | Si, con permiso | Si, con permiso y contexto |
-| `/perfil-docente/encuestas/mi-encuesta` | `mi_encuesta_respuestas` | Si | Si, con permiso | Si, con permiso y contexto |
+| Familia de rutas | Permiso frontend | Superadmin | Administrativo `AS-IS` | Mesa de partes `AS-IS` | Docente `AS-IS` |
+| --- | --- | --- | --- | --- | --- |
+| `/dashboard` | Solo sesion | Si | Si | Si | Si, aunque su destino principal es experiencia docente |
+| `/usuarios` | `gestionar_usuarios` | Si | Si, con permiso | Si, con permiso | Si, con permiso; requiere decision de producto |
+| `/estructura` | `gestionar_estructura` | Si | Si, con permiso | Si, con permiso | Si, con permiso; requiere decision de producto |
+| `/grupos/*` | `gestionar_estructura` | Si | Si, con permiso | Si, con permiso | Si, con permiso; requiere decision de producto |
+| `/solicitudes/nueva`, `/solicitudes/constancias/*`, `/solicitudes/certificados/*`, `/solicitudes/ubicacion/*` | `gestion_solicitudes` | Si | Si, con permiso | Si, con permiso | Bloqueado |
+| `/solicitudes/becas/*` | `gestion_becas` | Si | Si, con permiso | Si, con permiso | Si, con permiso; requiere decision de producto |
+| `/solicitudes/importar-pagos` | `importar_pagos` | Si | Bloqueado | Si, con permiso | Bloqueado |
+| `/certificados/*` | `gestion_certificados` | Si | Bloqueado | Si, con permiso | Bloqueado |
+| `/constancias/*` | `gestion_constancias` | Si | Bloqueado | Si, con permiso | Bloqueado |
+| `/examen-ubicacion/*` | `examenes_ubicacion` | Si | Bloqueado | Si, con permiso | Bloqueado |
+| `/perfil-docente/docentes/*` | `gestion_docentes` | Si | Si, con permiso | Si, con permiso | Si, con permiso; no recomendado para experiencia personal |
+| `/perfil-docente/ranking-docentes/*` | `perfil_docente_resultados` | Si | Si, con permiso | Si, con permiso | Si, con permiso |
+| `/perfil-docente/mi-perfil` | `mi_perfil_docente` | Si | Si, con permiso | Si, con permiso | Si, con permiso y contexto |
+| `/perfil-docente/mis-resultados` | `mi_perfil_docente_resultados` | Si | Si, con permiso | Si, con permiso | Si, con permiso y contexto |
+| `/perfil-docente/encuestas/mi-encuesta` | `mi_encuesta_respuestas` | Si | Si, con permiso | Si, con permiso | Si, con permiso y contexto |
 
 ## Acciones visibles
 
@@ -63,8 +65,12 @@ flowchart TD
     B -->|No| C["Redirigir a login"]
     B -->|Si| D{"SUPERADMIN?"}
     D -->|Si| E["Permitir en frontend"]
-    D -->|No| F{"Rol restringido para el permiso?"}
-    F -->|Si| G["Unauthorized"]
+    D -->|No| L{"gestion_solicitudes?"}
+    L -->|Si| M{"ADMINISTRATIVO o MESADEPARTES con permiso?"}
+    M -->|Si| E
+    M -->|No| G["Unauthorized"]
+    L -->|No| F{"Rol restringido para el permiso?"}
+    F -->|Si| G
     F -->|No| H{"Permiso presente?"}
     H -->|No| G
     H -->|Si| I{"Ruta docente personal?"}

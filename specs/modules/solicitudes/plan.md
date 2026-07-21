@@ -6,6 +6,7 @@
 - Mantener componentes compartidos por tipo, con adaptadores explicitos.
 - Tipar resultados de update/rechazo en lugar de booleanos silenciosos.
 - Definir pagina indice o corregir breadcrumbs `/solicitudes`.
+- Centralizar la matriz frontend de `gestion_solicitudes` sin mezclar `gestion_becas` ni `importar_pagos`.
 
 ## Dependencias y migraciones
 
@@ -19,4 +20,4 @@
 
 ## Definition of Done
 
-- `CA-SOL-001..004`; transiciones, CSV, seguridad y navegacion cubiertos.
+- `CA-SOL-001..005`; transiciones, CSV, matriz de acceso, seguridad y navegacion cubiertos.

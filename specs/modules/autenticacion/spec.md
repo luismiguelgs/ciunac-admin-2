@@ -2,7 +2,7 @@
 
 ## Objetivo y actores
 
-Autenticar `SUPERADMIN`, `ADMINISTRATIVO` y `DOCENTE`, construir una sesion consistente y permitir solo rutas compatibles con rol, permisos y contexto docente.
+Autenticar `SUPERADMIN`, `ADMINISTRATIVO`, `MESADEPARTES` y `DOCENTE`, construir una sesion consistente y permitir solo rutas compatibles con rol, permisos y contexto docente.
 
 ## Historias
 
@@ -17,6 +17,7 @@ Autenticar `SUPERADMIN`, `ADMINISTRATIVO` y `DOCENTE`, construir una sesion cons
 - `RN-AUTH-003`: otros roles cargan permisos desde rol-permisos.
 - `RN-AUTH-004`: `DOCENTE` requiere `docenteId` y `perfilId` en rutas personales.
 - `RN-AUTH-005`: Zustand es proyeccion UI; no concede autorizacion.
+- `RN-AUTH-006`: `gestion_solicitudes` permite `SUPERADMIN` por bypass y exige rol `ADMINISTRATIVO` o `MESADEPARTES` mas permiso; cualquier otro rol se bloquea.
 
 ## Criterios de aceptacion
 
@@ -24,6 +25,7 @@ Autenticar `SUPERADMIN`, `ADMINISTRATIVO` y `DOCENTE`, construir una sesion cons
 - `CA-AUTH-002`: credenciales, permisos y contexto producen errores distintos.
 - `CA-AUTH-003`: logout limpia NextAuth, auth store y docente store.
 - `CA-AUTH-004`: manipular storage no permite una operacion backend.
+- `CA-AUTH-005`: login y recarga conservan `MESADEPARTES` y sus permisos en sesion/store.
 
 ## UI
 
