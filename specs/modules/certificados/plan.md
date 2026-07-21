@@ -6,6 +6,7 @@
 - Unificar generacion/upload/reemplazo con resultado tipado.
 - Mantener compensacion backend en firma y hacerla idempotente.
 - Añadir item de impresos o retirar pagina segun producto.
+- Normalizar timestamps de auditoria en el limite del servicio frontend.
 
 ## Dependencias y migraciones
 
@@ -19,5 +20,5 @@
 
 ## Definition of Done
 
-- `CA-CERT-001..004`, guards, reintento y consistencia cubiertos.
+- `CA-CERT-001..005`, guards, reintento, auditoria y consistencia cubiertos.
 

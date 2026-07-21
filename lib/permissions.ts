@@ -8,7 +8,6 @@ const ROLE_RESTRICTED_PERMISSIONS: PermissionCode[] = [
     "gestion_constancias",
     "gestion_certificados",
     "examenes_ubicacion",
-    "importar_pagos",
 ];
 
 export function normalizeRole(role: unknown): string {

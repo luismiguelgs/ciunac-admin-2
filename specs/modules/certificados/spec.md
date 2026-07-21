@@ -16,6 +16,7 @@ Emitir certificados asociados a solicitudes, gestionar notas, PDF, firma e impre
 - `RN-CERT-002`: notas pertenecen al certificado y no duplican ciclo funcional.
 - `RN-CERT-003`: reemplazar archivo conserva identificadores necesarios para limpiar/versionar.
 - `RN-CERT-004`: firma actualiza certificado y solicitud o compensa el fallo.
+- `RN-CERT-005`: el servicio normaliza `creado_en`/`modificado_en` del backend a `creadoEn`/`modificadoEn` para consumo frontend.
 
 ## Criterios
 
@@ -23,6 +24,7 @@ Emitir certificados asociados a solicitudes, gestionar notas, PDF, firma e impre
 - `CA-CERT-002`: PDF se previsualiza/sube y puede reintentarse sin duplicar.
 - `CA-CERT-003`: firma cambia documento y solicitud consistentemente.
 - `CA-CERT-004`: pendientes, firmados e impresos muestran solo registros correctos.
+- `CA-CERT-005`: el detalle muestra fecha de creacion y ultima modificacion con respuestas snake_case o camelCase.
 
 ## UI
 

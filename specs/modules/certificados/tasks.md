@@ -9,4 +9,5 @@
 | `TASK-CERT-005` | Verificar filtros de estado | `CA-CERT-004` | `TEST-CERT-005` |
 | `TASK-CERT-006` | Resolver navegacion impresos | `GAP-UI-006` | `TEST-CERT-006` |
 | `TASK-CERT-007` | Proteger endpoints sensibles | `RN-CERT-004` | `TEST-CERT-007` |
+| `TASK-CERT-008` | Normalizar timestamps de auditoria del backend | `RN-CERT-005`, `CA-CERT-005` | `TEST-CERT-008` |
 

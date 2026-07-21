@@ -19,7 +19,7 @@
 
 | ID | Prioridad | Brecha | Impacto | Bloquea implementacion |
 | --- | --- | --- | --- | --- |
-| `GAP-PERM-001` | Alta | Administrativo sigue bloqueado para cuatro permisos sensibles; `gestion_solicitudes` ya tiene matriz aprobada | Acceso y modelo de roles | Si, otros cambios de permisos |
+| `GAP-PERM-001` | Alta | Administrativo sigue bloqueado para tres permisos sensibles; `gestion_solicitudes` e `importar_pagos` ya fueron resueltos | Acceso y modelo de roles | Si, otros cambios de permisos |
 | `GAP-BE-002` | Critica | Muchos endpoints dependen solo de API Key publica | Autorizacion real | Si, seguridad |
 | `GAP-API-003` | Alta | Solicitud pasa a asignada antes de crear constancia | Estado huerfano | Si, flujo constancia |
 | `GAP-AUTH-001` | Alta | NextAuth y Zustand duplican sesion | Desincronizacion | Si, refactor auth |
@@ -35,7 +35,7 @@
 
 | ID | Pregunta | Evidencia | Owner sugerido |
 | --- | --- | --- | --- |
-| `DECISION-001` | ¿Administrativo puede operar certificados, constancias, examen e importacion con permiso? Solicitudes ya fue aprobado | `lib/permissions.ts` conserva cuatro bloqueos | Producto + seguridad |
+| `DECISION-001` | ¿Administrativo puede operar certificados, constancias y examen con permiso? Solicitudes e importacion ya fueron aprobados | `lib/permissions.ts` conserva tres bloqueos | Producto + seguridad |
 | `DECISION-002` | ¿Registro publico sigue habilitado? | ruta `/registro` publica | Producto + seguridad |
 | `DECISION-003` | ¿Quien opera backend y migraciones? | no hay pipeline/owner documentado | Operaciones |
 

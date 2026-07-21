@@ -15,7 +15,7 @@
 | Rol | Comportamiento actual |
 | --- | --- |
 | `SUPERADMIN` | Bypass de permisos en frontend; entra a todas las rutas protegidas |
-| `ADMINISTRATIVO` | Necesita permiso; puede usar `gestion_solicitudes`, pero permanece bloqueado para otros cuatro permisos sensibles |
+| `ADMINISTRATIVO` | Necesita permiso; puede usar `gestion_solicitudes` e `importar_pagos`, pero permanece bloqueado para otros tres permisos sensibles |
 | `MESADEPARTES` | Puede usar las rutas de `gestion_solicitudes` solo cuando el permiso viene en su sesion |
 | `DOCENTE` | Necesita permiso y, en rutas personales, `docenteId` y `perfilId` |
 
@@ -26,9 +26,8 @@
 - `gestion_constancias`
 - `gestion_certificados`
 - `examenes_ubicacion`
-- `importar_pagos`
 
-`gestion_solicitudes` tiene una politica explicita: `SUPERADMIN` usa bypass; `ADMINISTRATIVO` y `MESADEPARTES` requieren el permiso; `DOCENTE` y roles desconocidos se bloquean. La decision sobre los otros cuatro permisos sensibles permanece abierta en `DECISION-001`.
+`gestion_solicitudes` tiene una politica explicita: `SUPERADMIN` usa bypass; `ADMINISTRATIVO` y `MESADEPARTES` requieren el permiso; `DOCENTE` y roles desconocidos se bloquean. `importar_pagos` depende del permiso cargado desde la base de datos. La decision sobre los otros tres permisos sensibles permanece abierta en `DECISION-001`.
 
 ## Matriz de rutas
 
@@ -40,7 +39,7 @@
 | `/grupos/*` | `gestionar_estructura` | Si | Si, con permiso | Si, con permiso | Si, con permiso; requiere decision de producto |
 | `/solicitudes/nueva`, `/solicitudes/constancias/*`, `/solicitudes/certificados/*`, `/solicitudes/ubicacion/*` | `gestion_solicitudes` | Si | Si, con permiso | Si, con permiso | Bloqueado |
 | `/solicitudes/becas/*` | `gestion_becas` | Si | Si, con permiso | Si, con permiso | Si, con permiso; requiere decision de producto |
-| `/solicitudes/importar-pagos` | `importar_pagos` | Si | Bloqueado | Si, con permiso | Bloqueado |
+| `/solicitudes/importar-pagos` | `importar_pagos` | Si | Si, con permiso | Si, con permiso | Si, con permiso; no asignado `AS-IS` |
 | `/certificados/*` | `gestion_certificados` | Si | Bloqueado | Si, con permiso | Bloqueado |
 | `/constancias/*` | `gestion_constancias` | Si | Bloqueado | Si, con permiso | Bloqueado |
 | `/examen-ubicacion/*` | `examenes_ubicacion` | Si | Bloqueado | Si, con permiso | Bloqueado |

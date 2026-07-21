@@ -10,3 +10,4 @@
 | `TASK-SOL-006` | Resolver navegacion `/solicitudes` | `GAP-UI-005` | `TEST-SOL-006` |
 | `TASK-SOL-007` | Proteger endpoints por permiso | `RN-SOL-005` | `TEST-SOL-007` |
 | `TASK-SOL-008` | Aplicar matriz frontend de `gestion_solicitudes` | `RN-SOL-006..007`, `CA-SOL-005` | `TEST-SOL-008` |
+| `TASK-SOL-009` | Respetar `importar_pagos` para administrativo sin bloqueo adicional por rol | `RN-SOL-008`, `CA-SOL-006` | `TEST-SOL-009` |

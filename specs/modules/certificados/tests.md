@@ -9,4 +9,5 @@
 | `TEST-CERT-005` | Component | pendientes/firmados/impresos |
 | `TEST-CERT-006` | E2E | impresos accesible desde navegacion aprobada |
 | `TEST-CERT-007` | Security | firma/upload 401, 403 y permitido |
+| `TEST-CERT-008` | Contract/component | snake_case, camelCase y fechas ausentes se muestran sin perder compatibilidad |
 

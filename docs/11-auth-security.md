@@ -43,7 +43,8 @@ sequenceDiagram
 
 - Depende de carga de permisos.
 - Puede usar `gestion_solicitudes` cuando el permiso esta presente en la sesion.
-- Permanece bloqueado para certificados, constancias, examenes e importacion de pagos aunque posea esos permisos; esta parte sigue pendiente en `DECISION-001`.
+- Puede usar `importar_pagos` cuando el permiso esta presente en la sesion; la asignacion vigente figura como `permiso_id=33`.
+- Permanece bloqueado para certificados, constancias y examenes aunque posea esos permisos; esta parte sigue pendiente en `DECISION-001`.
 
 ### MESADEPARTES
 
@@ -96,6 +97,7 @@ sequenceDiagram
 
 - Superadmin con y sin permisos cargados.
 - Administrativo y mesa de partes con `gestion_solicitudes` presente y faltante.
+- Administrativo con `importar_pagos` presente y faltante.
 - Docente y rol desconocido con `gestion_solicitudes` asignado accidentalmente.
 - Docente con contexto completo, parcial e inexistente.
 - Token expirado, API Key invalida y permiso revocado.

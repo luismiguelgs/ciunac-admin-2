@@ -12,7 +12,7 @@
 1. Tipar payload de login, JWT y sesion sin `any`.
 2. Diferenciar errores de authorize.
 3. Resolver contexto docente con contrato unico `/docentes/usuario/:usuarioId`.
-4. Aplicar la matriz aprobada de `gestion_solicitudes` y auditar los cuatro permisos sensibles pendientes mediante `DECISION-001`.
+4. Aplicar las reglas aprobadas de `gestion_solicitudes` e `importar_pagos` y auditar los tres permisos sensibles pendientes mediante `DECISION-001`.
 5. Añadir pruebas antes de simplificar capas duplicadas.
 
 ## Dependencias y compatibilidad

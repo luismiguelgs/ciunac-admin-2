@@ -1,5 +1,4 @@
 import { apiFetch } from '@/services/api.service';
-import { uploadCSVFile } from '@/services/upload.service';
 import { CreateSolicitudPayload, ISolicitud } from './solicitud.interface';
 
 export default class SolicitudesService {
@@ -43,11 +42,4 @@ export default class SolicitudesService {
         }
     }
 
-    // Importar Pagos Banco
-    public static async uploadPagosCSV(file: File): Promise<{ message: string }> {
-        const result = await uploadCSVFile<{ message: string }>(file, 'pagos-banco/upload');
-        return {
-            ...result
-        };
-    }
 }

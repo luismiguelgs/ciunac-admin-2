@@ -20,6 +20,7 @@ Registrar y gestionar solicitudes de beca, certificado, constancia y examen de u
 - `RN-SOL-005`: pago solo cambia solicitudes compatibles.
 - `RN-SOL-006`: `SUPERADMIN` accede por bypass; `ADMINISTRATIVO` y `MESADEPARTES` requieren `gestion_solicitudes`; `DOCENTE` y roles desconocidos se bloquean.
 - `RN-SOL-007`: `gestion_becas` e `importar_pagos` no se heredan de `gestion_solicitudes`.
+- `RN-SOL-008`: la importacion de pagos se habilita a cualquier rol que reciba `importar_pagos`; `ADMINISTRATIVO` lo tiene asignado en la base de datos vigente.
 
 ## Criterios
 
@@ -28,6 +29,7 @@ Registrar y gestionar solicitudes de beca, certificado, constancia y examen de u
 - `CA-SOL-003`: edicion/rechazo actualiza y refresca vista.
 - `CA-SOL-004`: CSV entrega resumen y no corrompe solicitudes ya procesadas.
 - `CA-SOL-005`: las cuatro opciones asociadas a `gestion_solicitudes` son visibles y navegables solo para los actores autorizados por `RN-SOL-006`.
+- `CA-SOL-006`: `ADMINISTRATIVO` con `importar_pagos` ve y puede abrir `/solicitudes/importar-pagos`; sin el permiso no puede hacerlo.
 
 ## UI
 

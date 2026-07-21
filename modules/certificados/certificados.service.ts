@@ -5,28 +5,40 @@ import type { ICertificado, CertificadoPayload } from "./certificado.interface"
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY
 
-function normalizeCertificado(item: ICertificado): ICertificado {
-    return { ...item, id: item.id || item._id }
+type CertificadoApiResponse = ICertificado & {
+    creado_en?: string | Date
+    modificado_en?: string | Date
+}
+
+function normalizeCertificado(item: CertificadoApiResponse): ICertificado {
+    const { creado_en, modificado_en, ...certificado } = item
+
+    return {
+        ...certificado,
+        id: certificado.id || certificado._id,
+        creadoEn: certificado.creadoEn ?? creado_en,
+        modificadoEn: certificado.modificadoEn ?? modificado_en,
+    }
 }
 
 export class CertificadosService {
     private static collection = "certificados"
 
     static async fetchBySigned(firmado: boolean): Promise<ICertificado[]> {
-        const data = await apiFetch<ICertificado[]>(`${this.collection}/impresos?impreso=${firmado}`, "GET")
+        const data = await apiFetch<CertificadoApiResponse[]>(`${this.collection}/impresos?impreso=${firmado}`, "GET")
         return (Array.isArray(data) ? data : []).map(normalizeCertificado)
     }
 
     static async getItem(id: string): Promise<ICertificado> {
-        return normalizeCertificado(await apiFetch<ICertificado>(`${this.collection}/${id}`, "GET"))
+        return normalizeCertificado(await apiFetch<CertificadoApiResponse>(`${this.collection}/${id}`, "GET"))
     }
 
     static async create(data: CertificadoPayload): Promise<ICertificado> {
-        return normalizeCertificado(await apiFetch<ICertificado>(this.collection, "POST", data))
+        return normalizeCertificado(await apiFetch<CertificadoApiResponse>(this.collection, "POST", data))
     }
 
     static async update(id: string, data: Partial<CertificadoPayload>): Promise<ICertificado> {
-        return normalizeCertificado(await apiFetch<ICertificado>(`${this.collection}/${id}`, "PATCH", data))
+        return normalizeCertificado(await apiFetch<CertificadoApiResponse>(`${this.collection}/${id}`, "PATCH", data))
     }
 
     static async delete(id: string): Promise<void> {
@@ -55,7 +67,7 @@ export class CertificadosService {
         }
 
         const text = await response.text()
-        return text ? normalizeCertificado(JSON.parse(text) as ICertificado) : undefined
+        return text ? normalizeCertificado(JSON.parse(text) as CertificadoApiResponse) : undefined
     }
 
     static async procesarFirma(id: string): Promise<void> {

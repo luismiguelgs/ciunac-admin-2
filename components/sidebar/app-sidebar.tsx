@@ -29,6 +29,9 @@ import {
     List,
     Award,
     FileCheck2,
+    CreditCard,
+    Database,
+    ChartBar,
 } from "lucide-react"
 
 import { NavMain } from "@/components/sidebar/nav-main"
@@ -54,6 +57,7 @@ type SidebarSubItem = {
     url: string
     icon: LucideIcon
     requiredPermission?: PermissionCode
+    disabled?: boolean
 }
 
 type SidebarMainItem = {
@@ -200,12 +204,32 @@ const data: {
                     url: "/solicitudes/ubicacion",
                     icon: School,
                     requiredPermission: getPermissionByExactPath("/solicitudes/ubicacion")
-                },
+                }
+            ]
+        },
+        {
+            title: "Gestión de Pagos",
+            url: "#",
+            icon: CreditCard,
+            items: [
                 {
                     title: "Importar Pagos",
-                    url: "/solicitudes/importar-pagos",
+                    url: "/pagos/importar",
                     icon: Upload,
-                    requiredPermission: getPermissionByExactPath("/solicitudes/importar-pagos")
+                    requiredPermission: getPermissionByExactPath("/pagos/importar")
+                },
+                {
+                    title: "Datos Banco",
+                    url: "/pagos/datos-banco",
+                    icon: Database,
+                    requiredPermission: getPermissionByExactPath("/pagos/datos-banco")
+                },
+                {
+                    title: "Reportes",
+                    url: "#",
+                    icon: ChartBar,
+                    requiredPermission: "importar_pagos",
+                    disabled: true
                 }
             ]
         },
