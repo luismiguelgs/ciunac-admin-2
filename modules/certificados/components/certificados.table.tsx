@@ -68,6 +68,7 @@ export function CertificadosTable({ initialData, signed }: { initialData: ICerti
         {
             id: "estado",
             header: signed ? "Entrega" : "Estado",
+            accessorFn: row => signed && row.aceptado ? "Entregado" : "Pendiente",
             cell: ({ row }) => signed
                 ? <Badge variant={row.original.aceptado ? "default" : "outline"}>{row.original.aceptado ? "Entregado" : "Pendiente"}</Badge>
                 : <Badge variant="outline">Pendiente</Badge>,

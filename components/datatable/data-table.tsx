@@ -4,6 +4,7 @@ import {
     ColumnDef,
     ColumnFiltersState,
     flexRender,
+    Row,
     SortingState,
     VisibilityState,
     getCoreRowModel,
@@ -23,8 +24,32 @@ import {
 } from "@/components/ui/table"
 import { Input } from "../ui/input"
 import React from "react"
+import { DataTableColumnHeader } from "./data-table-column-header"
 import { DataTablePagination } from "./data-table-pagination"
 import { DataTableViewOptions } from "./data-table-column-toggle"
+
+function compareTableValues(left: unknown, right: unknown): number {
+    if (Object.is(left, right)) return 0
+    if (left === null || left === undefined || left === "") return 1
+    if (right === null || right === undefined || right === "") return -1
+
+    if (typeof left === "number" && typeof right === "number" && Number.isFinite(left) && Number.isFinite(right)) {
+        return left - right
+    }
+
+    if (left instanceof Date && right instanceof Date) {
+        return left.getTime() - right.getTime()
+    }
+
+    return String(left).localeCompare(String(right), "es-PE", {
+        numeric: true,
+        sensitivity: "base",
+    })
+}
+
+function localeAwareSorting<TData>(rowA: Row<TData>, rowB: Row<TData>, columnId: string): number {
+    return compareTableValues(rowA.getValue(columnId), rowB.getValue(columnId))
+}
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -54,6 +79,9 @@ export function DataTable<TData, TValue>({
     const table = useReactTable({
         data,
         columns,
+        defaultColumn: {
+            sortingFn: localeAwareSorting,
+        },
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         onSortingChange: setSorting,
@@ -94,6 +122,8 @@ export function DataTable<TData, TValue>({
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id} className="hover:bg-black border-b-gray-800">
                                 {headerGroup.headers.map((header) => {
+                                    const columnHeader = header.column.columnDef.header
+
                                     return (
                                         <TableHead
                                             key={header.id}
@@ -101,10 +131,9 @@ export function DataTable<TData, TValue>({
                                         >
                                             {header.isPlaceholder
                                                 ? null
-                                                : flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
+                                                : typeof columnHeader === "string" && header.column.getCanSort()
+                                                    ? <DataTableColumnHeader column={header.column} title={columnHeader} />
+                                                    : flexRender(columnHeader, header.getContext())}
                                         </TableHead>
                                     )
                                 })}

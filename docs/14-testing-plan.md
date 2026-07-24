@@ -32,6 +32,7 @@ flowchart TB
 4. Formularios con reglas condicionales.
 5. Importaciones CSV.
 6. Rutas y acciones visibles por rol.
+7. Ordenamiento, filtros, visibilidad y paginacion de tablas no editables.
 
 ## Matriz por cambio
 
@@ -42,6 +43,7 @@ flowchart TB
 | Endpoint | servicio | contrato | consumidor | guard |
 | Estado | maquina | persistencia | flujo | transicion invalida |
 | Upload | helper | storage mock | smoke | tipo/tamano/ownership |
+| Tabla no editable | texto `es-PE`, numeros, fechas y columnas | ordenar + filtrar + paginar | ascendente/descendente | acciones no ordenables |
 
 ## Fixtures
 

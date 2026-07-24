@@ -98,6 +98,9 @@ Los 26 servicios se distribuyen asi:
 
 - Formularios criticos deben usar schema, valores iniciales, estado submitting y mensajes inline.
 - Tablas deben declarar columnas, filtro, paginacion, acciones, permiso y estados loading/empty/error.
+- `DataTable` aplica ordenamiento local `es-PE` antes de paginar y despues de filtrar; los encabezados textuales ordenables muestran opciones Ascendente y Descendente.
+- Encabezados personalizados conservan su propio `DataTableColumnHeader`; acciones, seleccion y columnas con `enableSorting: false` no se ordenan.
+- `DataTableEditable` queda fuera de esta regla para no alterar filas durante la edicion inline.
 - Edicion inline requiere validacion equivalente a formularios.
 
 ## PDFs y uploads

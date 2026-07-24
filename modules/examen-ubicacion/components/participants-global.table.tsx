@@ -66,6 +66,7 @@ export function ParticipantsGlobalTable({ data, exams, calificaciones }: Partici
         {
             id: "idioma",
             header: "Idioma",
+            accessorFn: (row) => row.idioma?.nombre ?? String(row.idiomaId ?? ""),
             cell: ({ row }) => (
                 <div className="flex items-center gap-2">
                     {getItemByCode(row.original.idiomaId, row.original.idioma?.nombre ?? "Idioma")}
@@ -76,7 +77,7 @@ export function ParticipantsGlobalTable({ data, exams, calificaciones }: Partici
         {
             id: "fecha",
             header: "Fecha Examen",
-            cell: ({ row }) => formatExamDate(examById.get(row.original.examenId)?.fecha)
+            accessorFn: (row) => formatExamDate(examById.get(row.examenId)?.fecha),
         },
         {
             id: "apellidos",
