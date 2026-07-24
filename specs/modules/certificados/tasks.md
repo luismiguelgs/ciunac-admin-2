@@ -10,4 +10,5 @@
 | `TASK-CERT-006` | Resolver navegacion impresos | `GAP-UI-006` | `TEST-CERT-006` |
 | `TASK-CERT-007` | Proteger endpoints sensibles | `RN-CERT-004` | `TEST-CERT-007` |
 | `TASK-CERT-008` | Normalizar timestamps de auditoria del backend | `RN-CERT-005`, `CA-CERT-005` | `TEST-CERT-008` |
+| `TASK-CERT-009` | Corregir la transicion de solicitud al crear certificado | `RN-CERT-006`, `CA-CERT-006` | `TEST-CERT-009` |
 

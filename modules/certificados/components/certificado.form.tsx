@@ -64,8 +64,8 @@ export function CertificadoForm({ certificado, elaborador = "" }: CertificadoFor
     const { data: niveles, loading: loadingNiveles } = useOpciones<INivel>(Collection.Niveles)
     const { data: ciclos } = useOpciones<ICiclo>(Collection.Ciclos)
     const { data: estados } = useOpciones<IEstado>(Collection.Estados)
-    const estadoProcesada = React.useMemo(
-        () => findSolicitudEstado(estados, "observada", "certificados"),
+    const estadoAsignada = React.useMemo(
+        () => findSolicitudEstado(estados, "asignada", "certificados"),
         [estados]
     )
 
@@ -207,11 +207,11 @@ export function CertificadoForm({ certificado, elaborador = "" }: CertificadoFor
 
         if (created) {
             try {
-                if (typeof estadoProcesada?.id === "number") {
-                    const updated = await SolicitudesService.update(values.solicitudId, { estadoId: estadoProcesada.id })
+                if (typeof estadoAsignada?.id === "number") {
+                    const updated = await SolicitudesService.update(values.solicitudId, { estadoId: estadoAsignada.id })
                     if (!updated) toast.warning("El certificado fue creado, pero no se actualizo el estado de la solicitud")
                 } else {
-                    toast.warning("El certificado fue creado, pero falta el estado Observada/Procesada")
+                    toast.warning("El certificado fue creado, pero falta el estado Asignada")
                 }
             } catch (error) {
                 console.error(error)

@@ -20,5 +20,5 @@
 
 ## Definition of Done
 
-- `CA-CERT-001..005`, guards, reintento, auditoria y consistencia cubiertos.
+- `CA-CERT-001..006`, guards, reintento, auditoria, transiciones y consistencia cubiertos.
 
