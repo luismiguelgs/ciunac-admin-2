@@ -10,6 +10,17 @@ export enum CRUD {
 
 import { getSession } from "next-auth/react";
 
+export class ApiError<T = unknown> extends Error {
+	constructor(
+		public readonly status: number,
+		public readonly data: T,
+		message: string,
+	) {
+		super(message);
+		this.name = 'ApiError';
+	}
+}
+
 export async function apiFetch<T>(url: string, method: string, body?: unknown): Promise<T> {
 	let token = '';
 	if (typeof window !== 'undefined') {
@@ -50,7 +61,19 @@ export async function apiFetch<T>(url: string, method: string, body?: unknown): 
 
 	if (!response.ok) {
 		const msg = await response.text();
-		throw new Error(`HTTP error! status: ${response.status}: ${msg}`);
+		let data: unknown = msg;
+
+		try {
+			data = JSON.parse(msg);
+		} catch {
+			// Some endpoints still return plain-text errors.
+		}
+
+		throw new ApiError(
+			response.status,
+			data,
+			`HTTP error! status: ${response.status}: ${msg}`,
+		);
 	}
 
 	const text = await response.text();
@@ -93,4 +116,4 @@ export function errorHandler(err: unknown, operation: string): void {
 		console.error('Error desconocido al actualizar el elemento:', err);
 	}
 	throw err
-}   
+}

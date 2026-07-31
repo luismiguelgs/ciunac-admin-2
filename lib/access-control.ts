@@ -34,6 +34,7 @@ export const ROUTE_PERMISSION_RULES: RoutePermissionRule[] = [
     { path: "/solicitudes/ubicacion/[id]", permission: "gestion_solicitudes" },
     { path: "/pagos/importar", permission: "importar_pagos" },
     { path: "/pagos/datos-banco", permission: "importar_pagos" },
+    { path: "/reportes", permission: "importar_pagos" },
     { path: "/examen-ubicacion", permission: "examenes_ubicacion" },
     { path: "/examen-ubicacion/[id]", permission: "examenes_ubicacion" },
     { path: "/examen-ubicacion/nuevo", permission: "examenes_ubicacion" },

@@ -51,8 +51,11 @@ Los controladores CRUD anteriores usan principalmente `ApiKeyGuard`. Usuarios y 
 | `API-SOL-009` | `GET/POST/PATCH /estudiantes` y `GET /estudiantes/buscar/:dni` | reutilizar estudiante |
 | `API-SOL-010` | `POST /pagos-banco/upload` | importar CSV |
 | `API-SOL-011` | `POST /pagos-banco/reverify` | reverificar pagos |
+| `API-REP-001` | `GET /solicitudes/reporte-fechas?inicio=:fecha&fin=:fecha&tipo=n|7` | reporte por periodo; frontend restringe tipos `1..6` o `7` |
 
 `AS-IS`: solicitudes, becas, estudiantes y pagos se protegen principalmente con API Key. `TO-BE`: mutaciones requieren JWT y permiso del dominio.
+
+`GAP-REP-002`: `API-REP-001` recibe el JWT enviado por `apiFetch`, pero su controlador solo exige API Key. La ruta frontend usa `importar_pagos`; el backend aun no valida ese permiso.
 
 ## Certificados y constancias
 

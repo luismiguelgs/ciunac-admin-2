@@ -3,12 +3,13 @@
 import * as React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FilePlus2, GraduationCap, ReceiptText } from "lucide-react"
-import { useForm, useWatch } from "react-hook-form"
+import { FormProvider, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import BackButton from "@/components/back.button"
 import SaveButton from "@/components/save.button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { obtenerPeriodo } from "@/lib/utils"
+import { formatDateOnly, obtenerPeriodo } from "@/lib/utils"
+import { ApiError } from "@/services/api.service"
 import useOpciones from "@/modules/estructura/hooks/use-opciones"
 import type {
     IEscuela,
@@ -32,14 +33,24 @@ import SolicitudesService from "../shared/solicitudes.service"
 import { EstudianteFields } from "./estudiante-fields"
 import { getNuevaSolicitudDefaults, nuevaSolicitudSchema, type NuevaSolicitudFormValues } from "./nueva-solicitud.schema"
 import { PagoFields } from "./pago-fields"
+import { SolicitudDuplicadaDialog } from "./solicitud-duplicada.dialog"
 import { SolicitudFields } from "./solicitud-fields"
 
 const EMPTY_OPTION = "none"
+const DUPLICATE_SOLICITUD_CODE = "SOLICITUD_MANUAL_DUPLICADA"
+
+interface SolicitudDuplicadaResponse {
+    code?: string
+    message?: string
+    solicitudId?: number
+}
 
 export function NuevaSolicitudForm() {
     const [studentId, setStudentId] = React.useState<string | null>(null)
     const [searchedDocument, setSearchedDocument] = React.useState("")
     const [searching, setSearching] = React.useState(false)
+    const [uploadingVoucher, setUploadingVoucher] = React.useState(false)
+    const [duplicatedSolicitud, setDuplicatedSolicitud] = React.useState<SolicitudDuplicadaResponse | null>(null)
 
     const { data: tiposCatalogo, loading: loadingTipos } = useOpciones<ITipoSolicitud>(Collection.Tiposolicitud)
     const { data: estados, loading: loadingEstados } = useOpciones<IEstado>(Collection.Estados)
@@ -162,6 +173,12 @@ export function NuevaSolicitudForm() {
             return
         }
 
+        const fechaPago = formatDateOnly(values.fechaPago)
+        if (!fechaPago) {
+            toast.error("La fecha de efectividad no es valida")
+            return
+        }
+
         try {
             const studentPayload = buildStudentPayload(values)
             let currentStudentId = studentId
@@ -192,9 +209,10 @@ export function NuevaSolicitudForm() {
                 estadoId: estadoNueva.id,
                 periodo: obtenerPeriodo(),
                 alumnoCiunac: values.alumnoCiunac,
-                fechaPago: values.fechaPago.toISOString().split("T")[0],
+                fechaPago,
                 pago: Number(values.pago),
                 numeroVoucher: values.numeroVoucher.trim(),
+                imgVoucher: values.imgVoucher,
                 observaciones: values.observaciones || undefined,
                 digital: isTipoSolicitudDigital(selectedTipo),
                 manual: true,
@@ -206,80 +224,117 @@ export function NuevaSolicitudForm() {
             setSearchedDocument("")
         } catch (error) {
             console.error(error)
+
+            if (
+                error instanceof ApiError
+                && error.status === 409
+                && typeof error.data === "object"
+                && error.data !== null
+            ) {
+                const conflict = error.data as SolicitudDuplicadaResponse
+
+                if (conflict.code === DUPLICATE_SOLICITUD_CODE) {
+                    setDuplicatedSolicitud({
+                        code: conflict.code,
+                        message: conflict.message || "El estudiante ya tiene una solicitud pendiente para el mismo idioma y nivel.",
+                        solicitudId: conflict.solicitudId,
+                    })
+                    return
+                }
+            }
+
             toast.error("No se pudo registrar la solicitud. Puede corregir los datos y reintentar.")
         }
     }
 
     return (
-        <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-6xl space-y-5 pb-12">
-            <div className="flex items-center justify-between gap-3">
-                <BackButton href="/solicitudes/constancias" />
-            </div>
-
-            {missingRequiredCatalog ? (
-                <div className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-                    No se encontraron todos los tipos, idiomas, niveles o el estado Nueva del catalogo de solicitudes.
+        <FormProvider {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-6xl space-y-5 pb-12">
+                <div className="flex items-center justify-between gap-3">
+                    <BackButton href="/solicitudes/constancias" />
                 </div>
-            ) : null}
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                        <GraduationCap className="h-5 w-5" />
-                        Estudiante
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <EstudianteFields
-                        form={form}
-                        facultadOptions={[
-                            { label: "Sin facultad", value: EMPTY_OPTION },
-                            ...facultades.map(item => ({ label: item.nombre, value: String(item.id) })),
-                        ]}
-                        escuelaOptions={[
-                            { label: "Sin escuela", value: EMPTY_OPTION },
-                            ...escuelasFiltradas.map(item => ({ label: item.nombre, value: String(item.id) })),
-                        ]}
-                        loadingCatalogs={loadingFacultades || loadingEscuelas}
-                        searching={searching}
-                        foundStudent={Boolean(studentId)}
-                        onSearch={handleSearch}
-                    />
-                </CardContent>
-            </Card>
+                {missingRequiredCatalog ? (
+                    <div className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+                        No se encontraron todos los tipos, idiomas, niveles o el estado Nueva del catalogo de solicitudes.
+                    </div>
+                ) : null}
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                        <FilePlus2 className="h-5 w-5" />
-                        Datos de la solicitud
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <SolicitudFields
-                        form={form}
-                        tiposSolicitud={tiposSolicitud}
-                        idiomas={idiomas}
-                        niveles={niveles}
-                        loading={loadingTipos || loadingIdiomas || loadingNiveles}
-                    />
-                </CardContent>
-            </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-lg">
+                            <GraduationCap className="h-5 w-5" />
+                            Estudiante
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <EstudianteFields
+                            form={form}
+                            facultadOptions={[
+                                { label: "Sin facultad", value: EMPTY_OPTION },
+                                ...facultades.map(item => ({ label: item.nombre, value: String(item.id) })),
+                            ]}
+                            escuelaOptions={[
+                                { label: "Sin escuela", value: EMPTY_OPTION },
+                                ...escuelasFiltradas.map(item => ({ label: item.nombre, value: String(item.id) })),
+                            ]}
+                            loadingCatalogs={loadingFacultades || loadingEscuelas}
+                            searching={searching}
+                            foundStudent={Boolean(studentId)}
+                            onSearch={handleSearch}
+                        />
+                    </CardContent>
+                </Card>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                        <ReceiptText className="h-5 w-5" />
-                        Informacion de pago
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <PagoFields form={form} />
-                </CardContent>
-                <CardFooter className="justify-end border-t pt-5">
-                    <SaveButton form={form} disabled={loadingCatalogs || missingRequiredCatalog || searching} />
-                </CardFooter>
-            </Card>
-        </form>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-lg">
+                            <FilePlus2 className="h-5 w-5" />
+                            Datos de la solicitud
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <SolicitudFields
+                            form={form}
+                            tiposSolicitud={tiposSolicitud}
+                            idiomas={idiomas}
+                            niveles={niveles}
+                            loading={loadingTipos || loadingIdiomas || loadingNiveles}
+                        />
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-lg">
+                            <ReceiptText className="h-5 w-5" />
+                            Informacion de pago
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <PagoFields
+                            form={form}
+                            numeroDocumento={numeroDocumento}
+                            onVoucherUploadingChange={setUploadingVoucher}
+                        />
+                    </CardContent>
+                    <CardFooter className="justify-end border-t pt-5">
+                        <SaveButton
+                            form={form}
+                            disabled={loadingCatalogs || missingRequiredCatalog || searching || uploadingVoucher}
+                        />
+                    </CardFooter>
+                </Card>
+            </form>
+
+            <SolicitudDuplicadaDialog
+                open={Boolean(duplicatedSolicitud)}
+                onOpenChange={(open) => {
+                    if (!open) setDuplicatedSolicitud(null)
+                }}
+                message={duplicatedSolicitud?.message || ""}
+                solicitudId={duplicatedSolicitud?.solicitudId}
+            />
+        </FormProvider>
     )
 }

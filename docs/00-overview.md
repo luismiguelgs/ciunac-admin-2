@@ -9,7 +9,7 @@
 
 ## Producto
 
-CIUNAC Admin centraliza operaciones academicas y administrativas del Centro de Idiomas de la Universidad Nacional del Callao. La aplicacion cubre autenticacion, usuarios, estructura academica, grupos, solicitudes, certificados, constancias, examenes de ubicacion y seguimiento docente.
+CIUNAC Admin centraliza operaciones academicas y administrativas del Centro de Idiomas de la Universidad Nacional del Callao. La aplicacion cubre autenticacion, usuarios, estructura academica, grupos, solicitudes, certificados, constancias, examenes de ubicacion, reportes y seguimiento docente.
 
 ## Lenguaje documental
 
@@ -51,18 +51,19 @@ flowchart TB
 | `CERT` | Certificados | `/certificados/*` |
 | `CONS` | Constancias | `/constancias/*` |
 | `EXU` | Examen de ubicacion | `/examen-ubicacion/*` |
+| `REP` | Reportes | `/reportes` |
 | `SDOC` | Seguimiento docente | `/perfil-docente/*` |
 
 ## Inventario base
 
 El inventario levantado el 15 de julio de 2026 contiene:
 
-- 52 paginas App Router.
+- 53 paginas App Router.
 - 18 archivos de formularios o schemas.
-- 22 archivos de tablas o datatables.
-- 26 servicios frontend.
+- 23 archivos de tablas o datatables.
+- 27 servicios frontend.
 - 4 stores Zustand: autenticacion, contexto docente, opciones generales y opciones de perfil docente.
-- 10 modulos funcionales documentables.
+- 11 modulos funcionales documentables.
 
 Las cifras son una linea base. Si el codigo cambia, la documentacion debe actualizar el inventario en el mismo cambio.
 
@@ -90,7 +91,7 @@ flowchart LR
 | `G0 Inventario` | Paginas, servicios, formularios, tablas, stores y endpoints catalogados |
 | `G1 General` | Producto, requisitos, roles, historias y UI aprobados |
 | `G2 Tecnico` | Datos, API, arquitectura, seguridad, validacion, errores, pruebas y despliegue aprobados |
-| `G3 Modulo` | `spec.md`, `plan.md`, `tasks.md` y `tests.md` trazables para los diez modulos |
+| `G3 Modulo` | `spec.md`, `plan.md`, `tasks.md` y `tests.md` trazables para los once modulos |
 | `G4 Implementacion` | Codigo cumple criterios y no introduce contratos no documentados |
 | `G5 Calidad` | Pruebas y smoke tests aprobados |
 | `G6 Produccion` | Despliegue verificado y rollback disponible |

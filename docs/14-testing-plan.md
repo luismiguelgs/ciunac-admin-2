@@ -33,6 +33,7 @@ flowchart TB
 5. Importaciones CSV.
 6. Rutas y acciones visibles por rol.
 7. Ordenamiento, filtros, visibilidad y paginacion de tablas no editables.
+8. Reportes por rango, aislamiento de tipos y exportacion Excel.
 
 ## Matriz por cambio
 
@@ -44,6 +45,7 @@ flowchart TB
 | Estado | maquina | persistencia | flujo | transicion invalida |
 | Upload | helper | storage mock | smoke | tipo/tamano/ownership |
 | Tabla no editable | texto `es-PE`, numeros, fechas y columnas | ordenar + filtrar + paginar | ascendente/descendente | acciones no ordenables |
+| Reporte frontend | rango y filtro por IDs | contrato `n|7` y Excel | consulta/exportacion | ruta con permiso; API Key documentada |
 
 ## Fixtures
 
@@ -73,3 +75,4 @@ flowchart TB
 - Cada transicion tiene prueba valida e invalida.
 - Bugs corregidos agregan prueba de regresion.
 - Tests no dependen de datos productivos ni Drive real salvo smoke controlado.
+- Hasta incorporar el stack frontend objetivo, los casos `TEST-REP-*` se ejecutan manualmente y lint/build actuan como controles estaticos.

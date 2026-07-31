@@ -16,6 +16,7 @@ import { formatDate, cn } from "@/lib/utils"
 
 interface SolicitudBecaDetailsProps {
     solicitud: ISolicitudBeca
+    backHref?: string
 }
 
 const getStatusConfig = (status?: string) => {
@@ -64,7 +65,10 @@ const transformGoogleDriveUrl = (url: string): string => {
     return url;
 };
 
-export function SolicitudBecaDetails({ solicitud }: SolicitudBecaDetailsProps) {
+export function SolicitudBecaDetails({
+    solicitud,
+    backHref = "/solicitudes/becas?estado=nuevas",
+}: SolicitudBecaDetailsProps) {
     const router = useRouter()
     const [observations, setObservations] = React.useState(solicitud.observaciones || "")
     const [isSaving, setIsSaving] = React.useState(false)
@@ -299,7 +303,7 @@ export function SolicitudBecaDetails({ solicitud }: SolicitudBecaDetailsProps) {
                                 <div className="pt-6 border-t border-border/50 flex justify-center">
                                     <Button 
                                         variant="link" 
-                                        onClick={() => router.push("/solicitudes/becas")}
+                                        onClick={() => router.push(backHref)}
                                         className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
                                     >
                                         <ArrowLeft className="w-4 h-4" />

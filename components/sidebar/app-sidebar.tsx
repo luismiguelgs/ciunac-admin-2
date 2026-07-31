@@ -226,10 +226,9 @@ const data: {
                 },
                 {
                     title: "Reportes",
-                    url: "#",
+                    url: "/reportes",
                     icon: ChartBar,
-                    requiredPermission: "importar_pagos",
-                    disabled: true
+                    requiredPermission: getPermissionByExactPath("/reportes")
                 }
             ]
         },

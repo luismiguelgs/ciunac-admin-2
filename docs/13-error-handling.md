@@ -71,3 +71,10 @@ Cada spec define compensacion, reintento e idempotencia.
 - `error`: causa comprensible y reintento.
 - `partial`: datos guardados, archivo/segunda fase pendiente.
 - `unauthorized`: sin revelar datos protegidos.
+
+## Reportes
+
+- Rango invalido se muestra inline y no llama al API.
+- `400`, `401` y `403` tienen mensajes diferenciados; red y `5xx` usan mensaje recuperable.
+- Una consulta fallida limpia resultados obsoletos y conserva las fechas para reintentar.
+- Una exportacion fallida no descarta la consulta y se informa mediante toast.

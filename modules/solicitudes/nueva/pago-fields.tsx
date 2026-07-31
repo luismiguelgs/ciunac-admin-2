@@ -1,15 +1,27 @@
 "use client"
 
 import { InputMask } from "@react-input/mask"
+import { ImageUp } from "lucide-react"
 import { Controller, type UseFormReturn } from "react-hook-form"
 import { DatePicker } from "@/components/forms/date-picker.field"
+import { FileUploaderCard } from "@/components/forms/upload.field"
 import { Field, FieldContent, FieldError, FieldLabel } from "@/components/ui/field"
 import { InputField } from "@/components/forms/input.field"
 import { Input } from "@/components/ui/input"
 import { TextareaField } from "@/components/forms/textarea.field"
 import type { NuevaSolicitudFormValues } from "./nueva-solicitud.schema"
 
-export function PagoFields({ form }: { form: UseFormReturn<NuevaSolicitudFormValues> }) {
+interface PagoFieldsProps {
+    form: UseFormReturn<NuevaSolicitudFormValues>
+    numeroDocumento: string
+    onVoucherUploadingChange: (uploading: boolean) => void
+}
+
+export function PagoFields({
+    form,
+    numeroDocumento,
+    onVoucherUploadingChange,
+}: PagoFieldsProps) {
     return (
         <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-3">
@@ -29,6 +41,8 @@ export function PagoFields({ form }: { form: UseFormReturn<NuevaSolicitudFormVal
                                     replacement={{ _: /\d/ }}
                                     placeholder="15 digitos"
                                     inputMode="numeric"
+                                    minLength={15}
+                                    maxLength={15}
                                     aria-invalid={fieldState.invalid}
                                 />
                                 {fieldState.invalid ? <FieldError errors={[fieldState.error]} /> : null}
@@ -37,8 +51,23 @@ export function PagoFields({ form }: { form: UseFormReturn<NuevaSolicitudFormVal
                     )}
                 />
                 <InputField control={form.control} name="pago" label="Monto" type="number" />
-                <DatePicker control={form.control} name="fechaPago" label="Fecha de pago" />
+                <DatePicker control={form.control} name="fechaPago" label="Fecha de efectividad" />
             </div>
+            <FileUploaderCard
+                name="imgVoucher"
+                label="Voucher de pago"
+                icon={ImageUp}
+                dni={numeroDocumento.trim()}
+                folder="vouchers"
+                variant="field"
+                disabled={!numeroDocumento.trim()}
+                onUploadingChange={onVoucherUploadingChange}
+            />
+            {!numeroDocumento.trim() ? (
+                <p className="text-xs text-muted-foreground">
+                    Ingrese primero el numero de documento para subir el voucher.
+                </p>
+            ) : null}
             <TextareaField
                 control={form.control}
                 name="observaciones"

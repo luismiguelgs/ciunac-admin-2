@@ -54,6 +54,15 @@ Cada requisito se enlaza con historias, criterios, tareas y pruebas en `docs/16-
 - `FR-EXU-006`: generar resultados agrupados por periodo e idioma.
 - `FR-EXU-007` (`TO-BE`): publicar resultados con version, responsable y fecha de publicacion.
 
+## Reportes
+
+- `FR-REP-001`: consultar certificados y constancias por rango de fechas sin ejecutar consultas al abrir la pagina.
+- `FR-REP-002`: consultar solicitudes de examen de ubicacion por rango de fechas.
+- `FR-REP-003`: filtrar en frontend documentos `1..6` y examen `7` sobre el contrato legado `tipo=n|7`.
+- `FR-REP-004`: buscar, ordenar y paginar localmente los resultados consultados.
+- `FR-REP-005`: exportar todos los resultados del periodo a un archivo `.xlsx` con columnas operativas.
+- `FR-REP-006`: mostrar `/reportes` a `SUPERADMIN` o sesiones con `importar_pagos`.
+
 ## Seguimiento docente
 
 - `FR-SDOC-001`: listar y administrar docentes.

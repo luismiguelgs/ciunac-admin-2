@@ -2,14 +2,28 @@ import NavigationBread from "@/components/navigation-bread"
 import { Button } from "@/components/ui/button"
 import { SolicitudUbicacionDataTable } from "@/modules/solicitudes/examen-ubicacion/solicitud-ubicacion.table"
 import { SolicitudStateTabs } from "@/modules/solicitudes/shared/solicitud-state-tabs"
+import {
+    SOLICITUD_WORKFLOW_TAB_VALUES,
+    resolveTabState,
+} from "@/modules/solicitudes/shared/solicitud-tab-state"
 import { fetchSolicitudWorkflow } from "@/modules/solicitudes/shared/solicitud-workflow.loader"
 import { Plus } from "lucide-react"
 import Link from "next/link"
 
 export const dynamic = "force-dynamic"
 
-export default async function PageSolicitudesUbicacion() {
-    const solicitudes = await fetchSolicitudWorkflow("examenes-ubicacion")
+interface PageSolicitudesUbicacionProps {
+    searchParams: Promise<{ estado?: string | string[] }>
+}
+
+export default async function PageSolicitudesUbicacion({
+    searchParams,
+}: PageSolicitudesUbicacionProps) {
+    const [solicitudes, { estado }] = await Promise.all([
+        fetchSolicitudWorkflow("examenes-ubicacion"),
+        searchParams,
+    ])
+    const activeState = resolveTabState(estado, SOLICITUD_WORKFLOW_TAB_VALUES, "nuevas")
 
     return (
         <>
@@ -27,8 +41,13 @@ export default async function PageSolicitudesUbicacion() {
 
                 <SolicitudStateTabs
                     data={solicitudes}
-                    renderTable={(items, actionMode) => (
-                        <SolicitudUbicacionDataTable data={items} actionMode={actionMode} />
+                    activeState={activeState}
+                    renderTable={(items, actionMode, returnState) => (
+                        <SolicitudUbicacionDataTable
+                            data={items}
+                            actionMode={actionMode}
+                            returnState={returnState}
+                        />
                     )}
                 />
             </div>

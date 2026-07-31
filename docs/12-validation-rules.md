@@ -23,6 +23,7 @@ Frontend mejora UX; backend es autoridad. Un dato valido por tipo puede seguir s
 | Certificados | formulario y schema | solicitud, registro, curso y notas |
 | Constancias | formulario y schema | solicitud, tipo y regla matricula/notas |
 | Examen ubicacion | formulario | fecha, estado, aula, docente, idioma y codigo |
+| Reportes | filtro de periodo | fechas requeridas, validas e inicio no posterior a fin |
 | Docentes | formulario y schema | identidad, documento, genero y contacto |
 | Perfil docente | perfil/documento y dos schemas | docente, idioma, experiencia, puntaje y documento |
 
@@ -45,6 +46,7 @@ Frontend mejora UX; backend es autoridad. Un dato valido por tipo puede seguir s
 - Constancias: `MATRICULA` exige modalidad y horario; `NOTAS` exige detalle coherente.
 - Examen: solicitud pagada antes de asignar; nota/calificacion/nivel compatibles.
 - Seguimiento: contexto docente completo en vistas personales; archivos y CSV con estructura esperada.
+- Reportes: rango inclusivo sin sumar un dia; documentos `1..6`, examen `7` y valores relacionados ausentes tolerados.
 
 ## Archivos
 

@@ -44,6 +44,7 @@ sequenceDiagram
 - Depende de carga de permisos.
 - Puede usar `gestion_solicitudes` cuando el permiso esta presente en la sesion.
 - Puede usar `importar_pagos` cuando el permiso esta presente en la sesion; la asignacion vigente figura como `permiso_id=33`.
+- Puede abrir `/reportes` cuando `importar_pagos` esta presente y exportar los datos consultados.
 - Permanece bloqueado para certificados, constancias y examenes aunque posea esos permisos; esta parte sigue pendiente en `DECISION-001`.
 
 ### MESADEPARTES
@@ -80,6 +81,8 @@ sequenceDiagram
 | Store manipulado | Zustand vive en navegador | Backend valida JWT y permiso |
 | Sesion/store desincronizados | Datos duplicados | Rehidratar stores desde sesion y limpiar al logout |
 | Endpoint con solo API Key | Presente en muchos controladores | Agregar JWT y permiso por accion |
+| Reporte filtrado solo en cliente | Endpoint devuelve un conjunto mas amplio | Filtrar y autorizar por tipo en backend |
+| ExcelJS con advisories transitivos | `archiver/brace-expansion` y `uuid` reportados por npm audit | Evaluar reemplazo o exportacion backend; no forzar downgrade incompatible |
 | Enumeracion de usuario/docente | Lookup por IDs | Verificar actor y alcance |
 | Registro publico | `/registro` accesible | Decidir habilitacion por ambiente |
 | Token en logs | Riesgo operacional | Sanitizar logs y errores |
@@ -98,6 +101,7 @@ sequenceDiagram
 - Superadmin con y sin permisos cargados.
 - Administrativo y mesa de partes con `gestion_solicitudes` presente y faltante.
 - Administrativo con `importar_pagos` presente y faltante.
+- Reportes con superadmin, rol con `importar_pagos` y rol sin el permiso.
 - Docente y rol desconocido con `gestion_solicitudes` asignado accidentalmente.
 - Docente con contexto completo, parcial e inexistente.
 - Token expirado, API Key invalida y permiso revocado.

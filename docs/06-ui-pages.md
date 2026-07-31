@@ -56,6 +56,7 @@
 | Solicitudes | `/solicitudes/ubicacion` | Tabla/estados | tabla compartida | `gestion_solicitudes` |
 | Solicitudes | `/solicitudes/ubicacion/{id}` | Detalle/form | `SolicitudDetails` | `gestion_solicitudes` |
 | Solicitudes | `/solicitudes/importar-pagos` | Importacion | `ImportarPagos` | `importar_pagos` |
+| Reportes | `/reportes` | Tabs/filtro/tabla | `ReportesWorkspace` | `importar_pagos` |
 
 ## Componentes compartidos
 
@@ -85,7 +86,7 @@ Los 18 archivos de formulario/schema son:
 
 ## Tablas y filtros
 
-Los 22 archivos de tabla/datatable son:
+Los 23 archivos de tabla/datatable son:
 
 - Compartidos: `data-table.tsx`, `data-table-editable.tsx`, `components/ui/table.tsx`.
 - Usuarios: `usuarios-datatable.tsx`.
@@ -94,6 +95,7 @@ Los 22 archivos de tabla/datatable son:
 - Certificados: certificados y notas.
 - Constancias: constancias y detalle de notas.
 - Examen: examenes y participantes globales.
+- Reportes: tabla compartida para documentos y examen.
 - Seguimiento: docentes, perfiles, preguntas, respuestas, metricas y ranking.
 
 - El patron compartido ofrece filtro por una columna, paginacion y visibilidad de columnas.

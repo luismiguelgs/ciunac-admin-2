@@ -28,6 +28,10 @@ import { findSolicitudEstado, isTipoSolicitudDigital } from "./solicitud-workflo
 import useOpciones from "@/modules/estructura/hooks/use-opciones"
 import type { IEstado } from "@/modules/estructura/interfaces/types.interface"
 import { Collection } from "@/modules/estructura/services/opciones.service"
+import {
+    buildSolicitudStateHref,
+    type SolicitudWorkflowTabState,
+} from "./solicitud-tab-state"
 
 export interface SolicitudDataTableProps {
     data: ISolicitud[]
@@ -42,6 +46,9 @@ export interface SolicitudDataTableProps {
     pageSize?: number
     compact?: boolean
     searchByDocument?: boolean
+    searchPlaceholder?: string
+    fechaColumnHeader?: string
+    returnState?: SolicitudWorkflowTabState
 }
 
 export function SolicitudDataTable({
@@ -57,6 +64,9 @@ export function SolicitudDataTable({
     pageSize = 10,
     compact = false,
     searchByDocument = false,
+    searchPlaceholder,
+    fechaColumnHeader = "Fecha y hora",
+    returnState,
 }: SolicitudDataTableProps) {
     const router = useRouter()
     const [isRejectDialogOpen, setIsRejectDialogOpen] = React.useState(false)
@@ -129,7 +139,7 @@ export function SolicitudDataTable({
         },
         ...(showFechaColumn ? [{
             accessorKey: "creadoEn",
-            header: "Fecha y hora",
+            header: fechaColumnHeader,
             cell: ({ row }) => {
                 const date = new Date(row.original.creadoEn)
                 return Number.isNaN(date.getTime())
@@ -242,11 +252,15 @@ export function SolicitudDataTable({
             cell: ({ row }) => {
                 const solicitud = row.original
                 const isRestoreMode = actionMode === "restore"
+                const detailPath = `${basePath}/${solicitud.id}`
+                const detailHref = returnState
+                    ? buildSolicitudStateHref(detailPath, returnState)
+                    : detailPath
 
                 return (
                     <div className="flex items-center gap-2">
                         <Button variant="ghost" size="icon" asChild title="Ver detalles">
-                            <Link href={`${basePath}/${solicitud.id}`}>
+                            <Link href={detailHref}>
                                 <Eye className="h-4 w-4" />
                             </Link>
                         </Button>
@@ -280,7 +294,7 @@ export function SolicitudDataTable({
         <React.Fragment>
             <React.Suspense fallback={<DataTableSkeleton />}>
                 <DataTable
-                    searchPlaceholder={searchByDocument ? "Buscar por nombre o documento..." : undefined}
+                    searchPlaceholder={searchPlaceholder ?? (searchByDocument ? "Buscar por nombre o documento..." : undefined)}
                     columns={columns}
                     data={sortedData}
                     filterColumn="nombres"

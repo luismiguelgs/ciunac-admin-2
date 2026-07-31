@@ -19,7 +19,15 @@ export const nuevaSolicitudSchema = z.object({
     tipoSolicitudId: z.string().min(1, "El tipo de solicitud es requerido"),
     idiomaId: z.string().min(1, "El idioma es requerido"),
     nivelId: z.string().min(1, "El nivel es requerido"),
-    numeroVoucher: z.string().trim().regex(/^\d{15}$/, "El voucher debe tener 15 digitos"),
+    numeroVoucher: z.string()
+        .trim()
+        .regex(/^\d*$/, "El voucher solo debe contener digitos")
+        .min(15, "El voucher debe tener 15 digitos")
+        .max(15, "El voucher debe tener 15 digitos"),
+    imgVoucher: z.string()
+        .trim()
+        .min(1, "Debe subir el voucher de pago")
+        .url("El voucher cargado no tiene una URL valida"),
     pago: z.string().trim().refine(value => value !== "" && Number.isFinite(Number(value)) && Number(value) >= 0, {
         message: "El monto debe ser mayor o igual a 0",
     }),
@@ -63,6 +71,7 @@ export function getNuevaSolicitudDefaults(): NuevaSolicitudFormValues {
         idiomaId: "",
         nivelId: "",
         numeroVoucher: "",
+        imgVoucher: "",
         pago: "0",
         fechaPago: new Date(),
         observaciones: "",

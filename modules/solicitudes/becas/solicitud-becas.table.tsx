@@ -11,12 +11,20 @@ import { DataTableSkeleton } from "@/components/datatable/data-table-skeleton"
 import { ConfirmDeleteDialog } from "@/components/dialogs/confirm-delete-dialog"
 import SolicitudbecasService from "./solicitud-becas.service"
 import { useRouter } from "next/navigation"
+import {
+    buildSolicitudStateHref,
+    type SolicitudBecaTabState,
+} from "../shared/solicitud-tab-state"
 
 interface SolicitudBecasDataTableProps {
     data: ISolicitudBeca[]
+    returnState: SolicitudBecaTabState
 }
 
-export function SolicitudBecasDataTable({ data }: SolicitudBecasDataTableProps) {
+export function SolicitudBecasDataTable({
+    data,
+    returnState,
+}: SolicitudBecasDataTableProps) {
     const router = useRouter()
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false)
     const [itemToDelete, setItemToDelete] = React.useState<ISolicitudBeca | null>(null)
@@ -56,10 +64,14 @@ export function SolicitudBecasDataTable({ data }: SolicitudBecasDataTableProps) 
             header: "Acciones",
             cell: ({ row }) => {
                 const solicitud = row.original
+                const detailHref = buildSolicitudStateHref(
+                    `/solicitudes/becas/${solicitud._id || solicitud.id}`,
+                    returnState,
+                )
                 return (
                     <div className="flex items-center gap-2">
                         <Button variant="ghost" size="icon" asChild title="Ver detalles">
-                            <Link href={`/solicitudes/becas/${solicitud._id || solicitud.id}`}>
+                            <Link href={detailHref}>
                                 <Eye className="h-4 w-4" />
                             </Link>
                         </Button>

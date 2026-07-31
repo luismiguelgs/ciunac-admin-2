@@ -30,9 +30,17 @@ import {
     Clock,
     Info,
     Calendar,
-    History
+    History,
+    Globe2,
+    FilePenLine,
 } from "lucide-react"
-import { cn, getGoogleDriveDirectLink, formatDateTime } from "@/lib/utils"
+import {
+    cn,
+    formatDateOnly,
+    formatDateTime,
+    getGoogleDriveDirectLink,
+    parseDateOnly,
+} from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
@@ -51,6 +59,10 @@ import {
     normalizeCatalogText,
     type SolicitudTipoGroup,
 } from "./solicitud-workflow"
+import {
+    buildSolicitudStateHref,
+    type SolicitudWorkflowTabState,
+} from "./solicitud-tab-state"
 
 const formSchema = z.object({
     tipoSolicitudId: z.string().min(1, "Tipo de solicitud es requerido"),
@@ -68,6 +80,7 @@ export interface SolicitudDetailsProps {
     tipoGroup: SolicitudTipoGroup
     backHref?: string
     showCertificateAttachment?: boolean
+    returnState?: SolicitudWorkflowTabState
 }
 
 export function SolicitudDetails({
@@ -75,8 +88,10 @@ export function SolicitudDetails({
     tipoGroup,
     backHref = "/solicitudes/constancias",
     showCertificateAttachment = false,
+    returnState = "nuevas",
 }: SolicitudDetailsProps) {
     const router = useRouter()
+    const resolvedBackHref = buildSolicitudStateHref(backHref, returnState)
     const [isSaving, setIsSaving] = React.useState(false)
     const [isEditing, setIsEditing] = React.useState(false)
     const { data: estados, loading: loadingEstados } = useOpciones<IEstado>(Collection.Estados)
@@ -98,13 +113,17 @@ export function SolicitudDetails({
             numeroVoucher: solicitud.numeroVoucher || "",
             pago: solicitud.pago || 0,
             observaciones: solicitud.observaciones || "",
-            fechaPago: (solicitud.fechaPago && !isNaN(new Date(solicitud.fechaPago).getTime()))
-                ? new Date(solicitud.fechaPago)
-                : undefined,
+            fechaPago: parseDateOnly(solicitud.fechaPago),
         },
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
+        const fechaPago = formatDateOnly(values.fechaPago)
+        if (!fechaPago) {
+            toast.error("La fecha de pago no es valida")
+            return
+        }
+
         setIsSaving(true)
         const selectedTipo = tiposSolicitud.find(tipo => tipo.id === Number(values.tipoSolicitudId))
         // Convert string IDs back to numbers for the API
@@ -114,9 +133,7 @@ export function SolicitudDetails({
             estadoId: Number(values.estadoId),
             idiomaId: Number(values.idiomaId),
             nivelId: Number(values.nivelId),
-            fechaPago: values.fechaPago instanceof Date && !isNaN(values.fechaPago.getTime())
-                ? values.fechaPago.toISOString().split('T')[0]
-                : null,
+            fechaPago,
             digital: isTipoSolicitudDigital(selectedTipo)
         }
 
@@ -175,6 +192,7 @@ export function SolicitudDetails({
 
     const currentStatus = getStatusConfig(solicitud.estadoId)
     const currentStatusName = normalizeCatalogText(currentStatus.label)
+    const isOnline = !solicitud.manual
     const isFinalized = ["FINALIZ", "FIRMAD", "TERMINAD", "COMPLETAD"]
         .some(value => currentStatusName.includes(value))
     const voucherUrl = solicitud.imgVoucher
@@ -187,13 +205,30 @@ export function SolicitudDetails({
         <TooltipProvider>
             <div className="max-w-6xl mx-auto space-y-8 pb-20 animate-in fade-in duration-500">
                 {/* Header Actions */}
-                <div className="flex items-center justify-between">
-                    <BackButton href={backHref} />
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <BackButton href={resolvedBackHref} />
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center justify-end gap-2">
                         <Badge variant="outline" className={cn("gap-1.5 py-1 px-3 font-semibold shadow-sm", currentStatus.color)}>
                             {currentStatus.icon}
                             {currentStatus.label}
+                        </Badge>
+                        <Badge
+                            variant="outline"
+                            title={isOnline ? "Solicitud online" : "Solicitud manual"}
+                            className={cn(
+                                "gap-1.5 px-3 py-1 font-semibold shadow-sm",
+                                isOnline
+                                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                    : "border-amber-200 bg-amber-50 text-amber-700",
+                            )}
+                        >
+                            {isOnline ? (
+                                <Globe2 className="h-3.5 w-3.5" />
+                            ) : (
+                                <FilePenLine className="h-3.5 w-3.5" />
+                            )}
+                            {isOnline ? "Online" : "Manual"}
                         </Badge>
                     </div>
                 </div>

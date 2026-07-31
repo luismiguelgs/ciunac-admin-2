@@ -29,6 +29,8 @@
 
 `gestion_solicitudes` tiene una politica explicita: `SUPERADMIN` usa bypass; `ADMINISTRATIVO` y `MESADEPARTES` requieren el permiso; `DOCENTE` y roles desconocidos se bloquean. `importar_pagos` depende del permiso cargado desde la base de datos. La decision sobre los otros tres permisos sensibles permanece abierta en `DECISION-001`.
 
+`/reportes` reutiliza temporalmente `importar_pagos`: `SUPERADMIN` accede por bypass y cualquier rol con ese permiso puede consultar y exportar. Esta visibilidad frontend no agrega autorizacion al endpoint backend.
+
 ## Matriz de rutas
 
 | Familia de rutas | Permiso frontend | Superadmin | Administrativo `AS-IS` | Mesa de partes `AS-IS` | Docente `AS-IS` |
@@ -40,6 +42,7 @@
 | `/solicitudes/nueva`, `/solicitudes/constancias/*`, `/solicitudes/certificados/*`, `/solicitudes/ubicacion/*` | `gestion_solicitudes` | Si | Si, con permiso | Si, con permiso | Bloqueado |
 | `/solicitudes/becas/*` | `gestion_becas` | Si | Si, con permiso | Si, con permiso | Si, con permiso; requiere decision de producto |
 | `/solicitudes/importar-pagos` | `importar_pagos` | Si | Si, con permiso | Si, con permiso | Si, con permiso; no asignado `AS-IS` |
+| `/reportes` | `importar_pagos` | Si | Si, con permiso | Si, con permiso | Si, con permiso; no asignado `AS-IS` |
 | `/certificados/*` | `gestion_certificados` | Si | Bloqueado | Si, con permiso | Bloqueado |
 | `/constancias/*` | `gestion_constancias` | Si | Bloqueado | Si, con permiso | Bloqueado |
 | `/examen-ubicacion/*` | `examenes_ubicacion` | Si | Bloqueado | Si, con permiso | Bloqueado |

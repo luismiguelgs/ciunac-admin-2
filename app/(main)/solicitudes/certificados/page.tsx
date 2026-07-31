@@ -1,12 +1,26 @@
 import NavigationBread from "@/components/navigation-bread"
 import { SolicitudCertificadosDataTable } from "@/modules/solicitudes/certificados/solicitud-certificados.table"
 import { SolicitudStateTabs } from "@/modules/solicitudes/shared/solicitud-state-tabs"
+import {
+    SOLICITUD_WORKFLOW_TAB_VALUES,
+    resolveTabState,
+} from "@/modules/solicitudes/shared/solicitud-tab-state"
 import { fetchSolicitudWorkflow } from "@/modules/solicitudes/shared/solicitud-workflow.loader"
 
 export const dynamic = "force-dynamic"
 
-export default async function PageSolicitudesCertificados() {
-    const solicitudes = await fetchSolicitudWorkflow("certificados")
+interface PageSolicitudesCertificadosProps {
+    searchParams: Promise<{ estado?: string | string[] }>
+}
+
+export default async function PageSolicitudesCertificados({
+    searchParams,
+}: PageSolicitudesCertificadosProps) {
+    const [solicitudes, { estado }] = await Promise.all([
+        fetchSolicitudWorkflow("certificados"),
+        searchParams,
+    ])
+    const activeState = resolveTabState(estado, SOLICITUD_WORKFLOW_TAB_VALUES, "nuevas")
 
     return (
         <>
@@ -15,8 +29,13 @@ export default async function PageSolicitudesCertificados() {
                 <h1 className="mb-4 text-2xl font-bold">Solicitudes de Certificados</h1>
                 <SolicitudStateTabs
                     data={solicitudes}
-                    renderTable={(items, actionMode) => (
-                        <SolicitudCertificadosDataTable data={items} actionMode={actionMode} />
+                    activeState={activeState}
+                    renderTable={(items, actionMode, returnState) => (
+                        <SolicitudCertificadosDataTable
+                            data={items}
+                            actionMode={actionMode}
+                            returnState={returnState}
+                        />
                     )}
                 />
             </div>

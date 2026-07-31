@@ -13,7 +13,7 @@ import useOpciones from "@/modules/estructura/hooks/use-opciones"
 import type { IEstado } from "@/modules/estructura/interfaces/types.interface"
 import { Collection } from "@/modules/estructura/services/opciones.service"
 import type { ISolicitud } from "./solicitud.interface"
-import { findSolicitudEstado, type SolicitudEstadoKey } from "./solicitud-workflow"
+import { findSolicitudEstado, isTipoSolicitudDigital, type SolicitudEstadoKey } from "./solicitud-workflow"
 import SolicitudesService from "./solicitudes.service"
 
 interface SolicitudPickerSheetProps {
@@ -70,16 +70,32 @@ export function SolicitudPickerSheet({
         }
     }, [endpoint, estado?.id, loadingEstados, open, stateKey])
 
+    const sortedItems = React.useMemo(() => {
+        return [...items].sort((a, b) => {
+            const createdAtA = Date.parse(a.creadoEn)
+            const createdAtB = Date.parse(b.creadoEn)
+            const hasValidDateA = Number.isFinite(createdAtA)
+            const hasValidDateB = Number.isFinite(createdAtB)
+
+            if (hasValidDateA && hasValidDateB) {
+                return createdAtA - createdAtB || a.id - b.id
+            }
+            if (hasValidDateA) return -1
+            if (hasValidDateB) return 1
+            return a.id - b.id
+        })
+    }, [items])
+
     const filteredItems = React.useMemo(() => {
         const normalized = query.trim().toLocaleLowerCase("es-PE")
-        if (!normalized) return items
+        if (!normalized) return sortedItems
 
-        return items.filter(item => {
+        return sortedItems.filter(item => {
             const student = `${item.estudiante?.apellidos || ""} ${item.estudiante?.nombres || ""}`.toLocaleLowerCase("es-PE")
             const document = item.estudiante?.numeroDocumento?.toLocaleLowerCase("es-PE") || ""
             return student.includes(normalized) || document.includes(normalized) || String(item.id).includes(normalized)
         })
-    }, [items, query])
+    }, [query, sortedItems])
 
     async function handleSelect(item: ISolicitud) {
         setSelectingId(item.id)
@@ -127,6 +143,7 @@ export function SolicitudPickerSheet({
                     ) : (
                         filteredItems.map((item, index) => {
                             const selecting = selectingId === item.id
+                            const isDigital = Boolean(item.digital) || isTipoSolicitudDigital(item.tiposSolicitud)
                             return (
                                 <React.Fragment key={item.id}>
                                     <button
@@ -150,7 +167,15 @@ export function SolicitudPickerSheet({
                                                     </span>
                                                 </span>
                                             </div>
-                                            <Badge variant="outline">{item.digital ? "Digital" : "Fisico"}</Badge>
+                                            <Badge
+                                                variant="outline"
+                                                className={isDigital
+                                                    ? "border-violet-200 bg-violet-50 text-violet-700"
+                                                    : "border-sky-200 bg-sky-50 text-sky-700"
+                                                }
+                                            >
+                                                {isDigital ? "Digital" : "Fisico"}
+                                            </Badge>
                                         </div>
                                         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                                             <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{formatDate(item.creadoEn)}</span>

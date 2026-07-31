@@ -13,6 +13,7 @@
 | `HU-CERT-001` | `FR-CERT-001..004` | `/certificados/*`, `API-CERT-*` | `CA-CERT-001..002` | certificados | `TEST-CERT-*` |
 | `HU-CONS-001` | `FR-CONS-001..005` | `/constancias/*`, `API-CONS-*` | `CA-CONS-001..003` | constancias | `TEST-CONS-*` |
 | `HU-EXU-001/002` | `FR-EXU-001..007` | `/examen-ubicacion/*`, `API-EXU-*` | `CA-EXU-001..004` | examen-ubicacion | `TEST-EXU-*` |
+| `HU-REP-001..003` | `FR-REP-001..006` | `/reportes`, `API-REP-001` | `CA-REP-001..007` | reportes | `TEST-REP-*` |
 | `HU-SDOC-001/002` | `FR-SDOC-001..007` | `/perfil-docente/*`, `API-SDOC-*` | `CA-SDOC-001..006` | seguimiento-docente | `TEST-SDOC-*` |
 
 ## Registro de brechas prioritarias
@@ -30,6 +31,9 @@
 | `GAP-ERR-001` | Media | Errores mezclan throw/false/undefined | UX y diagnostico | Si, cliente HTTP |
 | `GAP-VAL-001` | Media | Uploads sin validacion uniforme | Seguridad/UX | Si, uploads |
 | `GAP-DEP-003` | Media | Hosting/owner backend no formalizado | Operacion | Si, produccion |
+| `GAP-REP-001` | Media | Documentos `1..6` se filtran solo despues de recibir `tipo=n` | Datos adicionales viajan al navegador | No, fase frontend |
+| `GAP-REP-002` | Alta | Reporte reutiliza `importar_pagos` en frontend, pero el endpoint solo exige API Key | Autorizacion real ausente | Si, hardening backend |
+| `GAP-REP-003` | Alta | ExcelJS 4.4.0 incluye dependencias transitivas con advisories | Riesgo de dependencias en exportacion cliente | Si, revision antes de produccion critica |
 
 ## Decisiones
 

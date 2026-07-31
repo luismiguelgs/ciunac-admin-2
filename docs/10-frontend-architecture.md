@@ -8,6 +8,7 @@
 - React Hook Form y Zod.
 - TanStack Table, Tailwind CSS, componentes UI y Sonner.
 - React PDF para documentos generados en cliente.
+- ExcelJS para exportaciones `.xlsx`, cargado dinamicamente al solicitar la descarga.
 
 ## Capas
 
@@ -38,10 +39,10 @@ docs/                contrato transversal
 
 ## Inventario por patron
 
-- 52 paginas: 2 publicas y 50 bajo el area principal.
+- 53 paginas: 2 publicas y 51 bajo el area principal.
 - 18 formularios/schemas.
-- 22 tablas/datatable.
-- 26 servicios frontend.
+- 23 tablas/datatable.
+- 27 servicios frontend.
 - 4 stores: `auth`, `docente`, `opciones` y `perfil-opciones`.
 
 ## Renderizado y datos
@@ -65,7 +66,7 @@ NextAuth debe ser autoridad de identidad; los stores son proyecciones de UI y no
 
 ## Inventario de servicios
 
-Los 26 servicios se distribuyen asi:
+Los 27 servicios se distribuyen asi:
 
 - Core: `api.service.ts`, `base.service.ts`, `upload.service.ts`.
 - Usuarios: `usuarios.service.ts`, `rol-permiso.service.ts`.
@@ -75,6 +76,7 @@ Los 26 servicios se distribuyen asi:
 - Certificados: `certificados.service.ts`, `certificado-reporte.service.ts`.
 - Constancias: `constancias.service.ts`.
 - Examen: `examenes-ubicacion.service.ts`, `actas-examen-ubicacion.service.ts`, `calificaciones.service.ts`, `cronograma-ubicacion.service.ts`.
+- Reportes: `reportes.service.ts` sobre el endpoint legado por fechas.
 - Seguimiento: `docente.service.ts`, `perfil-docente.service.ts`, `documentos-docente.service.ts`, `perfil-opciones.service.ts`, `encuesta.service.ts`, `preguntas.service.ts`, `cumplimiento.service.ts`, `prefil-resultado.service.ts`.
 
 ## Componentes compartidos
@@ -102,6 +104,7 @@ Los 26 servicios se distribuyen asi:
 - Encabezados personalizados conservan su propio `DataTableColumnHeader`; acciones, seleccion y columnas con `enableSorting: false` no se ordenan.
 - `DataTableEditable` queda fuera de esta regla para no alterar filas durante la edicion inline.
 - Edicion inline requiere validacion equivalente a formularios.
+- Reportes consulta solo por accion explicita, filtra tipos localmente y exporta el conjunto completo anterior a paginacion.
 
 ## PDFs y uploads
 
