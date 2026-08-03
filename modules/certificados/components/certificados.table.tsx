@@ -6,14 +6,34 @@ import { BadgeCheck, Eye, FileDown, FileText, Loader2, PackageCheck } from "luci
 import Link from "next/link"
 import { toast } from "sonner"
 import { DataTable } from "@/components/datatable/data-table"
+import { ExcelExportButton } from "@/components/shared/excel-export.button"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import type { ExcelExportColumn } from "@/lib/excel-export"
+import { formatDateOnly, parseDateOnly } from "@/lib/utils"
 import type { ICertificado } from "../certificado.interface"
 import { CertificadosService } from "../certificados.service"
 import { getCertificadoId, isCertificadoDigital } from "../certificados.utils"
 import { CertificadoFirmaButton } from "./certificado-firma.button"
 import { CertificadoPdfButton } from "./certificado-pdf.button"
 import { CertificadoUploadButton } from "./certificado-upload.button"
+
+function getExcelDate(value: string | Date): Date | null {
+    if (typeof value === "string") return parseDateOnly(value) ?? null
+    if (Number.isNaN(value.getTime())) return null
+    return new Date(value.getFullYear(), value.getMonth(), value.getDate())
+}
+
+const CERTIFICADOS_FIRMADOS_COLUMNS: ExcelExportColumn<ICertificado>[] = [
+    { header: "Número de registro", width: 22, value: item => item.numeroRegistro },
+    { header: "Formato", width: 12, value: item => isCertificadoDigital(item.tipo) ? "Digital" : "Físico" },
+    { header: "Estudiante", width: 38, value: item => item.estudiante },
+    { header: "Documento", width: 16, value: item => item.numeroDocumento },
+    { header: "Idioma", width: 16, value: item => item.idioma },
+    { header: "Nivel", width: 20, value: item => item.nivel },
+    { header: "Fecha de emisión", width: 18, value: item => getExcelDate(item.fechaEmision), numberFormat: "dd/mm/yyyy" },
+    { header: "Entrega", width: 14, value: item => item.aceptado ? "Entregado" : "Pendiente" },
+]
 
 export function CertificadosTable({ initialData, signed }: { initialData: ICertificado[]; signed: boolean }) {
     const [data, setData] = React.useState(initialData)
@@ -112,6 +132,14 @@ export function CertificadosTable({ initialData, signed }: { initialData: ICerti
                 searchPlaceholder="Buscar por estudiante, documento o registro..."
                 initialColumnVisibility={{ busqueda: false }}
                 pageSize={25}
+                toolbarActions={signed ? (
+                    <ExcelExportButton
+                        data={data}
+                        columns={CERTIFICADOS_FIRMADOS_COLUMNS}
+                        fileName={`certificados-firmados-${formatDateOnly(new Date())}.xlsx`}
+                        sheetName="Certificados firmados"
+                    />
+                ) : undefined}
             />
         </div>
     )

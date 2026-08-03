@@ -60,6 +60,7 @@ interface DataTableProps<TData, TValue> {
     compact?: boolean
     searchPlaceholder?: string
     initialColumnVisibility?: VisibilityState
+    toolbarActions?: React.ReactNode
 }
 
 export function DataTable<TData, TValue>({
@@ -70,7 +71,8 @@ export function DataTable<TData, TValue>({
     pageSize = 10,
     compact = false,
     searchPlaceholder,
-    initialColumnVisibility
+    initialColumnVisibility,
+    toolbarActions,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -105,7 +107,7 @@ export function DataTable<TData, TValue>({
 
     return (
         <>
-            <div className="flex items-center py-4">
+            <div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center">
                 <Input
                     placeholder={searchPlaceholder ?? "Buscar..."}
                     value={(table.getColumn(filterColumn)?.getFilterValue() as string) ?? ""}
@@ -114,7 +116,10 @@ export function DataTable<TData, TValue>({
                     }
                     className="max-w-sm"
                 />
-                <DataTableViewOptions table={table} />
+                <div className="flex items-center gap-2 sm:ml-auto">
+                    {toolbarActions}
+                    <DataTableViewOptions table={table} />
+                </div>
             </div>
             <div className="overflow-hidden rounded-md border">
                 <Table className={compact ? "text-[13px]" : undefined}>
