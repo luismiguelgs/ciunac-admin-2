@@ -4,7 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
 import { DataTable } from "@/components/datatable/data-table"
 import type { ReportKind, ReportSolicitud } from "../reportes.interface"
-import { formatReportDate, getReportSearchValue } from "../reportes.utils"
+import { formatReportDate, getReportObservation, getReportSearchValue } from "../reportes.utils"
 
 const currencyFormatter = new Intl.NumberFormat("es-PE", {
     style: "currency",
@@ -70,6 +70,22 @@ const commonColumns: ColumnDef<ReportSolicitud>[] = [
         header: "Estado",
         cell: ({ getValue }) => <Badge variant="outline">{getValue<string>() || "Sin estado"}</Badge>,
     },
+    {
+        id: "observaciones",
+        accessorFn: row => getReportObservation(row.observaciones),
+        header: "Observaciones",
+        cell: ({ getValue }) => {
+            const observation = getValue<string>()
+            return observation ? (
+                <span
+                    className="line-clamp-3 block max-w-80 whitespace-pre-wrap break-words"
+                    title={observation}
+                >
+                    {observation}
+                </span>
+            ) : "-"
+        },
+    },
 ]
 
 const tipoColumn: ColumnDef<ReportSolicitud> = {
@@ -87,11 +103,10 @@ export function ReporteTable({ data, kind }: { data: ReportSolicitud[]; kind: Re
             columns={kind === "documentos" ? documentColumns : commonColumns}
             data={data}
             filterColumn="busqueda"
-            searchPlaceholder="Buscar por estudiante, documento, idioma o recibo..."
+            searchPlaceholder="Buscar por estudiante, documento, idioma, recibo u observaciones..."
             initialColumnVisibility={{ busqueda: false }}
             pageSize={25}
             compact
         />
     )
 }
-

@@ -13,7 +13,7 @@
 | `HU-CERT-001` | `FR-CERT-001..004` | `/certificados/*`, `API-CERT-*` | `CA-CERT-001..002` | certificados | `TEST-CERT-*` |
 | `HU-CONS-001` | `FR-CONS-001..005` | `/constancias/*`, `API-CONS-*` | `CA-CONS-001..003` | constancias | `TEST-CONS-*` |
 | `HU-EXU-001/002` | `FR-EXU-001..007` | `/examen-ubicacion/*`, `API-EXU-*` | `CA-EXU-001..004` | examen-ubicacion | `TEST-EXU-*` |
-| `HU-REP-001..003` | `FR-REP-001..006` | `/reportes`, `API-REP-001` | `CA-REP-001..007` | reportes | `TEST-REP-*` |
+| `HU-REP-001..004` | `FR-REP-001..007` | `/reportes`, `API-REP-001` | `CA-REP-001..009` | reportes | `TEST-REP-*` |
 | `HU-SDOC-001/002` | `FR-SDOC-001..007` | `/perfil-docente/*`, `API-SDOC-*` | `CA-SDOC-001..006` | seguimiento-docente | `TEST-SDOC-*` |
 
 ## Registro de brechas prioritarias

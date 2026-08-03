@@ -13,8 +13,9 @@ En esta fase los casos frontend son manuales porque el repositorio aun no posee 
 | `TEST-REP-007` | E2E/manual | cambia tabs mediante `reporte` en URL y mantiene flujos independientes |
 | `TEST-REP-008` | Security/manual | superadmin accede; rol con permiso accede; rol sin `importar_pagos` no ve item y es redirigido |
 | `TEST-REP-009` | Static | ESLint y build frontend finalizan sin errores |
+| `TEST-REP-010` | Integration/manual | observaciones se muestran, buscan y ordenan en ambas tablas; Excel conserva texto completo, saltos de linea, tildes y vacios en la columna `L` |
+| `TEST-REP-011` | Regression/manual | documentos y examen abren en Microsoft Excel sin recuperacion; pagos siguen numericos y `xl/styles.xml` contiene `&quot;S/&quot; #,##0.00` |
 
 ## Automatizacion pendiente
 
-Cuando se implemente la infraestructura transversal, migrar `TEST-REP-001..008` a Vitest/Testing Library y Playwright sin instalar herramientas exclusivas para este modulo.
-
+Cuando se implemente la infraestructura transversal, migrar `TEST-REP-001..008` y `TEST-REP-010..011` a Vitest/Testing Library y Playwright sin instalar herramientas exclusivas para este modulo.

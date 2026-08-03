@@ -72,6 +72,11 @@ export function formatReportDate(value: string | Date | null | undefined): strin
     })
 }
 
+export function getReportObservation(value: string | null | undefined): string {
+    if (!value || !value.trim()) return ""
+    return value
+}
+
 export function getReportSearchValue(solicitud: ReportSolicitud): string {
     return [
         solicitud.estudiante?.apellidos,
@@ -82,6 +87,6 @@ export function getReportSearchValue(solicitud: ReportSolicitud): string {
         solicitud.nivel?.nombre,
         solicitud.numeroVoucher,
         solicitud.estado?.nombre,
+        getReportObservation(solicitud.observaciones),
     ].filter(Boolean).join(" ")
 }
-

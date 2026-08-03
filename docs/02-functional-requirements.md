@@ -60,8 +60,9 @@ Cada requisito se enlaza con historias, criterios, tareas y pruebas en `docs/16-
 - `FR-REP-002`: consultar solicitudes de examen de ubicacion por rango de fechas.
 - `FR-REP-003`: filtrar en frontend documentos `1..6` y examen `7` sobre el contrato legado `tipo=n|7`.
 - `FR-REP-004`: buscar, ordenar y paginar localmente los resultados consultados.
-- `FR-REP-005`: exportar todos los resultados del periodo a un archivo `.xlsx` con columnas operativas.
+- `FR-REP-005`: exportar todos los resultados del periodo a un archivo `.xlsx` con columnas operativas que abra sin recuperacion ni reparacion en Microsoft Excel.
 - `FR-REP-006`: mostrar `/reportes` a `SUPERADMIN` o sesiones con `importar_pagos`.
+- `FR-REP-007`: mostrar, buscar, ordenar y exportar las observaciones de cada solicitud en ambos reportes.
 
 ## Seguimiento docente
 

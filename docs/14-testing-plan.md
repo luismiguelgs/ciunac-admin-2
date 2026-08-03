@@ -33,7 +33,7 @@ flowchart TB
 5. Importaciones CSV.
 6. Rutas y acciones visibles por rol.
 7. Ordenamiento, filtros, visibilidad y paginacion de tablas no editables.
-8. Reportes por rango, aislamiento de tipos y exportacion Excel.
+8. Reportes por rango, aislamiento de tipos, observaciones y exportacion compatible con Microsoft Excel sin reparacion.
 
 ## Matriz por cambio
 

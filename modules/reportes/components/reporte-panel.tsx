@@ -127,7 +127,7 @@ export function ReportePanel({ config }: { config: ReportConfig }) {
                 </Alert>
             ) : null}
 
-            {loading ? <DataTableSkeleton columnCount={config.kind === "documentos" ? 10 : 9} rowCount={8} /> : null}
+            {loading ? <DataTableSkeleton columnCount={config.kind === "documentos" ? 11 : 10} rowCount={8} /> : null}
 
             {!loading && !hasQueried ? (
                 <Empty className="min-h-64 border">
@@ -167,4 +167,3 @@ export function ReportePanel({ config }: { config: ReportConfig }) {
         </div>
     )
 }
-

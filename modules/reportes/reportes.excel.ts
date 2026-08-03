@@ -1,4 +1,5 @@
 import type { ReportConfig, ReportDateRange, ReportSolicitud } from "./reportes.interface"
+import { getReportObservation } from "./reportes.utils"
 
 function toExcelDate(value: string | Date | null | undefined, dateOnly = false): Date | null {
     if (!value) return null
@@ -39,6 +40,7 @@ export async function exportReportToExcel(
         { header: "Fecha de pago", key: "fechaPago", width: 17 },
         { header: "Número de recibo", key: "numeroVoucher", width: 20 },
         { header: "Estado", key: "estado", width: 18 },
+        { header: "Observaciones", key: "observaciones", width: 42 },
         { header: "Fecha de solicitud", key: "fechaSolicitud", width: 20 },
     ]
 
@@ -54,6 +56,7 @@ export async function exportReportToExcel(
         fechaPago: toExcelDate(solicitud.fechaPago, true),
         numeroVoucher: solicitud.numeroVoucher ?? "",
         estado: solicitud.estado?.nombre ?? "",
+        observaciones: getReportObservation(solicitud.observaciones),
         fechaSolicitud: toExcelDate(solicitud.creadoEn),
     })))
 
@@ -68,12 +71,15 @@ export async function exportReportToExcel(
     }
 
     worksheet.views = [{ state: "frozen", ySplit: 1 }]
-    worksheet.autoFilter = { from: "A1", to: "L1" }
-    worksheet.getColumn("H").numFmt = 'S/ #,##0.00'
+    worksheet.autoFilter = { from: "A1", to: "M1" }
+    worksheet.getColumn("H").numFmt = '"S/" #,##0.00'
     worksheet.getColumn("I").numFmt = "dd/mm/yyyy"
-    worksheet.getColumn("L").numFmt = "dd/mm/yyyy hh:mm"
+    worksheet.getColumn("M").numFmt = "dd/mm/yyyy hh:mm"
     worksheet.eachRow((row, rowNumber) => {
         if (rowNumber > 1) row.alignment = { vertical: "middle" }
+    })
+    worksheet.getColumn("L").eachCell((cell, rowNumber) => {
+        if (rowNumber > 1) cell.alignment = { vertical: "top", wrapText: true }
     })
 
     const buffer = await workbook.xlsx.writeBuffer()

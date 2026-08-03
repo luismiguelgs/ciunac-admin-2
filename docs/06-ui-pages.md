@@ -56,7 +56,7 @@
 | Solicitudes | `/solicitudes/ubicacion` | Tabla/estados | tabla compartida | `gestion_solicitudes` |
 | Solicitudes | `/solicitudes/ubicacion/{id}` | Detalle/form | `SolicitudDetails` | `gestion_solicitudes` |
 | Solicitudes | `/solicitudes/importar-pagos` | Importacion | `ImportarPagos` | `importar_pagos` |
-| Reportes | `/reportes` | Tabs/filtro/tabla | `ReportesWorkspace` | `importar_pagos` |
+| Reportes | `/reportes` | Tabs/filtro/tabla con observaciones | `ReportesWorkspace` | `importar_pagos` |
 
 ## Componentes compartidos
 
@@ -95,7 +95,7 @@ Los 23 archivos de tabla/datatable son:
 - Certificados: certificados y notas.
 - Constancias: constancias y detalle de notas.
 - Examen: examenes y participantes globales.
-- Reportes: tabla compartida para documentos y examen.
+- Reportes: tabla compartida para documentos y examen, con observaciones visibles, buscables y ordenables.
 - Seguimiento: docentes, perfiles, preguntas, respuestas, metricas y ranking.
 
 - El patron compartido ofrece filtro por una columna, paginacion y visibilidad de columnas.

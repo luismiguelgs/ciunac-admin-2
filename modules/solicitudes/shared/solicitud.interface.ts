@@ -49,7 +49,7 @@ export interface ISolicitud {
     numeroVoucher: string,
     imgVoucher: string | null,
     imgCertEstudio: string | null,
-    observaciones?: string,
+    observaciones?: string | null,
     digital: boolean,
     manual: boolean,
     creadoEn: string,

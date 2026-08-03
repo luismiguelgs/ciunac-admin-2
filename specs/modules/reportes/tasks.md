@@ -12,4 +12,5 @@
 | `TASK-REP-008` | Crear pagina y tabs con estado en URL | `CA-REP-001..002` | `TEST-REP-007` |
 | `TASK-REP-009` | Registrar permiso y activar sidebar | `CA-REP-007` | `TEST-REP-008` |
 | `TASK-REP-010` | Actualizar documentacion y brechas | `GAP-REP-001..002` | `TEST-REP-009` |
-
+| `TASK-REP-011` | Mostrar, buscar, ordenar y exportar observaciones completas | `CA-REP-008` | `TEST-REP-010` |
+| `TASK-REP-012` | Corregir el formato monetario OpenXML para compatibilidad con Microsoft Excel | `CA-REP-009` | `TEST-REP-011` |

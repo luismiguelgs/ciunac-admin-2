@@ -9,6 +9,7 @@ Consultar solicitudes por rango de fechas y exportar reportes operativos de docu
 - `HU-REP-001`: consultar certificados y constancias creados en un periodo.
 - `HU-REP-002`: consultar solicitudes de examen de ubicacion creadas en un periodo.
 - `HU-REP-003`: exportar todos los resultados consultados a un archivo Excel utilizable por el area administrativa.
+- `HU-REP-004`: revisar y exportar las observaciones registradas en cada solicitud.
 
 ## Reglas de negocio
 
@@ -19,6 +20,7 @@ Consultar solicitudes por rango de fechas y exportar reportes operativos de docu
 - `RN-REP-005`: examen consume `tipo=7` y conserva solo `tipoSolicitudId=7`.
 - `RN-REP-006`: el Excel contiene todos los resultados consultados, no solo la pagina visible o el filtro de busqueda local.
 - `RN-REP-007`: `/reportes` reutiliza `importar_pagos`; `SUPERADMIN` conserva su bypass.
+- `RN-REP-008`: las observaciones se muestran en ambas tablas y se exportan completas, conservando sus saltos de linea.
 
 ## Criterios de aceptacion
 
@@ -29,6 +31,8 @@ Consultar solicitudes por rango de fechas y exportar reportes operativos de docu
 - `CA-REP-005`: la tabla permite buscar, ordenar, paginar y cambiar visibilidad de columnas.
 - `CA-REP-006`: la exportacion genera `.xlsx` con las columnas y el nombre definidos por tipo y periodo.
 - `CA-REP-007`: sidebar y acceso directo respetan `importar_pagos` y el bypass de `SUPERADMIN`.
+- `CA-REP-008`: la tabla permite buscar y ordenar por observaciones; el Excel contiene la columna completa entre Estado y Fecha de solicitud.
+- `CA-REP-009`: los archivos de ambos reportes abren en Microsoft Excel sin solicitar recuperacion ni reparacion de contenido.
 
 ## UI, datos y API
 
@@ -37,16 +41,17 @@ Consultar solicitudes por rango de fechas y exportar reportes operativos de docu
 | Pagina | `/reportes?reporte=documentos|examen` |
 | Componentes | `ReportesWorkspace`, `ReportePanel`, `ReporteTable` |
 | Formulario | fecha inicial, fecha final y boton `Consultar` |
-| Tabla/filtro | `DataTable`, busqueda compuesta, ordenamiento y paginacion local |
+| Tabla/filtro | `DataTable`, busqueda compuesta incluida observacion, ordenamiento y paginacion local |
 | Estado | local por pestaña; no usa store global |
 | API | `GET /solicitudes/reporte-fechas?inicio=YYYY-MM-DD&fin=YYYY-MM-DD&tipo=n|7` |
-| Datos | `Solicitud`, `Estudiante`, `TipoSolicitud`, `Idioma`, `Nivel`, `Estado` |
+| Datos | `Solicitud.observaciones`, `Estudiante`, `TipoSolicitud`, `Idioma`, `Nivel`, `Estado` |
 | Exportacion | ExcelJS cargado dinamicamente en el navegador |
 
 ## Validaciones y errores
 
 - Fechas requeridas, formato calendario valido e `inicio <= fin`.
 - Valores relacionados ausentes se muestran como `-` y se exportan como celda vacia.
+- `observaciones` nula, ausente, vacia o compuesta solo por espacios se muestra como `-` y se exporta vacia.
 - `400` indica contrato rechazado; `401` sesion/API Key; `403` permiso; red o `5xx` permiten reintentar.
 - `GAP-REP-001`: el backend devuelve `tipo=n`; el aislamiento de documentos `1..6` se realiza solo en frontend.
 - `GAP-REP-002`: el endpoint permanece protegido unicamente por API Key y el permiso frontend no autoriza realmente el API.
