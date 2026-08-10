@@ -4,12 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, FileText } from "lucide-react";
 import { DetalleResultado } from "../interfaces/detalle-resultado.interface";
+import { getCumplimientosAdministrativos } from "../ranking-rubros.utils";
 
 export default function DetalleRankingCumplimiento({ detalleResultado }: { detalleResultado: DetalleResultado | null }) {
-    const cumplimiento = (detalleResultado?.cumplimiento ?? []).filter(item => {
-        const rubro = item.rubro.toLowerCase();
-        return !rubro.includes('gestión metodológica') && !rubro.includes('gestión de aula');
-    });
+    const cumplimiento = getCumplimientosAdministrativos(detalleResultado?.cumplimiento);
     return (
         <React.Fragment>
             <Card className="md:col-span-2 xl:col-span-3 border-border/50 shadow-sm hover:shadow-md transition-all">
@@ -22,12 +20,12 @@ export default function DetalleRankingCumplimiento({ detalleResultado }: { detal
                 </CardHeader>
                 <CardContent className="pt-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {cumplimiento.map((item, i) => {
+                        {cumplimiento.map((item) => {
                             const isOk = item.puntaje === 100;
                             const estado = isOk ? 'A tiempo' : item.puntaje > 0 ? 'Con retraso' : 'Pendiente';
 
                             return (
-                                <div key={i} className="relative overflow-hidden flex flex-col p-5 rounded-xl border bg-background shadow-sm hover:shadow-md transition-shadow group">
+                                <div key={item.cumplimientoId} className="relative overflow-hidden flex flex-col p-5 rounded-xl border bg-background shadow-sm hover:shadow-md transition-shadow group">
                                     {/* Accent line on top */}
                                     <div className={`absolute top-0 left-0 right-0 h-1 ${isOk ? 'bg-emerald-500' : 'bg-amber-500'}`} />
 

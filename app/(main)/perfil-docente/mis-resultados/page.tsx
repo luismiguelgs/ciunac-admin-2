@@ -158,14 +158,7 @@ export default function MisResultadosPage() {
                 <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                     <DetalleRankingPilares
                         perfilProfesional={{ obtenido: Number(perfilDocente?.puntajeFinal ?? 0), maximo: 100 }}
-                        cumplimientoAdmin={{ 
-                            obtenido: (Number(detalleResultado?.cumplimiento?.[0]?.puntaje ?? 0) + 
-                                       Number(detalleResultado?.cumplimiento?.[1]?.puntaje ?? 0) + 
-                                       Number(detalleResultado?.cumplimiento?.[2]?.puntaje ?? 0)) / 3, 
-                            maximo: 100 
-                        }}
-                        gestionAula={{ obtenido: Number(detalleResultado?.cumplimiento?.[3]?.puntaje ?? 0), maximo: 100 }}
-                        valoracionEstudiantil={{ obtenido: Number(detalleResultado?.encuestaMetricas?.promedioGeneral ?? 0), maximo: 100 }}
+                        detalleResultado={detalleResultado}
                     />
 
                     <DetalleRankingPerfil

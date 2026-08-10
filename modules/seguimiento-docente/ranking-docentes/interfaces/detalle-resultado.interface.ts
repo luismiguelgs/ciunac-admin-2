@@ -11,7 +11,9 @@ interface PromedioGrupo {
 	promedio: string
 }
 
-interface Cumplimiento {
+export interface Cumplimiento {
+	cumplimientoId: number
+	rubroId: number
 	rubro: string
 	puntaje: number
 	peso: number

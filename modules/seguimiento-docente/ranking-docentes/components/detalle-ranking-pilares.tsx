@@ -2,15 +2,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Star, Award, CheckCircle2, BookOpen, Users } from "lucide-react";
 import { Progress } from "@/components/ui/progress"
 import React from "react";
+import type { DetalleResultado } from "../interfaces/detalle-resultado.interface";
+import {
+    getCumplimientosAdministrativos,
+    getGestionAula,
+    getPorcentajePonderado,
+    normalizeRankingPercentage,
+} from "../ranking-rubros.utils";
 
 type Props = {
     perfilProfesional: { obtenido: number, maximo: number }
-    cumplimientoAdmin: { obtenido: number, maximo: number }
-    gestionAula: { obtenido: number, maximo: number }
-    valoracionEstudiantil: { obtenido: number, maximo: number }
+    detalleResultado: DetalleResultado | null
 }
 
-export default function DetalleRankingPilares({ perfilProfesional, cumplimientoAdmin, gestionAula, valoracionEstudiantil }: Props) {
+export default function DetalleRankingPilares({ perfilProfesional, detalleResultado }: Props) {
+    const gestionAulaRubro = getGestionAula(detalleResultado?.cumplimiento)
+    const cumplimientoAdmin = {
+        obtenido: getPorcentajePonderado(getCumplimientosAdministrativos(detalleResultado?.cumplimiento)),
+        maximo: 100,
+    }
+    const gestionAula = {
+        obtenido: getPorcentajePonderado(gestionAulaRubro ? [gestionAulaRubro] : []),
+        maximo: 100,
+    }
+    const valoracionEstudiantil = {
+        obtenido: normalizeRankingPercentage(detalleResultado?.encuestaMetricas?.promedioGeneral),
+        maximo: 100,
+    }
 
     return (
         <React.Fragment>

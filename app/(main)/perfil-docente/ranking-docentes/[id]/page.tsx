@@ -131,9 +131,7 @@ export default function RankingDocentesDetalle({ params }: { params: Promise<{ i
                     {/* 1. Desglose de Pilares Actual */}
                     <DetalleRankingPilares
                         perfilProfesional={{ obtenido: Number(perfilDocente?.puntajeFinal ?? 0), maximo: 100 }}
-                        cumplimientoAdmin={{ obtenido: (Number(detalleResultado?.cumplimiento?.[0]?.puntaje ?? 0) + Number(detalleResultado?.cumplimiento?.[1]?.puntaje ?? 0) + Number(detalleResultado?.cumplimiento?.[2]?.puntaje ?? 0)) / 3, maximo: 100 }}
-                        gestionAula={{ obtenido: Number(detalleResultado?.cumplimiento?.[3]?.puntaje ?? 0), maximo: 100 }}
-                        valoracionEstudiantil={{ obtenido: Number(detalleResultado?.encuestaMetricas?.promedioGeneral ?? 0), maximo: 100 }}
+                        detalleResultado={detalleResultado}
                     />
 
                     {/* 2. Detalle de Perfil Profesional */}
