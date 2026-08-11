@@ -46,9 +46,10 @@ import { CertificadoSaveErrorDialog } from "./certificado-save-error.dialog"
 interface CertificadoFormProps {
     certificado?: ICertificado
     elaborador?: string
+    backHref?: string
 }
 
-export function CertificadoForm({ certificado, elaborador = "" }: CertificadoFormProps) {
+export function CertificadoForm({ certificado, elaborador = "", backHref }: CertificadoFormProps) {
     const router = useRouter()
     const certificadoId = getCertificadoId(certificado)
     const signed = Boolean(certificado?.impreso)
@@ -270,7 +271,7 @@ export function CertificadoForm({ certificado, elaborador = "" }: CertificadoFor
     return (
         <div className="space-y-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <BackButton href={signed ? "/certificados/firmados" : "/certificados"} />
+                <BackButton href={backHref ?? (signed ? "/certificados/firmados" : "/certificados")} />
                 <div className="flex flex-wrap items-center gap-2">
                     <Badge variant={signed ? "default" : "outline"}>{signed ? "Firmado" : "Pendiente"}</Badge>
                     {certificadoId ? <CertificadoPdfButton certificado={liveCertificate} /> : null}

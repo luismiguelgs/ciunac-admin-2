@@ -4,10 +4,19 @@ import NavigationBread from "@/components/navigation-bread"
 import { Button } from "@/components/ui/button"
 import { CertificadoReporteButton } from "@/modules/certificados/components/report/certificado-reporte.button"
 import { CertificadosTable } from "@/modules/certificados/components/certificados.table"
+import { resolveCertificadosPage, validateCertificadosPage } from "@/modules/certificados/certificados-list-state"
 import { CertificadosService } from "@/modules/certificados/certificados.service"
 
-export default async function CertificadosPage() {
-    const certificados = await CertificadosService.fetchBySigned(false)
+interface PageProps {
+    searchParams: Promise<{ pagina?: string | string[] }>
+}
+
+export default async function CertificadosPage({ searchParams }: PageProps) {
+    const [certificados, query] = await Promise.all([
+        CertificadosService.fetchBySigned(false),
+        searchParams,
+    ])
+    const initialPage = validateCertificadosPage(resolveCertificadosPage(query.pagina), certificados.length)
 
     return (
         <>
@@ -23,7 +32,7 @@ export default async function CertificadosPage() {
                         <Button asChild><Link href="/certificados/nuevo"><FilePlus className="h-4 w-4" />Nuevo certificado</Link></Button>
                     </div>
                 </div>
-                <CertificadosTable initialData={certificados} signed={false} />
+                <CertificadosTable initialData={certificados} signed={false} initialPage={initialPage} />
             </div>
         </>
     )

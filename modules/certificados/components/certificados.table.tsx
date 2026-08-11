@@ -12,6 +12,11 @@ import { Button } from "@/components/ui/button"
 import type { ExcelExportColumn } from "@/lib/excel-export"
 import { formatDateOnly, parseDateOnly } from "@/lib/utils"
 import type { ICertificado } from "../certificado.interface"
+import {
+    buildCertificadoDetailHref,
+    CERTIFICADOS_PAGE_QUERY_PARAM,
+    CERTIFICADOS_PAGE_SIZE,
+} from "../certificados-list-state"
 import { CertificadosService } from "../certificados.service"
 import { getCertificadoId, isCertificadoDigital } from "../certificados.utils"
 import { CertificadoFirmaButton } from "./certificado-firma.button"
@@ -35,9 +40,34 @@ const CERTIFICADOS_FIRMADOS_COLUMNS: ExcelExportColumn<ICertificado>[] = [
     { header: "Entrega", width: 14, value: item => item.aceptado ? "Entregado" : "Pendiente" },
 ]
 
-export function CertificadosTable({ initialData, signed }: { initialData: ICertificado[]; signed: boolean }) {
+interface CertificadosTableProps {
+    initialData: ICertificado[]
+    signed: boolean
+    initialPage?: number
+}
+
+export function CertificadosTable({ initialData, signed, initialPage = 1 }: CertificadosTableProps) {
     const [data, setData] = React.useState(initialData)
     const [processingId, setProcessingId] = React.useState<string | null>(null)
+    const [currentPage, setCurrentPage] = React.useState(initialPage)
+
+    const handlePageIndexChange = React.useCallback((pageIndex: number) => {
+        const page = pageIndex + 1
+        setCurrentPage(page)
+
+        const url = new URL(window.location.href)
+        if (page > 1) {
+            url.searchParams.set(CERTIFICADOS_PAGE_QUERY_PARAM, String(page))
+        } else {
+            url.searchParams.delete(CERTIFICADOS_PAGE_QUERY_PARAM)
+        }
+
+        const nextHref = `${url.pathname}${url.search}${url.hash}`
+        const currentHref = `${window.location.pathname}${window.location.search}${window.location.hash}`
+        if (nextHref !== currentHref) {
+            window.history.replaceState(window.history.state, "", nextHref)
+        }
+    }, [])
 
     function removeFromCurrentList(certificado: ICertificado) {
         const id = getCertificadoId(certificado)
@@ -102,7 +132,7 @@ export function CertificadosTable({ initialData, signed }: { initialData: ICerti
                 const processing = processingId === id
                 return (
                     <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" asChild title="Ver detalle"><Link href={`/certificados/${id}`}><Eye className="h-4 w-4 text-sky-600" /></Link></Button>
+                        <Button variant="ghost" size="icon" asChild title="Ver detalle"><Link href={buildCertificadoDetailHref(id, currentPage)}><Eye className="h-4 w-4 text-sky-600" /></Link></Button>
                         <CertificadoPdfButton certificado={item} iconOnly />
                         {!signed && isCertificadoDigital(item.tipo) && !item.url && !item.driveId ? <CertificadoUploadButton certificado={item} iconOnly /> : null}
                         {!signed ? <CertificadoFirmaButton certificado={item} iconOnly onComplete={() => removeFromCurrentList(item)} /> : null}
@@ -115,7 +145,7 @@ export function CertificadosTable({ initialData, signed }: { initialData: ICerti
                 )
             },
         },
-    ], [processingId, signed])
+    ], [currentPage, processingId, signed])
 
     return (
         <div className="space-y-3">
@@ -131,7 +161,10 @@ export function CertificadosTable({ initialData, signed }: { initialData: ICerti
                 filterColumn="busqueda"
                 searchPlaceholder="Buscar por estudiante, documento o registro..."
                 initialColumnVisibility={{ busqueda: false }}
-                pageSize={25}
+                pageSize={CERTIFICADOS_PAGE_SIZE}
+                initialPageIndex={initialPage - 1}
+                onPageIndexChange={handlePageIndexChange}
+                autoResetPageIndex={false}
                 toolbarActions={signed ? (
                     <ExcelExportButton
                         data={data}

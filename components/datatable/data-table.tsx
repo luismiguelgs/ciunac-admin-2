@@ -4,6 +4,7 @@ import {
     ColumnDef,
     ColumnFiltersState,
     flexRender,
+    PaginationState,
     Row,
     SortingState,
     VisibilityState,
@@ -61,6 +62,9 @@ interface DataTableProps<TData, TValue> {
     searchPlaceholder?: string
     initialColumnVisibility?: VisibilityState
     toolbarActions?: React.ReactNode
+    initialPageIndex?: number
+    onPageIndexChange?: (pageIndex: number) => void
+    autoResetPageIndex?: boolean
 }
 
 export function DataTable<TData, TValue>({
@@ -73,11 +77,18 @@ export function DataTable<TData, TValue>({
     searchPlaceholder,
     initialColumnVisibility,
     toolbarActions,
+    initialPageIndex = 0,
+    onPageIndexChange,
+    autoResetPageIndex = true,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(initialColumnVisibility ?? {})
     const [rowSelection, setRowSelection] = React.useState({})
+    const [pagination, setPagination] = React.useState<PaginationState>({
+        pageIndex: Math.max(0, initialPageIndex),
+        pageSize,
+    })
     const table = useReactTable({
         data,
         columns,
@@ -86,6 +97,7 @@ export function DataTable<TData, TValue>({
         },
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
+        onPaginationChange: setPagination,
         onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
         onColumnFiltersChange: setColumnFilters,
@@ -97,13 +109,23 @@ export function DataTable<TData, TValue>({
             columnFilters,
             columnVisibility,
             rowSelection,
+            pagination,
         },
-        initialState: {
-            pagination: {
-                pageSize: pageSize,
-            },
-        },
+        autoResetPageIndex,
     })
+
+    const filteredRowCount = table.getFilteredRowModel().rows.length
+
+    React.useEffect(() => {
+        onPageIndexChange?.(pagination.pageIndex)
+    }, [onPageIndexChange, pagination.pageIndex])
+
+    React.useEffect(() => {
+        const lastPageIndex = Math.max(0, Math.ceil(filteredRowCount / pagination.pageSize) - 1)
+        if (pagination.pageIndex > lastPageIndex) {
+            setPagination(current => ({ ...current, pageIndex: lastPageIndex }))
+        }
+    }, [filteredRowCount, pagination.pageIndex, pagination.pageSize])
 
     return (
         <>
@@ -111,9 +133,10 @@ export function DataTable<TData, TValue>({
                 <Input
                     placeholder={searchPlaceholder ?? "Buscar..."}
                     value={(table.getColumn(filterColumn)?.getFilterValue() as string) ?? ""}
-                    onChange={(event) =>
+                    onChange={(event) => {
                         table.getColumn(filterColumn)?.setFilterValue(event.target.value)
-                    }
+                        table.setPageIndex(0)
+                    }}
                     className="max-w-sm"
                 />
                 <div className="flex items-center gap-2 sm:ml-auto">
