@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { getSession, signIn, signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -161,12 +162,12 @@ export function LoginForm({
                             <Field>
                                 <div className="flex items-center">
                                     <FieldLabel htmlFor="password">Contrasena</FieldLabel>
-                                    <a
-                                        href="#"
+                                    <Link
+                                        href="/recuperar-contrasena"
                                         className="ml-auto text-sm underline-offset-4 hover:underline"
                                     >
                                         Olvidaste tu contraseña?
-                                    </a>
+                                    </Link>
                                 </div>
                                 <Input
                                     id="password"

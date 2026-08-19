@@ -21,19 +21,30 @@ export class ApiError<T = unknown> extends Error {
 	}
 }
 
-export async function apiFetch<T>(url: string, method: string, body?: unknown): Promise<T> {
+export type ApiFetchOptions = {
+	skipAuth?: boolean;
+};
+
+export async function apiFetch<T>(
+	url: string,
+	method: string,
+	body?: unknown,
+	options: ApiFetchOptions = {},
+): Promise<T> {
 	let token = '';
-	if (typeof window !== 'undefined') {
-		const session = await getSession();
-		token = (session as any)?.accessToken || '';
-	} else {
-		try {
-			// Dynamic require to prevent bundling node modules on the client
-			const authModule = require('@/auth');
-			const session = await authModule.auth();
-			token = session?.accessToken || '';
-		} catch (e) {
-			console.warn("Could not fetch server session dynamically", e);
+	if (!options.skipAuth) {
+		if (typeof window !== 'undefined') {
+			const session = await getSession();
+			token = (session as any)?.accessToken || '';
+		} else {
+			try {
+				// Dynamic require to prevent bundling node modules on the client
+				const authModule = require('@/auth');
+				const session = await authModule.auth();
+				token = session?.accessToken || '';
+			} catch (e) {
+				console.warn("Could not fetch server session dynamically", e);
+			}
 		}
 	}
 
