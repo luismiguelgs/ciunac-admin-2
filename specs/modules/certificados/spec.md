@@ -9,6 +9,7 @@ Emitir certificados asociados a solicitudes, gestionar notas, PDF, firma e impre
 - `HU-CERT-001`: crear/editar certificado desde una solicitud.
 - `HU-CERT-002`: generar o subir archivo PDF.
 - `HU-CERT-003`: procesar firma y consultar estados.
+- `HU-CERT-004`: generar certificados fisicos y digitales sin perder caracteres del nombre del estudiante.
 
 ## Reglas
 
@@ -18,6 +19,7 @@ Emitir certificados asociados a solicitudes, gestionar notas, PDF, firma e impre
 - `RN-CERT-004`: firma actualiza certificado y solicitud o compensa el fallo.
 - `RN-CERT-005`: el servicio normaliza `creado_en`/`modificado_en` del backend a `creadoEn`/`modificadoEn` para consumo frontend.
 - `RN-CERT-006`: al crear un certificado desde una solicitud pagada, la solicitud cambia a Asignado (`estadoId=2`); Observado (`estadoId=12`) queda reservado para incidencias del flujo.
+- `RN-CERT-007`: el PDF debe conservar todos los caracteres del nombre recibido; mientras React PDF no publique la correccion oficial, Textkit `6.4.1` usa el parche versionado del PR upstream `#3405`.
 
 ## Criterios
 
@@ -27,6 +29,7 @@ Emitir certificados asociados a solicitudes, gestionar notas, PDF, firma e impre
 - `CA-CERT-004`: pendientes, firmados e impresos muestran solo registros correctos.
 - `CA-CERT-005`: el detalle muestra fecha de creacion y ultima modificacion con respuestas snake_case o camelCase.
 - `CA-CERT-006`: crear un certificado actualiza su solicitud de Pagado (`4`) a Asignado (`2`) y nunca a Observado (`12`).
+- `CA-CERT-007`: vista previa, descarga, impresion y archivo digital muestran el nombre completo aun cuando Fontkit devuelve un glifo cacheado sin `codePoints`.
 
 ## UI
 
@@ -47,7 +50,7 @@ Emitir certificados asociados a solicitudes, gestionar notas, PDF, firma e impre
 ## Validaciones y errores
 
 - Solicitud, numero de registro, estudiante/curso y notas validas.
-- Solicitud ya asociada, archivo invalido, Drive, firma ausente, compensacion y estado incompatible.
+- Solicitud ya asociada, archivo invalido, Drive, firma ausente, compensacion, estado incompatible y perdida de glifos durante la generacion PDF.
 - `GAP`: servicio frontend llama DELETE aunque el controlador inventariado no muestra DELETE para certificado.
 
 ```mermaid

@@ -2,7 +2,7 @@
 
 ## Estado actual
 
-- Frontend: lint configurado; no existe suite automatizada versionada.
+- Frontend: lint configurado y regresion Node focalizada para integridad de glifos en certificados; la suite general de componentes continua pendiente.
 - Backend: Jest, ts-jest, Supertest y comandos unit/e2e/cobertura.
 
 ## Stack objetivo
@@ -34,6 +34,7 @@ flowchart TB
 6. Rutas y acciones visibles por rol.
 7. Ordenamiento, filtros, visibilidad y paginacion de tablas no editables.
 8. Reportes por rango, aislamiento de tipos, observaciones y exportacion compatible con Microsoft Excel sin reparacion.
+9. Integridad tipografica de certificados bajo cache de fuentes reutilizada.
 
 ## Matriz por cambio
 
@@ -46,6 +47,7 @@ flowchart TB
 | Upload | helper | storage mock | smoke | tipo/tamano/ownership |
 | Tabla no editable | texto `es-PE`, numeros, fechas y columnas | ordenar + filtrar + paginar | ascendente/descendente | acciones no ordenables |
 | Reporte frontend | rango y filtro por IDs | contrato `n|7` y Excel | consulta/exportacion | ruta con permiso; API Key documentada |
+| PDF certificado | glifo cacheado sin `codePoints` y nombres con tildes | 100 generaciones consecutivas con nombre completo en CMap/contenido | preview, descarga, impresion y upload | documento emitido sin alteracion de identidad |
 
 ## Fixtures
 
@@ -62,11 +64,12 @@ flowchart TB
 
 1. Markdown/links/Mermaid documental.
 2. ESLint y typecheck.
-3. Frontend unit/component.
-4. Backend unit/integration.
-5. Contract tests.
-6. Playwright smoke por rol.
-7. Build de ambos repos.
+3. Regresiones Node focalizadas, incluido `npm run test:certificate-glyphs`.
+4. Frontend unit/component.
+5. Backend unit/integration.
+6. Contract tests.
+7. Playwright smoke por rol.
+8. Build de ambos repos.
 
 ## Criterios de salida
 

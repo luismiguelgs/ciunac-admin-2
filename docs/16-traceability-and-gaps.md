@@ -10,7 +10,7 @@
 | `HU-ESTR-001` | `FR-ESTR-001..002` | `/estructura`, `API-ESTR-*` | `CA-ESTR-001` | estructura | `TEST-ESTR-*` |
 | `HU-GRP-001` | `FR-GRP-001..003` | `/grupos/*`, `API-GRP-*` | `CA-GRP-001..002` | grupos | `TEST-GRP-*` |
 | `HU-SOL-001` | `FR-SOL-001..006` | `/solicitudes/*`, `API-SOL-*` | `CA-SOL-001..003` | solicitudes | `TEST-SOL-*` |
-| `HU-CERT-001` | `FR-CERT-001..004` | `/certificados/*`, `API-CERT-*` | `CA-CERT-001..002` | certificados | `TEST-CERT-*` |
+| `HU-CERT-001..004` | `FR-CERT-001..004`, `RN-CERT-007` | `/certificados/*`, `API-CERT-*`, generador PDF | `CA-CERT-001..007` | certificados | `TEST-CERT-*` |
 | `HU-CONS-001` | `FR-CONS-001..005` | `/constancias/*`, `API-CONS-*` | `CA-CONS-001..003` | constancias | `TEST-CONS-*` |
 | `HU-EXU-001/002` | `FR-EXU-001..007` | `/examen-ubicacion/*`, `API-EXU-*` | `CA-EXU-001..004` | examen-ubicacion | `TEST-EXU-*` |
 | `HU-REP-001..004` | `FR-REP-001..007` | `/reportes`, `API-REP-001` | `CA-REP-001..009` | reportes | `TEST-REP-*` |

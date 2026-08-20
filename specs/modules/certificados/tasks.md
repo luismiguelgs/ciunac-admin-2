@@ -11,4 +11,5 @@
 | `TASK-CERT-007` | Proteger endpoints sensibles | `RN-CERT-004` | `TEST-CERT-007` |
 | `TASK-CERT-008` | Normalizar timestamps de auditoria del backend | `RN-CERT-005`, `CA-CERT-005` | `TEST-CERT-008` |
 | `TASK-CERT-009` | Corregir la transicion de solicitud al crear certificado | `RN-CERT-006`, `CA-CERT-006` | `TEST-CERT-009` |
+| `TASK-CERT-010` | Actualizar React PDF y parchear la perdida de `codePoints` en Textkit | `RN-CERT-007`, `CA-CERT-007` | `TEST-CERT-010` |
 

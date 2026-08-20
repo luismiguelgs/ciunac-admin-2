@@ -58,11 +58,14 @@ type ApiError = {
 ## Operaciones parciales criticas
 
 - Crear documento y luego fallar PDF/upload.
+- Generar un PDF cuyo mapa de glifos omita caracteres aunque los datos persistidos sean correctos.
 - Asignar solicitud y luego cancelar creacion de constancia.
 - Mover archivo firmado y luego fallar actualizacion de solicitud.
 - Importar CSV con filas validas e invalidas.
 
 Cada spec define compensacion, reintento e idempotencia.
+
+La integridad tipografica de certificados se valida con una regresion deterministica que prima la cache de Fontkit. Un fallo bloquea la liberacion; no debe atribuirse al backend, Drive o la firma sin revisar primero el PDF original.
 
 ## Estados visuales
 

@@ -111,6 +111,8 @@ Los 27 servicios se distribuyen asi:
 - Certificados, constancias y examen generan previews o blobs con React PDF.
 - Upload usa servicio separado y puede ocurrir despues de persistir datos.
 - Flujos deben informar exito parcial y permitir reintento idempotente.
+- Certificados usan React PDF `4.6.1` con Textkit `6.4.1` parcheado para reconstruir mapeos Unicode vacios sin mutar la cache de Fontkit.
+- `patch-package` reaplica el arreglo en `postinstall`; las versiones permanecen fijadas hasta disponer de una correccion oficial compatible.
 
 ## Arquitectura `TO-BE`
 

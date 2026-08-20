@@ -11,4 +11,5 @@
 | `TEST-CERT-007` | Security | firma/upload 401, 403 y permitido |
 | `TEST-CERT-008` | Contract/component | snake_case, camelCase y fechas ausentes se muestran sin perder compatibilidad |
 | `TEST-CERT-009` | Integration | crear certificado mueve solicitud Pagado (`4`) a Asignado (`2`), no a Observado (`12`) |
+| `TEST-CERT-010` | Regression | primar glifos sin `codePoints` y generar 100 PDFs consecutivos, incluidos nombres con tildes, conservando el mapa Unicode y contenido completo |
 
