@@ -32,7 +32,7 @@ const STATE_MATCHERS: Record<SolicitudEstadoKey, string[]> = {
     rechazada: ["RECHAZADA", "RECHAZADO"],
 }
 
-const DOCUMENT_REQUEST_STATE_IDS: Record<SolicitudEstadoKey, number> = {
+const SOLICITUD_STATE_IDS: Record<SolicitudEstadoKey, number> = {
     nueva: 1,
     asignada: 2,
     finalizada: 3,
@@ -89,8 +89,7 @@ export function findSolicitudEstado(
     const estadosSolicitud = estados.filter((estado) =>
         typeof estado.id === "number" && normalizeCatalogText(estado.referencia) === "SOLICITUD"
     )
-    const documentRequest = group === "constancias" || group === "certificados"
-    const expectedId = documentRequest ? DOCUMENT_REQUEST_STATE_IDS[key] : undefined
+    const expectedId = group ? SOLICITUD_STATE_IDS[key] : undefined
 
     if (typeof expectedId === "number") {
         const estadoById = estadosSolicitud.find((estado) => estado.id === expectedId)

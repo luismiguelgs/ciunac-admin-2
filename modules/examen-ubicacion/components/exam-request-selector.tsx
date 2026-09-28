@@ -20,7 +20,7 @@ import SolicitudesService from "@/modules/solicitudes/shared/solicitudes.service
 import { IDetalleExamenUbicacion } from "../interfaces/examen-ubicacion.interface"
 import ICalificacionUbicacion from "../interfaces/calificacion.interface"
 import ExamenesUbicacionService from "../services/examenes-ubicacion.service"
-import { obtenerResultadoUbicacion, SOLICITUD_ESTADOS } from "../examen-ubicacion.utils"
+import { obtenerResultadoUbicacion } from "../examen-ubicacion.utils"
 
 interface ExamRequestSelectorProps {
     isOpen: boolean
@@ -30,7 +30,8 @@ interface ExamRequestSelectorProps {
     solicitudes: ISolicitud[]
     detalles: IDetalleExamenUbicacion[]
     calificaciones: ICalificacionUbicacion[]
-    asignadoEstadoId?: number
+    examenAsignadoEstadoId?: number
+    solicitudAsignadaEstadoId?: number
     onAssigned: () => void
 }
 
@@ -42,7 +43,8 @@ export function ExamRequestSelector({
     solicitudes,
     detalles,
     calificaciones,
-    asignadoEstadoId,
+    examenAsignadoEstadoId,
+    solicitudAsignadaEstadoId,
     onAssigned,
 }: ExamRequestSelectorProps) {
     const [selection, setSelection] = React.useState<number[]>([])
@@ -65,8 +67,12 @@ export function ExamRequestSelector({
             toast.info("Seleccione al menos una solicitud")
             return
         }
-        if (!asignadoEstadoId) {
+        if (!examenAsignadoEstadoId) {
             toast.error("No se encontro el estado Asignado para examenes de ubicacion")
+            return
+        }
+        if (!solicitudAsignadaEstadoId) {
+            toast.error("No se encontro el estado Asignada para solicitudes")
             return
         }
 
@@ -79,7 +85,7 @@ export function ExamRequestSelector({
                     continue
                 }
 
-                await ExamenesUbicacionService.createDetail({
+                const createdDetail = await ExamenesUbicacionService.createDetail({
                     examenId,
                     solicitudId: solicitud.id,
                     idiomaId: solicitud.idiomaId,
@@ -90,10 +96,23 @@ export function ExamRequestSelector({
                     terminado: false,
                     activo: true,
                 })
-                await SolicitudesService.update(solicitud.id, { estadoId: SOLICITUD_ESTADOS.ASIGNADA })
+                const solicitudUpdated = await SolicitudesService.update(solicitud.id, {
+                    estadoId: solicitudAsignadaEstadoId,
+                })
+
+                if (!solicitudUpdated) {
+                    if (createdDetail.id) {
+                        try {
+                            await ExamenesUbicacionService.deleteDetail(createdDetail.id)
+                        } catch (rollbackError) {
+                            console.error("No se pudo revertir el detalle de ubicacion", rollbackError)
+                        }
+                    }
+                    throw new Error(`No se pudo actualizar la solicitud ${solicitud.id} al estado Asignada`)
+                }
             }
 
-            await ExamenesUbicacionService.updateStatus(examenId, asignadoEstadoId)
+            await ExamenesUbicacionService.updateStatus(examenId, examenAsignadoEstadoId)
             toast.success("Participantes asignados correctamente")
             setSelection([])
             onAssigned()

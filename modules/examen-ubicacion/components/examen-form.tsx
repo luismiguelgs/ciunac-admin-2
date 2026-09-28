@@ -2,20 +2,21 @@
 
 import React from "react"
 import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { toast } from "sonner"
-import { Eye, Pencil, X } from "lucide-react"
+import { CircleAlert, Eye, Pencil, X } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { InputField } from "@/components/forms/input.field"
+import { Field, FieldContent, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
 import { SelectField } from "@/components/forms/select.field"
 import { DatePicker } from "@/components/forms/date-picker.field"
 import SaveButton from "@/components/save.button"
 import BackButton from "@/components/back.button"
-import { obtenerPeriodo } from "@/lib/utils"
-import { IEstado, IIdioma, ISalon } from "@/modules/estructura/interfaces/types.interface"
+import { IEstado, IIdioma, IModulo, ISalon } from "@/modules/estructura/interfaces/types.interface"
 import { IDocente } from "@/modules/seguimiento-docente/docentes/docente.interface"
 import { DocenteComboField } from "@/modules/seguimiento-docente/docentes/components/docente-combo.field"
 import { IExamenUbicacion } from "../interfaces/examen-ubicacion.interface"
@@ -28,7 +29,6 @@ const formSchema = z.object({
     aulaId: z.string().min(1, "Sala requerida"),
     docenteId: z.string().min(1, "Docente requerido"),
     idiomaId: z.string().min(1, "Idioma requerido"),
-    codigo: z.string().min(1, "Codigo requerido"),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -39,6 +39,7 @@ interface ExamenFormProps {
     idiomas: IIdioma[]
     salones: ISalon[]
     docentes: IDocente[]
+    modulos?: IModulo[]
     immutable?: boolean
     onPreviewListado?: () => void
     listadoActions?: React.ReactNode
@@ -50,6 +51,7 @@ export function ExamenForm({
     idiomas,
     salones,
     docentes,
+    modulos = [],
     immutable = false,
     onPreviewListado,
     listadoActions,
@@ -57,6 +59,17 @@ export function ExamenForm({
     const router = useRouter()
     const [isEditing, setIsEditing] = React.useState(!examen)
     const isNew = !examen?.id
+    const modulosActivos = React.useMemo(() => modulos.filter((modulo) => modulo.activo), [modulos])
+    const moduloActivo = modulosActivos.length === 1 && modulosActivos[0].nombre.trim()
+        ? modulosActivos[0]
+        : undefined
+    const moduloConfigurationError = React.useMemo(() => {
+        if (!isNew) return null
+        if (!modulosActivos.length) return "No existe un módulo académico activo. Revise la configuración de periodos."
+        if (modulosActivos.length > 1) return "Existe más de un módulo académico activo. Debe mantenerse solo uno."
+        if (!modulosActivos[0].nombre.trim()) return "El módulo académico activo no tiene un nombre válido."
+        return null
+    }, [isNew, modulosActivos])
 
     const estadosExamen = React.useMemo(() => {
         const filtered = getEstadosExamen(estados)
@@ -75,7 +88,7 @@ export function ExamenForm({
         return filtered
     }, [estados, examen?.estado, examen?.estadoId])
 
-    const estadoInicialId = examen?.estadoId ?? findEstadoExamenByKey(estados, "PROGRAMADO")?.id ?? ""
+    const estadoInicialId = examen?.estadoId ?? findEstadoExamenByKey(estados, "NUEVO")?.id ?? ""
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -85,12 +98,17 @@ export function ExamenForm({
             aulaId: examen?.aulaId ? String(examen.aulaId) : "",
             docenteId: examen?.docenteId ?? "",
             idiomaId: examen?.idiomaId ? String(examen.idiomaId) : "",
-            codigo: examen?.codigo ?? "",
         },
     })
 
-    const idiomaId = form.watch("idiomaId")
-    const aulaId = form.watch("aulaId")
+    const idiomaId = useWatch({ control: form.control, name: "idiomaId" })
+    const aulaId = useWatch({ control: form.control, name: "aulaId" })
+    const moduloNombre = moduloActivo?.nombre.trim() ?? ""
+    const codigoExamen = isNew
+        ? moduloNombre && idiomaId && aulaId
+            ? buildCodigoExamen(moduloNombre, idiomaId, aulaId)
+            : ""
+        : examen?.codigo ?? ""
 
     React.useEffect(() => {
         if (immutable && isEditing) {
@@ -99,16 +117,17 @@ export function ExamenForm({
         }
     }, [form, immutable, isEditing])
 
-    React.useEffect(() => {
-        if (!idiomaId || !aulaId) return
-        form.setValue("codigo", buildCodigoExamen(obtenerPeriodo(), idiomaId, aulaId), { shouldValidate: true })
-    }, [aulaId, form, idiomaId])
-
     const onSubmit = async (values: FormValues) => {
         if (immutable) return
+        if (isNew && !moduloNombre) {
+            toast.error(moduloConfigurationError ?? "No se pudo determinar el módulo académico activo")
+            return
+        }
 
         const payload: Partial<IExamenUbicacion> = {
-            codigo: values.codigo,
+            codigo: isNew
+                ? buildCodigoExamen(moduloNombre, values.idiomaId, values.aulaId)
+                : examen?.codigo ?? "",
             fecha: values.fecha.toISOString().split("T")[0],
             estadoId: Number(values.estadoId),
             aulaId: Number(values.aulaId),
@@ -140,6 +159,13 @@ export function ExamenForm({
             </CardHeader>
             <CardContent>
                 <form id="examen-ubicacion-form" onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    {moduloConfigurationError ? (
+                        <Alert variant="destructive" className="md:col-span-3">
+                            <CircleAlert />
+                            <AlertTitle>Configuración de periodo requerida</AlertTitle>
+                            <AlertDescription>{moduloConfigurationError}</AlertDescription>
+                        </Alert>
+                    ) : null}
                     <SelectField
                         control={form.control}
                         name="estadoId"
@@ -175,12 +201,20 @@ export function ExamenForm({
                         disabled={!isNew || !isEditing || immutable}
                         options={idiomas.map((idioma) => ({ label: idioma.nombre, value: String(idioma.id) }))}
                     />
-                    <InputField
-                        control={form.control}
-                        name="codigo"
-                        label="Codigo"
-                        disabled
-                    />
+                    {isNew ? (
+                        <Field>
+                            <FieldLabel htmlFor="examen-modulo-academico">Periodo académico</FieldLabel>
+                            <FieldContent>
+                                <Input id="examen-modulo-academico" value={moduloNombre} disabled />
+                            </FieldContent>
+                        </Field>
+                    ) : null}
+                    <Field>
+                        <FieldLabel htmlFor="examen-codigo">Código</FieldLabel>
+                        <FieldContent>
+                            <Input id="examen-codigo" value={codigoExamen} disabled />
+                        </FieldContent>
+                    </Field>
                 </form>
             </CardContent>
             <CardFooter className="flex flex-col gap-3 border-t bg-muted/30 p-4 sm:flex-row sm:justify-between">
@@ -214,7 +248,11 @@ export function ExamenForm({
                                     Cancelar
                                 </Button>
                             ) : null}
-                            <SaveButton form={form} formId="examen-ubicacion-form" />
+                            <SaveButton
+                                form={form}
+                                formId="examen-ubicacion-form"
+                                disabled={isNew && Boolean(moduloConfigurationError)}
+                            />
                         </React.Fragment>
                     ) : null}
                 </div>

@@ -12,6 +12,7 @@ import { ConfirmDeleteDialog } from "@/components/dialogs/confirm-delete-dialog"
 import { IEstado } from "@/modules/estructura/interfaces/types.interface"
 import { ISolicitud } from "@/modules/solicitudes/shared/solicitud.interface"
 import SolicitudesService from "@/modules/solicitudes/shared/solicitudes.service"
+import { findSolicitudEstado } from "@/modules/solicitudes/shared/solicitud-workflow"
 import ICalificacionUbicacion from "../interfaces/calificacion.interface"
 import { IDetalleExamenUbicacion, IExamenUbicacion } from "../interfaces/examen-ubicacion.interface"
 import ExamenesUbicacionService from "../services/examenes-ubicacion.service"
@@ -46,8 +47,11 @@ export function ExamParticipants({
     const calificacionById = React.useMemo(() => {
         return new Map(calificaciones.map((calificacion) => [calificacion.id, calificacion]))
     }, [calificaciones])
-    const asignadoEstadoId = React.useMemo(() => {
+    const examenAsignadoEstadoId = React.useMemo(() => {
         return findEstadoExamenByKey(estados, "ASIGNADO")?.id
+    }, [estados])
+    const solicitudAsignadaEstadoId = React.useMemo(() => {
+        return findSolicitudEstado(estados, "asignada", "ubicacion")?.id
     }, [estados])
 
     React.useEffect(() => {
@@ -227,7 +231,8 @@ export function ExamParticipants({
                     solicitudes={solicitudesPagadas}
                     detalles={detalles}
                     calificaciones={calificaciones}
-                    asignadoEstadoId={asignadoEstadoId}
+                    examenAsignadoEstadoId={examenAsignadoEstadoId}
+                    solicitudAsignadaEstadoId={solicitudAsignadaEstadoId}
                     onAssigned={refreshData}
                 />
             ) : null}

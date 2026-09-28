@@ -5,12 +5,11 @@ import ICalificacionUbicacion from "./interfaces/calificacion.interface"
 export const EXAMEN_ESTADO_REFERENCIA = "EXAMEN_UBICACION"
 export const EXAMEN_ACTA_GENERADA_ID = 13
 
-export type ExamenEstadoKey = "PROGRAMADO" | "ASIGNADO" | "TERMINADO" | "ACTA_GENERADA"
+export type ExamenEstadoKey = "NUEVO" | "PROGRAMADO" | "ASIGNADO" | "TERMINADO" | "ACTA_GENERADA"
 
 export const SOLICITUD_ESTADOS = {
     NUEVA: 1,
     PAGADA: 4,
-    ASIGNADA: 12,
     TERMINADA: 3,
 } as const
 
@@ -27,7 +26,10 @@ export function getEstadosExamen(estados: IEstado[]) {
 }
 
 export function findEstadoExamenByKey(estados: IEstado[], key: ExamenEstadoKey) {
-    return getEstadosExamen(estados).find((estado) => normalizeEstadoNombre(estado.nombre) === key)
+    return getEstadosExamen(estados).find((estado) => {
+        const nombre = normalizeEstadoNombre(estado.nombre)
+        return nombre === key || (key === "NUEVO" && nombre === "NUEVA")
+    })
 }
 
 export function getEstadoExamenLabel(estadoId?: number, nombre?: string, estados: IEstado[] = []) {
@@ -80,8 +82,8 @@ export function formatUbicacionFromCalificacion(calificacion?: ICalificacionUbic
     return calificacion.ciclo?.nombre?.trim() || "Sin ubicacion configurada"
 }
 
-export function buildCodigoExamen(periodo: string, idiomaId: number | string, aulaId: number | string) {
-    return `${periodo}-${idiomaId}-${aulaId}`
+export function buildCodigoExamen(moduloNombre: string, idiomaId: number | string, aulaId: number | string) {
+    return `${moduloNombre.trim()}-${idiomaId}-${aulaId}`
 }
 
 export function toDateInputValue(value?: string | Date) {
