@@ -1,5 +1,6 @@
 import { Document, Font, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer"
-import coordinadora from "@/assets/coordinadora.jpg"
+//import coordinadora from "@/assets/coordinadora.jpg"
+import coordinadora from "@/assets/elaborador.jpg"
 import elaborador from "@/assets/elaboradoring.jpg"
 import director from "@/assets/firma.jpg"
 import type { ICertificado, ICertificadoNota } from "../certificado.interface"
