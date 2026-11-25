@@ -94,11 +94,11 @@ export function CertificadoReporteFormat({ data, reportNumber, generatedAt = new
                 </View>
                 <View style={styles.divider} />
                 <Text style={styles.title}>{reportTitle}</Text>
-                <View style={styles.detail}><Text style={styles.label}>PARA:</Text><Text style={styles.detailText}>DR. NÉSTOR GOMERO OSTOS - DIRECTOR DEL CENTRO DE IDIOMAS</Text></View>
+                <View style={styles.detail}><Text style={styles.label}>PARA:</Text><Text style={styles.detailText}>DR. MADISON HUARCAYA GODOY - DIRECTOR DEL CENTRO DE IDIOMAS</Text></View>
                 <View style={styles.detail}><Text style={styles.label}>DE:</Text><Text style={styles.detailText}>CARLOS ANDRÉS GONZALES DE LA COTERA PALACIOS - ASISTENTE ADMINISTRATIVO</Text></View>
                 <View style={styles.detail}><Text style={styles.label}>ASUNTO:</Text><Text style={[styles.detailText, { fontFamily: "Helvetica-Bold" }]}>INFORME SOBRE LA FIRMA DEL DIRECTOR EN LOS CERTIFICADOS DEL CENTRO DE IDIOMAS</Text></View>
                 <Text style={styles.date}>{`CALLAO ${date.day} de ${date.month} ${date.year}`}</Text>
-                <Text style={styles.paragraph}>Es grato dirigirme al despacho de su honorable cargo para expresarle mi fraternal saludo; asimismo, para informarle la relación numérica de los certificados de idiomas ejecutados con la rúbrica del director Néstor Gomero Ostos. A continuación, se detalla de la siguiente manera.</Text>
+                <Text style={styles.paragraph}>Es grato dirigirme al despacho de su honorable cargo para expresarle mi fraternal saludo; asimismo, para informarle la relación numérica de los certificados de idiomas ejecutados con la rúbrica del director DR. MADISON HUARCAYA GODOY. A continuación, se detalla de la siguiente manera.</Text>
                 {groups.map(group => <ReportTable key={group.title} title={group.title} items={group.items} />)}
                 <View style={[styles.totals, { borderTopWidth: 1, borderTopColor: "#234b78", paddingTop: 4 }]}><Text>TOTAL GENERAL: {total} CERTIFICADOS</Text></View>
                 <View style={{ marginTop: 10 }} wrap={false}><Text style={{ fontSize: 9.5, marginBottom: 2 }}>Es cuanto tengo que informar a usted.</Text><Text style={{ fontSize: 9.5 }}>Atentamente,</Text><Image src={imageSource(signature)} style={styles.signature} /></View>
