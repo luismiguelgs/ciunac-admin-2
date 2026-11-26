@@ -23,6 +23,7 @@ interface SelectFieldProps<T extends FieldValues> {
     className?: string
     triggerClassName?: string
     disabled?: boolean
+    onValueChange?: (value: string) => void
 }
 
 export function SelectField<T extends FieldValues>({
@@ -36,7 +37,8 @@ export function SelectField<T extends FieldValues>({
     orientation = "vertical",
     className,
     triggerClassName,
-    disabled = false
+    disabled = false,
+    onValueChange
 }: SelectFieldProps<T>) {
     if (loading) {
         return (
@@ -65,7 +67,10 @@ export function SelectField<T extends FieldValues>({
                         <Select
                             name={field.name}
                             value={field.value}
-                            onValueChange={field.onChange}
+                            onValueChange={(value) => {
+                                field.onChange(value)
+                                onValueChange?.(value)
+                            }}
                             disabled={disabled}
                         >
                             <SelectTrigger

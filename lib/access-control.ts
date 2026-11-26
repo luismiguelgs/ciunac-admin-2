@@ -1,4 +1,5 @@
 export type PermissionCode = string;
+export const ESTUDIANTES_PERMISSION = "gestion_estudiantes";
 
 export type RoutePermissionRule = {
     path: string;
@@ -11,6 +12,7 @@ export const ROUTE_PERMISSION_RULES: RoutePermissionRule[] = [
     { path: "/usuarios", permission: "gestionar_usuarios" },
     { path: "/estructura", permission: "gestionar_estructura" },
     { path: "/grupos", permission: "gestionar_estructura" },
+    { path: "/estudiantes", permission: ESTUDIANTES_PERMISSION },
     { path: "/perfil-docente/opciones", permission: "puntaje_academico_administrativo" },
     { path: "/perfil-docente/encuestas/importar", permission: "encuesta_preguntas" },
     { path: "/perfil-docente/encuestas/preguntas", permission: "encuesta_preguntas" },

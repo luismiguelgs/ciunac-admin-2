@@ -4,7 +4,7 @@
 
 ```mermaid
 flowchart LR
-    U["Browser"] --> V["Next.js / Vercel"]
+    U["Browser"] --> V["Next.js / Docker o Vercel"]
     V --> API["NestJS / api.ciunac.site"]
     API --> PG["PostgreSQL"]
     API --> MG["MongoDB"]
@@ -27,6 +27,39 @@ flowchart LR
 - `NEXT_PUBLIC_API_KEY`: publica; no es secreto de usuario.
 - `AUTH_SECRET`: secreto de NextAuth.
 - `NEXT_PUBLIC_EXCEPTION_USER`: excepcion existente que debe auditarse antes de produccion.
+
+## Docker frontend
+
+Ejecuta los comandos desde la raiz del repositorio. Usa la URL HTTPS de la API del ambiente, accesible desde el navegador y el contenedor, incluido su prefijo si corresponde. Para la prueba local abre `http://localhost:3000`, que ya esta permitido por el CORS del backend.
+
+Prepara un archivo local `.env.docker` en formato `CLAVE=valor`, sin comillas. Incluye `AUTH_SECRET`, `AUTH_URL=http://localhost:3000` para la prueba local y `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_API_KEY` y, si aplica, `NEXT_PUBLIC_EXCEPTION_USER`. Para Estudiantes, configura tambien `API_URL`, `API_KEY`, `API_KEY_Q10` y el `APP_BASE_URL` del portal; `Q10_API_URL` es opcional. Los archivos `.env*` quedan fuera del contexto de build.
+
+### Desarrollo
+
+```powershell
+docker build -f Dockerfile.dev -t ciunac-admin:dev .
+docker run --rm -it --env-file .env.docker -p 127.0.0.1:3000:3000 --mount "type=bind,source=${PWD},target=/app" --mount "type=volume,target=/app/node_modules" --mount "type=volume,target=/app/.next" ciunac-admin:dev
+```
+
+Los volumenes mantienen las dependencias y la compilacion de Linux separadas de las del host. Tras cambiar el manifiesto, el lockfile o los parches, deten el contenedor y vuelve a ejecutar ambos comandos para obtener volumenes nuevos.
+
+### Produccion
+
+Define `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_API_KEY` y, si aplica, `NEXT_PUBLIC_EXCEPTION_USER` en el entorno de la terminal antes del build. Next.js incorpora estos valores en el bundle. Un cambio requiere reconstruir la imagen. Pasa los secretos exclusivamente al arrancar el contenedor.
+
+```powershell
+docker build --build-arg NEXT_PUBLIC_API_URL --build-arg NEXT_PUBLIC_API_KEY --build-arg NEXT_PUBLIC_EXCEPTION_USER -t ciunac-admin:prod .
+docker run --rm --env-file .env.docker -p 127.0.0.1:3000:3000 ciunac-admin:prod
+```
+
+El build aplica el parche de Textkit y ejecuta la regresion de los 100 PDFs. La imagen final sirve la salida standalone de Next.js como usuario `node`. Para alternar entre desarrollo y produccion, deten primero el contenedor que usa el puerto 3000.
+
+### Integracion posterior con Compose
+
+- Configura `build.context` con la ruta relativa al directorio del frontend. Selecciona `Dockerfile` o `Dockerfile.dev` mediante `build.dockerfile`.
+- En produccion, pasa `NEXT_PUBLIC_*` por `build.args` y la configuracion de arranque por `env_file`. En desarrollo, pasa todas las variables por `env_file` y monta el codigo y los dos volumenes indicados arriba.
+- Con Traefik, conecta el servicio a `traefik_net` y dirige el balanceador al puerto interno `3000`. Si Compose se ejecuta en un proyecto separado, declara la red existente como externa. Publica el dominio mediante Traefik y deja el puerto del contenedor sin mapeo al host.
+- Define `AUTH_URL` y `APP_BASE_URL` con el origen HTTPS final del portal y verifica que el backend incluya ese origen en su CORS.
 
 ## Configuracion backend
 

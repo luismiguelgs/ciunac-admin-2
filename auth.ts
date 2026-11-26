@@ -83,12 +83,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
                 const response = (await res.json()) as LoginResponse;
 
-                try {
-                    const fs = require('fs');
-                    fs.appendFileSync('C:/tmp/login_full.log', JSON.stringify(response) + '\n');
-                } catch (e) {
-                    // Ignore
-                }
 
                 if (!response?.user || !response.access_token) return null;
 

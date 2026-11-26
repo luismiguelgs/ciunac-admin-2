@@ -1,0 +1,17 @@
+FROM node:24-bookworm-slim
+
+WORKDIR /app
+ENV NODE_ENV=development \
+    NEXT_TELEMETRY_DISABLED=1 \
+    CIUNAC_DOCKER_DEV=1
+
+RUN chown node:node /app
+COPY --chown=node:node package.json package-lock.json ./
+COPY --chown=node:node patches/ ./patches/
+USER node
+RUN CI=true npm ci --include=dev --foreground-scripts && mkdir .next
+
+COPY --chown=node:node . .
+
+EXPOSE 3000
+CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0", "--port", "3000"]

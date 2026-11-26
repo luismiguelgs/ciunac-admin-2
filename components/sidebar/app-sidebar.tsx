@@ -334,6 +334,12 @@ const data: {
             requiredPermission: getPermissionByExactPath("/grupos"),
         },
         {
+            title: "Estudiantes",
+            url: "/estudiantes",
+            icon: GraduationCap,
+            requiredPermission: getPermissionByExactPath("/estudiantes"),
+        },
+        {
             title: "Usuarios",
             url: "/usuarios",
             icon: Users,
